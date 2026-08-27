@@ -571,9 +571,57 @@ notes: the six-step full-deck ACAAN now needs no candidate arithmetic —
   was off by one at two boundaries; the argmin-equivalence assert caught
   it pre-commit.
 
+### machine-rederived-round-law
+kind: engine (conjecture former output; extensional twin of
+  [[general-b-radix-law]]'s round map, derived without hints)
+domain |D|: fitted from 70 black-box (N, b) configs (1,500 cells, b=2..6,
+  q0 down to 1); refuter battery 23 params to scale 1890 (b to 12, N to
+  189); 240 t22 law vectors cross-certified; 4,353 verify() cases
+invariant: former.py — told only "newpos may be affine in floor(x/b)
+  with residue case-splits" — queried raw round maps as a black box and
+  emitted the exact piecewise closed form (slope -1; intercept found as a
+  5-leaf model tree over atoms a, j, rho, q0):
+      a >= j: a < rho -> a + q0 + a*q0 ; else rho + q0 + a*q0 - 1
+      a < j:  a < rho -> a + q0 + a*q0 - [j >= rho] ;
+              else rho + q0 + a*q0 - 1
+  Pickup vectors planned from the FITTED form alone (simulator never
+  consulted during planning) pass verify() at (52,6,3), (32,2,6),
+  (25,5,3); every t22 law_vector is certified by the fitted model at 7
+  (N, b, r) configs including the tight (52, 6, 3).
+procedure: [former.py](former.py) +
+  [former_acceptance.py](former_acceptance.py) +
+  [tricks/t25_former_rederivation.py](tricks/t25_former_rederivation.py)
+scores: n/a (engine)
+verified: 2026-08-27 session 13, acceptance ledger 6/6
+canonical_form: machine-fitted model tree, extensionally == the
+  general-b round map
+notes: the no-hints boundary is enforced mechanically — the acceptance
+  ledger scans former.py's source for simulator/law vocabulary. Process
+  note: the FIRST fit (grid q0 >= 3 only, an artifact of requiring 3
+  floor values per cell) was overfit in a q0-sparse pocket; the
+  auto-derived battery REFUTED it at N=11 b=6 — the ladder catching the
+  former's own drift. Fixed by two-pass extraction (sparse cells read
+  through the already-fitted slope, exactness-checked) plus a
+  grid-diversity rule: every grammar atom must vary, including at its
+  floor. Negative control: down-under elimination correctly refused as
+  outside the grammar rather than approximated.
+
 ---
 
 ## Session log
+
+- 2026-08-27 session 13 (engine item 3): conjecture former. former.py is
+  a generic exact-fit engine — rational incremental RREF with early
+  inconsistency exit, model trees split on atom comparisons, refusal as
+  a first-class outcome, attack battery auto-derived from the fit grid's
+  parameter signature — and imports nothing from the project. Acceptance
+  6/6: re-derived the general-b round law from raw round maps unaided
+  (5-leaf tree, extensional twin of t22), ROBUST_CONJECTURE at scale
+  1890, down-under control refused, 240 law vectors cross-certified,
+  4,353 verify() cases via model-planned vectors (t25). The first fit
+  attempt was REFUTED by its own battery (overfit q0-pocket, killed at
+  N=11 b=6) — kept on the record as evidence the ladder catches the
+  former's drift. Items 4-8 pending.
 
 - 2026-08-27 session 12 (ENGINE track begins; queue reseeded). Item 1:
   harness generalization — verify()/verify_prop() gain deck_factory

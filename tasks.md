@@ -21,11 +21,13 @@ generator runs.
    as novel. Wire into novelty_oracle with the same log-and-suppress +
    abstain policy; acceptance test: t18/t19/t20/t21/t22/t23 all MATCH,
    t16/t17 (multi-card) still route onward.
-3. CONJECTURE FORMER: mechanize the productive middle step — enumerate a
-   candidate's behavior map, fit affine-in-floor(x/b) forms with residue
-   case-splits, emit a parameterized closed-form conjecture + auto
-   verification grid, hand survivors to the refuter. Acceptance: it must
-   re-derive the general-b law from raw round maps without hints.
+3. ~~CONJECTURE FORMER~~ DONE (session 13, former.py +
+   former_acceptance.py + t25): black-box map extraction, exact
+   rational fits, model trees over atom comparisons, auto battery,
+   model-based planner. Acceptance 6/6 — general-b law re-derived
+   unaided (no-hints guard enforced mechanically); first attempt
+   REFUTED by own battery (q0-pocket overfit), fixed via two-pass
+   extraction + grid diversity.
 4. REFUTER: automation. Derive attack schedules from a conjecture's
    parameter signature (monotone escalation on every axis, no curated
    lists); generate Conjecture objects from LIBRARY entries; re-run the
