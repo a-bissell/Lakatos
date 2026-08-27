@@ -200,6 +200,85 @@ def _match_gilbreath(cand):
             'witness': f'blocks of {k} preserve all residues; control (no reversal) breaks it'}
 
 
+def _fixed_placement_F(N, b):
+    """F[x][a] = new position of the tracked card at position x under
+    'gather with a piles above the pointed pile' (pile = x mod b)."""
+    markers = list(range(N))
+    F = [[None] * b for _ in range(N)]
+    for j in range(b):
+        for a in range(b):
+            d = gather_position(deal_into_piles(markers, b), j, a)
+            for x in range(j, N, b):
+                F[x][a] = d.index(x)
+    return F
+
+
+def _match_library_targeting(cand):
+    """LIBRARY-AS-KNOWN (engine item 2): is the candidate extensionally an
+    instance of the library's general-b targeting family (t18-t23) — i.e.
+    does SOME fixed relative-placement vector per named target reproduce
+    its whole (start, n) -> final map? Catches procedural disguises
+    (including adaptive implementations of fixed-reachable maps, the t15
+    lesson from the session-6 audit). Requires choices with 'card' (start
+    position) and 'n' (named target); returns None otherwise so
+    multi-card and target-free procedures route onward."""
+    from itertools import product
+    pairs = [(ch, cand.round_perms(ch)) for ch in cand.sample_choices]
+    if not pairs or any('n' not in ch or 'card' not in ch
+                        for ch, _ in pairs):
+        return None
+    N = cand.N
+    r = len(pairs[0][1])
+    if any(len(p) != r for _, p in pairs):
+        return None
+    b = None
+    for cand_b in range(2, min(N, 14)):
+        if pairs[0][1][0] in gergonne_round_perms(N, cand_b):
+            b = cand_b
+            break
+    if b is None:
+        return None
+    gset = gergonne_round_perms(N, b)
+    if any(p not in gset for _, perms in pairs for p in perms):
+        return None
+    if b ** r > 20000:
+        return {'family': 'LibraryTargeting', 'confidence': 'abstain',
+                'witness': f'rounds are {b}-pile gathers but b^r = {b**r} '
+                           f'is too large to certify an extensional match'}
+    finals = {}
+    for ch, perms in pairs:
+        pos = ch['card']
+        for p in perms:
+            pos = p.index(pos)
+        finals.setdefault(ch['n'], {})[ch['card']] = pos
+    F = _fixed_placement_F(N, b)
+    vectors = {}
+    for n, fmap in finals.items():
+        hit = None
+        for vec in product(range(b), repeat=r):
+            ok = True
+            for start, final in fmap.items():
+                pos = start
+                for a in vec:
+                    pos = F[pos][a]
+                if pos != final:
+                    ok = False
+                    break
+            if ok:
+                hit = vec
+                break
+        if hit is None:
+            return None
+        vectors[n] = hit
+    ex_n, ex_v = next(iter(vectors.items()))
+    return {'family': 'LibraryTargeting', 'confidence': 'exact',
+            'witness': f'extensionally a fixed-placement {b}-pile targeting '
+                       f'instance (library general-b-radix-law family): a '
+                       f'fixed vector reproduces the full map for each of '
+                       f'{len(vectors)} sampled targets, e.g. n={ex_n} -> '
+                       f'{ex_v}'}
+
+
 def _match_hummer(cand):
     """DECLARED, NOT WIRED (audit fix): Hummer/CATO effects live on card
     ORIENTATION (face-up/face-down parity), and this op vocabulary has no
@@ -220,8 +299,9 @@ def classify(cand, log):
     diverge on the rest (the residual false-KNOWN vector). Property-kind
     recognizers enumerate their whole domain internally and are exempt."""
     if cand.kind == 'permutation':
-        recognizers = (_match_gergonne, _match_faro, _match_josephus)
-        checked = ['Gergonne', 'Faro', 'Josephus']
+        recognizers = (_match_gergonne, _match_faro, _match_josephus,
+                       _match_library_targeting)
+        checked = ['Gergonne', 'Faro', 'Josephus', 'LibraryTargeting']
     else:
         recognizers = (_match_gilbreath,)
         checked = ['Gilbreath']
@@ -229,6 +309,11 @@ def classify(cand, log):
     hits = [r(cand) for r in recognizers]
     exact = [h for h in hits if h and h['confidence'] == 'exact']
     abstains = [h for h in hits if h and h['confidence'] == 'abstain']
+
+    # refinement, not ambiguity: a LibraryTargeting instance is per-round
+    # Gergonne by construction — the more specific verdict wins.
+    if any(h['family'] == 'LibraryTargeting' for h in exact):
+        exact = [h for h in exact if h['family'] == 'LibraryTargeting']
 
     if exact and cand.kind == 'permutation' \
             and cand.sample_scope != 'exhaustive':
