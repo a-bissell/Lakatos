@@ -548,10 +548,34 @@ notes: FULL-DECK ACAAN IN SIX PHYSICAL STEPS (b=6, r=3) — the most
   cap). Open: characterize the exact necessary (b, N, r) frontier — the
   b=5/N=52 near-miss (50/52) suggests reachable ~ min(N, 2b^2) at r=3.
 
+### six-pile-bucket-rule
+kind: invariant (performance form of [[general-b-radix-law]] at b=6, N=52)
+domain |D|: bucket==argmin proven for every integer z in [-400, 400];
+  full trick re-verified over all 2704 (card, n) cases via the bucket
+  rule alone
+invariant: the b=6/N=52/r=3 digit choice reduces to fixed thresholds —
+  z <= -35 -> 0 | -34..-17 -> 1 | -16..1 -> 2 | 2..18 -> 3 |
+  19..35 -> 4 | >= 36 -> 5, then z <- -6z + (-260,-152,-44,64,164,260)[a].
+  Exactly ONE tie point exists (6z = 114, i.e. z = 19 — the only digit
+  midpoint divisible by 6); the law's larger-digit tie-break assigns it
+  digit 4, and the tie is LOAD-BEARING: n=36's trace passes through it.
+procedure: [tricks/t23_six_pile_buckets.py](tricks/t23_six_pile_buckets.py)
+scores: n/a (invariant)
+verified: 2026-08-27 session 11
+canonical_form: bucket form of general-b law (6, 52, 3)
+notes: the six-step full-deck ACAAN now needs no candidate arithmetic —
+  one 6-row threshold table. Process note: the first threshold transcription
+  was off by one at two boundaries; the argmin-equivalence assert caught
+  it pre-commit.
+
 ---
 
 ## Session log
 
+- 2026-08-27 session 11 (user follow-up): t23 six-pile bucket rule —
+  thresholds derived from candidate midpoints, equivalence with argmin
+  proven over [-400,400], trick re-verified 2704/2704 on buckets alone;
+  single tie point z=19 identified and shown to occur (n=36).
 - 2026-08-27 session 10 (queue item 1): t22 general-b law. Closed-form
   correction derived for all pile counts; 32,896 cases verified over
   b = 2, 5, 6, 7, 8 first-attempt (family now spans b = 2..8). Frontier

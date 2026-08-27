@@ -81,10 +81,12 @@ needs only FOUR deals, and 52 splits evenly (13/13/13/13).
 Verified (t22): with SIX piles the full deck needs only THREE rounds.
 Heavier mental math — six candidates per digit — so this is the expert
 option; the four-pile version stays the recommended one.
-- rho = 52 mod 6 = 4; corrections per digit a = 0..5: (0, 2, 4, 6, 4, 0).
-- z = 2n − 53; three times: compute −6z + (2a−5)·52 + 2·corr(a) for each
-  a, keep the digit whose result is smallest in absolute value (tie: the
-  larger digit), update z to it. Reverse the three digits.
+- z = 2n − 53; three times, pick the digit by BUCKET (verified exactly
+  equivalent to the general law, t23):
+  z ≤ −35 → 0 · −34..−17 → 1 · −16..1 → 2 · 2..18 → 3 · 19..35 → 4 ·
+  z ≥ 36 → 5; then z ← −6z + (−260, −152, −44, +64, +164, +260)[digit].
+  Reverse the three digits. (z = 19 sits on the one true tie and is
+  deliberately bucketed as digit 4 — do not "fix" it to 3.)
 - Example (code-generated): n=15 → pickups 5, 2, 1.
 - Deal into six piles left to right; digit = how many of the other five
   piles go above the pointed pile, others keeping left-to-right order.
