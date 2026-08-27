@@ -295,8 +295,14 @@ canonical_form: adaptive-strategy-targeting(uneven piles)
 canonical note: NOVEL COMMIT (session 3, #3): new MECHANISM class — the
   first entry whose procedure is a searched strategy tree rather than a
   closed-form rule. Existence result: uneven piles are defeatable.
-notes: unperformable from memory (52 strategy trees, up to ~3^5 histories
-  each) — needs a crib; committed for the method and the existence proof.
+notes: SUPERSEDED as a trick (2026-08-27 session 6) by
+  [[fixed-vector-uneven-acaan]]: the session-6 oracle audit discovered that
+  fixed relative-placement vectors cover all 52 targets at r=5 — the
+  adaptive machinery is unnecessary for the effect. The r<=4 impossibility
+  results and the strategy-search METHOD stand.
+  Original notes: unperformable from memory (52 strategy trees, up to ~3^5
+  histories each) — needs a crib; committed for the method and the
+  existence proof.
   Open refinement: compress the strategy to a human rule, or prove none
   exists. The backward-induction sub-search is itself reusable.
 
@@ -399,10 +405,41 @@ notes: sweep results (min full-info rounds for top/bottom, cap 6):
     round 4: (0,1)->0231 (1,0)->1320 (1,2)->1302 (2,0)->2130 (2,1)->2031
              (2,3)->2013 (3,0)->3120 (3,1)->3021 (3,2)->3012
 
+### fixed-vector-uneven-acaan
+kind: trick (supersedes the trick claim of [[uneven-pile-adaptive-targeting]])
+domain |D|: 2704 — any of 52 cards AND any position n in 1..52, full deck,
+  3 uneven piles (18/17/17), FIVE deals, fixed placements
+invariant: for every target index a start-independent fixed 5-vector of
+  relative placements ("a piles above the pointed pile") exists at r=5 —
+  discovered by the session-6 oracle audit after t14/t15 had checked only
+  r=3 (0 vectors) and r=4 (30/52 targets) before adopting strategy trees
+procedure: [tricks/t18_fixed_vector_acaan.py](tricks/t18_fixed_vector_acaan.py)
+scores: freedom=5, opacity=4, simplicity=3, elegance=4
+verified: 2026-08-27 session 6, verify() ok over 2704 cases (also verified
+  independently in the branch audit, oracle branch AUDIT.md)
+canonical_form: radix-placement(uneven, fixed) — Gergonne-family
+canonical note: NOT novel — extensionally a fixed-placement Gergonne-family
+  instance (the novelty oracle's MATCHED verdict on t15, audited TRUE).
+  Committed as the honest replacement for a mislabeled mechanism.
+notes: 10 steps, 52-row crib of 5-trit vectors; the crib shows clear
+  structure (last placement constant across thirds of the target range,
+  mirroring pile sizes 18/17/17) — closed form queued. Lesson recorded:
+  t15's "adaptive machinery required" was an overclaim by omission — the
+  r=5 fixed-vector check was never run until the oracle audit forced it.
+
 ---
 
 ## Session log
 
+- 2026-08-27 session 6 (oracle audit + discovery): engine drop (novelty
+  oracle + refuter) landed on branch `oracle` and audited against REAL
+  procedures (AUDIT.md there). Refuter extended the t6 radix law envelope
+  to scale 512 (262k cases, survived). Audit overturned the deriver's own
+  expectation: t15 IS extensionally Gergonne-family — fixed 5-vectors
+  cover 52/52 targets — yielding t18 (PASS 2704) which supersedes t15's
+  trick claim. t17 correctly routed onward (injectivity proof: fixed
+  ordering sequences cannot collapse pairs). 1 commit (not novel), 1
+  supersession, 1 envelope extension.
 - 2026-08-27 session 5 (single task, user-directed): t17 performable double
   reveal. Sweep over uneven (N, b) configs; N=11/b=4/4 rounds admits a
   REACTIVE strategy (found via distance-pruned greedy synthesis), verified

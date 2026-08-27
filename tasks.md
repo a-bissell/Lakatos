@@ -4,11 +4,12 @@ Popped tasks move to LIBRARY.md's session log. Seeded per curriculum order.
 
 ## Next up
 
-1. REFINE: compress the [[uneven-pile-adaptive-targeting]] strategy trees
-   into a human-performable rule (pattern-mine the 52 trees for structure:
-   is the placement a function of (round, observed pile, target digit)?),
-   or prove no closed form exists within the op set. Success upgrades its
-   simplicity score from 1; failure bounds the mechanism honestly.
+1. REFINE: closed form for the [[fixed-vector-uneven-acaan]] crib — the 52
+   fixed 5-vectors show structure (last digit constant across thirds of
+   the target range, matching pile sizes 18/17/17; earlier digits cycle).
+   Candidate frame: iterates of x -> floor((x+r)/p) from the uneven-pile
+   Gergonne dynamics literature. A closed form makes the full-deck ACAAN
+   crib-free. (Supersedes the old t15 strategy-compression task.)
 2. SYNTHESIZE: cut-invariant opener. Cyclic stacks survive straight cuts
    (rotation). Prefix verified tricks with "spectator cuts as many times as
    they like": verify [[gilbreath-suit-divination]] with all 52 pre-cut
