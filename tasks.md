@@ -4,12 +4,14 @@ Popped tasks move to LIBRARY.md's session log. Seeded per curriculum order.
 
 ## Next up
 
-1. SYNTHESIZE: the b=4-pile analog of [[universal-radix-law]] — do the
-   gather constants stay pile-independent-up-to-absorbable-offsets for 4
-   uneven piles, giving a base-(-4) law (fewer rounds: 4^(r-1) >= N means
-   r=4 covers 64)? Also: pin the exact NECESSARY r-boundary per residue
-   (N=12 r=3 passes below the sufficient condition; N=26 r=3 is
-   fundamentally infeasible — map the frontier).
+1. SYNTHESIZE: the GENERAL-b radix law — conjecture (from b=3 t20 and
+   b=4 t21): for any pile count b, z <- -bz + (2a-(b-1))N + correction,
+   digit = argmin |new z|, validity b^(r-1) >= N. Derive the correction
+   table for general (b, N mod b), verify a b=5 grid (5^2=25 covers 25,
+   5^3 covers 125 — full deck in THREE deals with 5 piles?), and if it
+   holds, commit the one-law-for-all-(b,N) form. Also map the exact
+   NECESSARY r-frontier (both b=3 and b=4 have passes below the
+   sufficient bound and fundamental failures near it).
 2. SYNTHESIZE: cut-invariant opener. Cyclic stacks survive straight cuts
    (rotation). Prefix verified tricks with "spectator cuts as many times as
    they like": verify [[gilbreath-suit-divination]] with all 52 pre-cut

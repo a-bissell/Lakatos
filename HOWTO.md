@@ -58,7 +58,26 @@ Each round:
 After the fifth pickup, count cards off the face of the packet: the n-th
 card is the thought-of card.
 
-## Any packet size
+## The four-deal upgrade (recommended)
+Verified separately (t21, 24,415 cases): the same trick with FOUR piles
+needs only FOUR deals, and 52 splits evenly (13/13/13/13).
+- Digits: start z = 2n − 53. Four times:
+  z < −26 → digit 0 · −26 ≤ z < 0 → digit 1 · 0 ≤ z < 26 → digit 2 ·
+  z ≥ 26 → digit 3; then z ← −4z + (2·digit − 3)·52.
+  Reverse the four digits for the pickup order.
+- Rounds: deal face up into FOUR piles left to right; spectator points;
+  the digit is how many of the other three piles go above the pointed
+  pile, others keeping their left-to-right order (reading top-down:
+  the first `digit` others, then the pointed pile, then the rest).
+- Examples (code-generated): n=15: z: −23→40→−4→−36, writes 1,3,1,0 →
+  pickups 0,1,3,1. n=52: z: 51→−48→36→12, writes 3,0,3,2 → pickups
+  2,3,0,3.
+- General N with 4 piles: z = 2(n−1) − (N−1); candidates
+  −4z + (2a−3)N + 2δ with δ(N mod 4): ≡0 (0,0,0,0), ≡1 (0,2,1,0),
+  ≡2 (0,2,2,0), ≡3 (0,1,2,0); pick the digit leaving |z| smallest;
+  4^(r−1) ≥ N rounds.
+
+## Any packet size (three piles)
 The same algorithm runs any packet of N cards with r pickups where
 3^(r−1) ≥ N (r=3 up to 9 cards, r=4 up to 27, r=5 up to 81):
 - digit 0 if 6m < 2N−3; digit 2 if 6m > 4N−3; digit 1 otherwise

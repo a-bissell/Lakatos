@@ -489,10 +489,43 @@ notes: one mental algorithm now performs ACAAN on ANY packet: r=3 to 9
   Performance write-up: [HOWTO.md](HOWTO.md). Open: exact necessary
   r-boundary per residue; the b=4-pile analog.
 
+### four-pile-universal-law
+kind: invariant (base-(-4) analog of [[universal-radix-law]])
+domain |D|: 24 deck sizes x full (card, n) grids = 24,415 cases, all four
+  residues mod 4, 16 tight fits; round formula checked exactly at all 24
+invariant: dealing into 4 piles, the gather constants deviate by at most
+  one unit across piles and every deviation pattern meshes with
+  floor(x/4), keeping requirement preimages contiguous. In doubled
+  deck-centered coordinates z = 2(n-1) - (N-1) (always integer):
+      z <- -4z + (2a-3)N + 2*delta(N mod 4, a)
+      delta: N≡0 (0,0,0,0) · N≡1 (0,2,1,0) · N≡2 (0,2,2,0) · N≡3 (0,1,2,0)
+      digit = argmin |new z| (ties -> larger digit); digits reversed =
+      pickups. For N=52 (≡ 0: delta = 0, piles deal EVENLY 13/13/13/13)
+      the argmin equals the pure quarter-bucket rule (boundaries
+      z = -26, 0, +26), checked identical for all 52 targets.
+  Validity: 4^(r-1) >= N sufficient (24/24 PASS) and again not necessary
+  (N=20, 26 pass at r=3 below it with full enumerated reachability;
+  N=17 r=3 fundamentally infeasible, 16/17).
+procedure: [tricks/t21_four_pile_law.py](tricks/t21_four_pile_law.py)
+scores: n/a (invariant)
+verified: 2026-08-27 session 9, verify() ok for 24 (N, r) configs,
+  N = 8..52 spanning all residues mod 4
+canonical_form: Gergonne-dynamics closed form (any N, 4 piles)
+notes: FULL-DECK ACAAN IN FOUR DEALS (8 physical steps, down from 10) —
+  the strongest performable form of the family. Suggests the general-b
+  conjecture: for any pile count b, z <- -bz + (2a-(b-1))N + correction,
+  validity b^(r-1) >= N. Open: prove/refute general b; exact necessary
+  r-frontier per (b, residue).
+
 ---
 
 ## Session log
 
+- 2026-08-27 session 9 (queue item 1): t21 four-pile law. Derived and
+  verified base-(-4) analog over 24,415 cases (24 sizes, all residues
+  mod 4, first-attempt PASS incl. 16 tight fits). Full-deck ACAAN drops
+  to FOUR deals with even 13-card piles and a pure quarter-bucket digit
+  rule. HOWTO + artifacts updated. 1 invariant commit.
 - 2026-08-27 session 8 (queue item 1): t20 universal radix law. Session-7
   N≡2 impossibility claim REFUTED by redoing the interval algebra; one
   integer law now covers every N (18,223 cases, 18 sizes, all residues).
