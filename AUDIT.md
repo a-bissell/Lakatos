@@ -52,3 +52,22 @@ adaptive machinery). Consequences:
 Merge-ready after the nits; the asymmetric-error design behaved as
 specified on every case tested, including the one where it corrected the
 auditor.
+
+## Addendum: nits fixed (2026-08-27, pre-merge)
+1. `families_checked` now reports the recognizer names actually run
+   (permutation kind: Gergonne/Faro/Josephus; property kind: Gilbreath);
+   the NOT_MATCHED note discloses that Hummer is declared but unimplemented.
+   `_match_hummer` is a documented, deliberately-unwired stub returning
+   None (wiring an always-abstain recognizer would convert every
+   NOT_MATCHED into ABSTAIN and poison the review queue; and the op
+   vocabulary has no orientation primitives for it to inspect).
+2. Dead no-op branch removed from `_match_gergonne`.
+3. Sampling pinned: `Candidate` carries a declared `sample_scope`; a
+   signature match on a partial sample ABSTAINS (surfaced for review,
+   logged with confidence 'sampled') instead of suppressing, and the scope
+   is written into every match witness. Demo and audit candidates now
+   declare exhaustive card coverage.
+Post-fix reruns: the oracle demo preserves all seven verdicts with the
+honest NOT_MATCHED wording, and the acceptance ledger reproduces —
+t3 MATCHED, t15 MATCHED (true known), t17 NOT_MATCHED — with the
+fixed-vector ACAAN re-verified at PASS 2704 along the way.

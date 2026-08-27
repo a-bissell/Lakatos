@@ -95,14 +95,23 @@ class SuppressedLog:
 
 class Candidate:
     """Behavior, not code. permutation-kind emits per-round permutations for
-    sampled choices; property-kind emits a shuffle op + an invariant period."""
+    sampled choices; property-kind emits a shuffle op + an invariant period.
+
+    sample_scope (audit fix): 'exhaustive' declares that sample_choices
+    covers every card in the packet for every tested choice combination
+    (or that the procedure has no free choices). Anything else is
+    'partial', and a signature match on a partial sample ABSTAINS instead
+    of suppressing — under-sampling was the one residual false-KNOWN
+    vector. The scope is a declaration by the candidate's author; it is
+    written into the log so a false declaration is auditable."""
     def __init__(self, name, N, kind, round_perms=None, sample_choices=None,
-                 shuffle=None, invariant_k=None):
+                 shuffle=None, invariant_k=None, sample_scope='partial'):
         self.name, self.N, self.kind = name, N, kind
         self.round_perms = round_perms          # choices -> list[tuple]
         self.sample_choices = sample_choices or []
         self.shuffle = shuffle                  # (deck, choices) -> deck
         self.invariant_k = invariant_k
+        self.sample_scope = sample_scope
 
 
 def _collect_round_perms(cand):
@@ -121,8 +130,6 @@ def _match_gergonne(cand):
     for pi in _collect_round_perms(cand):
         hit = None
         for b in range(2, N):           # b=1 is identity; skip
-            if N % b and b not in (N,):  # allow uneven piles too; don't over-restrict
-                pass
             cache.setdefault(b, gergonne_round_perms(N, b))
             if pi in cache[b]:
                 hit = b
@@ -194,28 +201,50 @@ def _match_gilbreath(cand):
 
 
 def _match_hummer(cand):
-    """DELIBERATELY NARROW. Hummer/CATO parity has many forms; this stub checks
-    only one and abstains otherwise, so it never emits a broad false KNOWN."""
-    return {'family': 'Hummer', 'confidence': 'abstain',
-            'witness': 'Hummer recognizer is a narrow stub; not implemented — routing onward'}
+    """DECLARED, NOT WIRED (audit fix): Hummer/CATO effects live on card
+    ORIENTATION (face-up/face-down parity), and this op vocabulary has no
+    orientation primitives, so no candidate here can be a Hummer instance.
+    The stub is intentionally NOT in any recognizer list: wiring an
+    always-abstain recognizer would convert every NOT_MATCHED into ABSTAIN
+    and poison the review queue. It exists so the family's absence is a
+    documented decision rather than an omission."""
+    return None
 
 
 def classify(cand, log):
-    """Run the recognizers, apply asymmetric policy, log-and-suppress matches."""
+    """Run the recognizers, apply asymmetric policy, log-and-suppress matches.
+
+    Sampling pin (audit fix): a signature match earned on a PARTIAL sample
+    never suppresses — it ABSTAINS and surfaces for review, because a
+    branching procedure could look like a family on the sampled cards and
+    diverge on the rest (the residual false-KNOWN vector). Property-kind
+    recognizers enumerate their whole domain internally and are exempt."""
     if cand.kind == 'permutation':
         recognizers = (_match_gergonne, _match_faro, _match_josephus)
+        checked = ['Gergonne', 'Faro', 'Josephus']
     else:
         recognizers = (_match_gilbreath,)
+        checked = ['Gilbreath']
 
     hits = [r(cand) for r in recognizers]
     exact = [h for h in hits if h and h['confidence'] == 'exact']
     abstains = [h for h in hits if h and h['confidence'] == 'abstain']
 
+    if exact and cand.kind == 'permutation' \
+            and cand.sample_scope != 'exhaustive':
+        fams = [h['family'] for h in exact]
+        log.record(cand.name, '+'.join(fams), 'sampled',
+                   f"signature match on PARTIAL sample "
+                   f"(scope={cand.sample_scope}) — not suppressed", cand.N)
+        return {'verdict': 'ABSTAIN', 'families': fams,
+                'reason': f"matched {'+'.join(fams)} on a partial sample — "
+                          f"pin to exhaustive card sampling to suppress"}
     if len(exact) == 1:
         h = exact[0]
-        log.record(cand.name, h['family'], 'exact', h['witness'], cand.N)
+        witness = h['witness'] + f" [sample scope: {cand.sample_scope}]"
+        log.record(cand.name, h['family'], 'exact', witness, cand.N)
         return {'verdict': 'MATCHED', 'family': h['family'],
-                'confidence': 'exact', 'witness': h['witness']}
+                'confidence': 'exact', 'witness': witness}
     if len(exact) > 1:                        # two families at once = suspicious
         log.record(cand.name, '+'.join(h['family'] for h in exact),
                    'ambiguous', 'multiple exact matches', cand.N)
@@ -225,8 +254,10 @@ def classify(cand, log):
         log.record(cand.name, abstains[0]['family'], 'abstain',
                    abstains[0]['witness'], cand.N)
         return {'verdict': 'ABSTAIN', 'reason': abstains[0]['witness']}
-    return {'verdict': 'NOT_MATCHED', 'families_checked': 5,
-            'note': 'not one of the five known families — routed onward, NOT certified novel'}
+    return {'verdict': 'NOT_MATCHED', 'families_checked': checked,
+            'note': f"not one of the checked families ({', '.join(checked)}) "
+                    f"— routed onward, NOT certified novel; Hummer declared "
+                    f"but unimplemented (no orientation ops in vocabulary)"}
 
 
 # ---- demonstration -----------------------------------------------------------
@@ -258,8 +289,8 @@ if __name__ == '__main__':
 
     t15 = Candidate("t15 (adaptive full-deck ACAAN)", 52, 'permutation',
                     round_perms=t15_rounds,
-                    sample_choices=[{'card': 41, 'n': 20}, {'card': 7, 'n': 20},
-                                    {'card': 0, 'n': 20}])
+                    sample_choices=[{'card': c, 'n': 20} for c in range(52)],
+                    sample_scope='exhaustive')  # all cards, tested target
 
     # t8: mixed-radix (4 then 13) targeting
     def t8_rounds(ch):
@@ -273,20 +304,22 @@ if __name__ == '__main__':
         return perms
     t8 = Candidate("t8 (mixed-radix 4x13 ACAAN)", 52, 'permutation',
                    round_perms=t8_rounds,
-                   sample_choices=[{'card': 10, 'p1': 2, 'p2': 3},
-                                   {'card': 30, 'p1': 1, 'p2': 0}])
+                   sample_choices=[{'card': c, 'p1': p1, 'p2': p2}
+                                   for c in range(52)
+                                   for p1, p2 in ((2, 3), (1, 0))],
+                   sample_scope='exhaustive')  # all cards, tested placements
 
     # a faro round
     faro = Candidate("perfect out-faro", 52, 'permutation',
                      round_perms=lambda ch: [perm_of(
                          lambda d: [d[k // 2] if k % 2 == 0 else d[26 + k // 2]
                                     for k in range(52)], 52)],
-                     sample_choices=[{}])
+                     sample_choices=[{}], sample_scope='exhaustive')
 
     # a down-under deal (Josephus)
     josephus = Candidate("down-under deal", 16, 'permutation',
                          round_perms=lambda ch: [down_under_elim_perm(16)],
-                         sample_choices=[{}])
+                         sample_choices=[{}], sample_scope='exhaustive')
 
     # t9 Gilbreath (property kind)
     def gilb_shuffle(deck, ch):
@@ -298,7 +331,7 @@ if __name__ == '__main__':
     # a genuinely-outside procedure: full reversal (turn the packet over)
     reversal = Candidate("full reversal (novel-ish)", 52, 'permutation',
                          round_perms=lambda ch: [perm_of(lambda d: d[::-1], 52)],
-                         sample_choices=[{}])
+                         sample_choices=[{}], sample_scope='exhaustive')
 
     # a Mongean shuffle: also outside the five
     def mongean(d):
@@ -308,7 +341,7 @@ if __name__ == '__main__':
         return list(out)
     monge = Candidate("Mongean shuffle (novel-ish)", 52, 'permutation',
                       round_perms=lambda ch: [perm_of(mongean, 52)],
-                      sample_choices=[{}])
+                      sample_choices=[{}], sample_scope='exhaustive')
 
     print("VERDICTS")
     for c in (t15, t8, faro, josephus, gilb, reversal, monge):

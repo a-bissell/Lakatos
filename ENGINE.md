@@ -47,17 +47,25 @@ So recognizers **abstain when unsure** rather than declare KNOWN, and every matc
 is **logged with a witness** (log-and-suppress) so a false KNOWN is auditable.
 
 Verdicts: `MATCHED(family, witness)` → suppressed/logged · `ABSTAIN` → routed
-onward + surfaced for review · `NOT_MATCHED(5 families)` → routed onward.
+onward + surfaced for review · `NOT_MATCHED(checked families)` → routed onward.
 
-`NOT_MATCHED` is **not** "novel". It means "not obviously one of these five."
-The suppressed log doubles as a diagnostic: the fraction suppressed as (e.g.)
-Gergonne over a long run measures whether the generator is exploring or orbiting
-the known.
+`NOT_MATCHED` is **not** "novel". It means "not obviously one of the checked
+families" (permutation kind checks Gergonne/Faro/Josephus; property kind checks
+Gilbreath; Hummer is declared but unimplemented — the op vocabulary has no
+orientation primitives, so it is deliberately not wired and cannot emit a false
+KNOWN). The suppressed log doubles as a diagnostic: the fraction suppressed as
+(e.g.) Gergonne over a long run measures whether the generator is exploring or
+orbiting the known.
 
 Measured properties (see self-audit): 0 / 20,000 random permutations false-match
 Gergonne; one faro↔Gergonne signature overlap that fails **safe** (→ ABSTAIN, not
-a false KNOWN). Residual false-KNOWN vector: **under-sampling** — pin recognizers
-to exhaustive card sampling before any live generator use.
+a false KNOWN). Residual false-KNOWN vector: **under-sampling** — CLOSED by the
+post-audit sampling pin: candidates declare a `sample_scope`, the scope is
+written into the log, and a signature match on a partial sample ABSTAINS
+(surfaces for review) instead of suppressing. See AUDIT.md for the audit that
+motivated these fixes — including the case where the audit corrected the
+auditor (t15 is extensionally Gergonne-family; fixed 5-vectors cover 52/52
+targets on uneven piles).
 
 ## What is NOT built (honest map)
 - **Generator with expanding representation** — the inventive core; the real

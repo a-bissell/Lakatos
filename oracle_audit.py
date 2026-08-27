@@ -96,8 +96,9 @@ def t15_real_rounds(ch):
 t15_real = Candidate("REAL t15 (adaptive ACAAN)", 52, 'permutation',
                      round_perms=t15_real_rounds,
                      sample_choices=[{'card': c, 'n': n}
-                                     for c, n in ((0, 3), (7, 20), (41, 45),
-                                                  (23, 52), (51, 1))])
+                                     for c in range(52)
+                                     for n in (3, 20, 45, 52, 1)],
+                     sample_scope='exhaustive')
 
 print("\nrebuilding t17 reactive tables (deterministic search)...")
 t17 = load('tricks/t17_small_double_reveal.py', 't17mod')
@@ -124,7 +125,9 @@ def t17_rounds(ch):
 t17_real = Candidate("REAL t17 (reactive double reveal)", 11, 'permutation',
                      round_perms=t17_rounds,
                      sample_choices=[{'card': a, 'a': a, 'b': b}
-                                     for a, b in ((3, 8), (0, 1), (10, 2))])
+                                     for a in range(11) for b in range(11)
+                                     if a != b],
+                     sample_scope='exhaustive')
 
 
 def t3_rounds(ch):
@@ -141,7 +144,8 @@ def t3_rounds(ch):
 
 t3_real = Candidate("REAL t3 (fixed-placement Gergonne)", 27, 'permutation',
                     round_perms=t3_rounds,
-                    sample_choices=[{'card': c} for c in (0, 13, 26)])
+                    sample_choices=[{'card': c} for c in range(27)],
+                    sample_scope='exhaustive')
 
 # ---- run the ledger ---------------------------------------------------------
 
@@ -164,9 +168,10 @@ for cand in (t3_real, t15_real, t17_real):
     print(f"  {cand.name:<38} -> {v['verdict']:<12} {extra}")
     print(f"      ledger: {expectations[cand.name]}")
 
-print("\nresidual notes for the engine branch:")
-print("  - NOT_MATCHED reports families_checked=5 but permutation kind runs")
-print("    3 recognizers and property kind 1; the Hummer stub is never called")
-print("  - _match_gergonne contains a dead no-op branch (N % b check)")
-print("  - multi-card procedures are the true above-round-level cases: keep")
-print("    them routed onward (t17 verdict below shows current behavior)")
+print("\nnit status (fixed pre-merge, this branch):")
+print("  - families_checked now reports the recognizers actually run;")
+print("    Hummer stub documented as deliberately unwired (no orientation ops)")
+print("  - dead no-op branch removed from _match_gergonne")
+print("  - sampling pinned: matches on partial samples ABSTAIN; scope is")
+print("    declared per candidate and written into the suppressed log")
+print("  - standing rule: multi-card procedures stay routed onward (t17)")
