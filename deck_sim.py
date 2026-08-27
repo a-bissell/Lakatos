@@ -27,6 +27,21 @@ def make_deck():
     return [(r, s) for s in SUITS for r in RANKS]
 
 
+def make_packet(n):
+    """Abstract packet of n distinct tokens (0..n-1), index 0 = top.
+    Theorems aren't about a 52-card deck: use this (with verify's
+    deck_factory parameter) to test procedures past physical deck sizes."""
+    return list(range(n))
+
+
+def _unit_make_packet():
+    assert make_packet(5) == [0, 1, 2, 3, 4]
+    assert len(set(make_packet(100))) == 100
+
+
+_unit_make_packet()
+
+
 def spell_name(card):
     r, s = card
     return (RANK_WORD[r] + 'of' + SUIT_WORD[s])  # letters only
@@ -197,14 +212,16 @@ _unit_riffle_merge()
 
 # ---- verification harness ------------------------------------------------
 
-def verify(trick, domain, reveal):
+def verify(trick, domain, reveal, deck_factory=make_deck):
     """trick: fn(deck, choices)->final_state (list, top=0)
        domain: iterable of `choices`
        reveal: fn(final_state, choices)->card  (the card the procedure points at)
+       deck_factory: fn()->deck built fresh per case (default: the 52-card
+         deck; pass e.g. lambda: make_packet(81) for abstract packets)
     Returns (ok, counterexamples) where a counterexample is (choices, got, want)."""
     counter = []
     for choices in domain:
-        deck = make_deck()
+        deck = deck_factory()
         final = trick(deck, choices)
         got = reveal(final, choices)
         want = choices['card']
@@ -213,15 +230,25 @@ def verify(trick, domain, reveal):
     return (len(counter) == 0, counter)
 
 
-def verify_prop(trick, domain, predicate):
+def _unit_verify_factory():
+    ok, c = verify(lambda deck, ch: deck, [{'card': 6}],
+                   lambda f, ch: f[6], deck_factory=lambda: make_packet(9))
+    assert ok and c == []
+    ok, c = verify(lambda deck, ch: deck, [{'card': 0}],
+                   lambda f, ch: f[1], deck_factory=lambda: make_packet(9))
+    assert not ok and len(c) == 1
+
+
+def verify_prop(trick, domain, predicate, deck_factory=make_deck):
     """Property variant of verify() for effects whose guarantee is a
     structural property of the final state (e.g. Gilbreath) rather than
     'reveal equals the chosen card'.
        predicate: fn(final_state, choices) -> bool
+       deck_factory: as in verify()
     Returns (ok, counterexamples) where a counterexample is (choices, final)."""
     counter = []
     for choices in domain:
-        deck = make_deck()
+        deck = deck_factory()
         final = trick(deck, choices)
         if not predicate(final, choices):
             counter.append((choices, final))
@@ -229,6 +256,11 @@ def verify_prop(trick, domain, predicate):
 
 
 def _unit_verify_prop():
+    _unit_verify_factory()
+    ok, c = verify_prop(lambda deck, ch: deck, [{'x': 1}],
+                        lambda f, ch: len(f) == 7,
+                        deck_factory=lambda: make_packet(7))
+    assert ok and c == []
     ok, c = verify_prop(lambda deck, ch: deck, [{'x': 1}],
                         lambda f, ch: len(f) == 52)
     assert ok and c == []

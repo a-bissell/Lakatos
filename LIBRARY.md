@@ -545,8 +545,11 @@ notes: FULL-DECK ACAAN IN SIX PHYSICAL STEPS (b=6, r=3) — the most
   efficient performable form found; b=4/r=4 remains the recommended
   human version (quarter-bucket rule). b=2 gives a two-pile binary
   version a spectator could deal themselves (N <= 32 within the step
-  cap). Open: characterize the exact necessary (b, N, r) frontier — the
-  b=5/N=52 near-miss (50/52) suggests reachable ~ min(N, 2b^2) at r=3.
+  cap). ENVELOPE EXTENDED (session 12, t24, abstract packets): tight
+  fits (64,8,3), (81,9,3), (81,3,5), (100,10,3), (144,12,3) all PASS —
+  47,954 more cases, beyond any physical deck. Open: characterize the
+  exact necessary (b, N, r) frontier — the b=5/N=52 near-miss (50/52)
+  suggests reachable ~ min(N, 2b^2) at r=3.
 
 ### six-pile-bucket-rule
 kind: invariant (performance form of [[general-b-radix-law]] at b=6, N=52)
@@ -572,6 +575,13 @@ notes: the six-step full-deck ACAAN now needs no candidate arithmetic —
 
 ## Session log
 
+- 2026-08-27 session 12 (ENGINE track begins; queue reseeded). Item 1:
+  harness generalization — verify()/verify_prop() gain deck_factory
+  (default 52-card deck, fully backward compatible; regression: harness
+  self-check, t22, t23 all pass unchanged) + make_packet(N) primitive,
+  all unit-checked. Demonstrated by t24: general-b law verified on
+  abstract packets at five tight fits up to N=144/b=12 (47,954 cases) —
+  configs session 10 could not test. Engine queue items 2-8 pending.
 - 2026-08-27 session 11 (user follow-up): t23 six-pile bucket rule —
   thresholds derived from candidate midpoints, equivalence with argmin
   proven over [-400,400], trick re-verified 2704/2704 on buckets alone;
