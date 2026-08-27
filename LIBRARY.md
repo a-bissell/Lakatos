@@ -421,16 +421,54 @@ canonical_form: radix-placement(uneven, fixed) — Gergonne-family
 canonical note: NOT novel — extensionally a fixed-placement Gergonne-family
   instance (the novelty oracle's MATCHED verdict on t15, audited TRUE).
   Committed as the honest replacement for a mislabeled mechanism.
-notes: 10 steps, 52-row crib of 5-trit vectors; the crib shows clear
-  structure (last placement constant across thirds of the target range,
-  mirroring pile sizes 18/17/17) — closed form queued. Lesson recorded:
+notes: 10 steps. CRIB-FREE as of session 7: [[alternating-radix-law]]
+  generates the vector for any named n by a 5-step mental recursion
+  (simplicity effectively 3 -> 4). Lesson recorded:
   t15's "adaptive machinery required" was an overclaim by omission — the
   r=5 fixed-vector check was never run until the oracle audit forced it.
+
+### alternating-radix-law
+kind: invariant (closed form; makes [[fixed-vector-uneven-acaan]] crib-free)
+domain |D|: 10 configs x full (card, n) grids = 9,349 cases, plus the
+  one-round position formula checked exactly for every (position,
+  placement) at all 10 deck sizes
+invariant: for N ≡ 1 (mod 3) cards dealt into 3 uneven piles, one round of
+  "gather with a piles above the pointed pile" acts on the tracked card as
+  x' = A - floor(x/3), where A is PILE-INDEPENDENT for a in {1,2}
+  (A = 2(N-1)/3 and N-1) — the N ≡ 1 coincidence that makes fixed vectors
+  possible. Backward requirement-propagation collapses to a midpoint
+  recursion; centered on the deck (y = m - (N-1)/2) it is the
+  ALTERNATING-RADIX LAW:
+      y <- -3y + a'N + [a'=0],   a' = round(3y/N) clamped to {-1,0,+1}
+  computed r times from y = (n-1) - (N-1)/2; digits (a'+1) reversed give
+  the pickup vector. The +1 correction when the middle placement is chosen
+  is the uneven-pile fingerprint. VALIDITY: 3^(r-1) >= N.
+procedure: [tricks/t19_acaan_closed_form.py](tricks/t19_acaan_closed_form.py)
+scores: n/a (invariant)
+verified: 2026-08-27 session 7, verify() ok for (N, r) = (7,3), (10,4),
+  (13,4), (16,4), (22,4), (25,4), (31,5), (40,5), (49,5), (52,5) —
+  including the tight boundary fits 25 <= 27 and 49 <= 81. Outside the
+  condition the law fails AS PREDICTED, and exhaustive vector enumeration
+  shows the boundary is real, not algorithmic: at (10,3) only 9/10 and at
+  (13,3) only 10/13 targets are reachable by ANY fixed vector.
+canonical_form: Gergonne-dynamics closed form (uneven, N ≡ 1 mod 3)
+notes: the mathematical territory (floor-map dynamics of uneven Gergonne
+  deals) is charted in the literature; this specific algorithmic form —
+  greedy alternating-radix digits, the [a'=0] correction, and the
+  3^(r-1) >= N feasibility boundary — was derived and machine-verified
+  here and not found published. Open: N ≡ 2 (mod 3), where the a=1 gather
+  constant becomes pile-dependent and the law as stated cannot apply.
 
 ---
 
 ## Session log
 
+- 2026-08-27 session 7 (queue item 1): t19 closed form for the ACAAN crib.
+  One-round formula verified at 10 deck sizes; alternating-radix law
+  verified over 9,349 cases with validity condition 3^(r-1) >= N; the two
+  predicted out-of-condition failures confirmed fundamental by exhaustive
+  enumeration. Full-deck ACAAN is now crib-free (mental 5-step digit
+  computation). 1 invariant commit; fixed-vector-uneven-acaan upgraded.
 - 2026-08-27 session 6 (oracle audit + discovery): engine drop (novelty
   oracle + refuter) landed on branch `oracle` and audited against REAL
   procedures (AUDIT.md there). Refuter extended the t6 radix law envelope
