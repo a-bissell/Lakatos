@@ -4,14 +4,14 @@ Popped tasks move to LIBRARY.md's session log. Seeded per curriculum order.
 
 ## Next up
 
-1. SYNTHESIZE: the GENERAL-b radix law — conjecture (from b=3 t20 and
-   b=4 t21): for any pile count b, z <- -bz + (2a-(b-1))N + correction,
-   digit = argmin |new z|, validity b^(r-1) >= N. Derive the correction
-   table for general (b, N mod b), verify a b=5 grid (5^2=25 covers 25,
-   5^3 covers 125 — full deck in THREE deals with 5 piles?), and if it
-   holds, commit the one-law-for-all-(b,N) form. Also map the exact
-   NECESSARY r-frontier (both b=3 and b=4 have passes below the
-   sufficient bound and fundamental failures near it).
+1. INVARIANT: the exact necessary (b, N, r) frontier for
+   [[general-b-radix-law]]. Data so far at r=3, N=52: b=4 caps at 16
+   (= b^2) reachable, b=5 at 50 (= 2b^2), b=6 full — conjecture:
+   reachable-target count ~ min(N, k*b^2) with k depending on rho/drift.
+   Sweep (b, N, r) systematically via the cheap enumerate_reachable and
+   fit the frontier; a closed-form necessary condition would finish the
+   family. Also: can the law's GREEDY ever fail where fixed vectors
+   exist below the bound? (No case seen yet — find one or explain why.)
 2. SYNTHESIZE: cut-invariant opener. Cyclic stacks survive straight cuts
    (rotation). Prefix verified tricks with "spectator cuts as many times as
    they like": verify [[gilbreath-suit-divination]] with all 52 pre-cut

@@ -517,10 +517,46 @@ notes: FULL-DECK ACAAN IN FOUR DEALS (8 physical steps, down from 10) —
   validity b^(r-1) >= N. Open: prove/refute general b; exact necessary
   r-frontier per (b, residue).
 
+### general-b-radix-law
+kind: invariant (capstone: unifies [[universal-radix-law]] (b=3) and
+  [[four-pile-universal-law]] (b=4) as special cases)
+domain |D|: 27 new (b, N) configs x full grids = 32,896 cases over
+  b = 2, 5, 6, 7, 8 (with t20/t21: every pile count 2..8); round formula
+  checked exactly at all 27; 20 of 27 configs were tight fits
+invariant: closed form for EVERY pile count, derived from the pile-size
+  algebra (N = bq + rho) and the always-contiguous preimage property:
+      z <- -b*z + (2a+1-b)*N + 2*corr(a)
+      corr(a) = min(a, rho) * (b - max(a+1, rho)),  rho = N mod b
+      digit = argmin |new z| (tie -> larger a); digits reversed = pickups
+  The single corr expression reproduces every previously verified table
+  (b=3: (0,1,0) for rho=1 AND rho=2 — the t20 coincidence explained;
+  all four b=4 delta tables; b=2: no correction ever).
+  Validity: b^(r-1) >= N sufficient (27/27) and CLEARLY not necessary —
+  frontier data at r=3, N=52: b=4 FAIL (16/52 reachable), b=5 FAIL
+  (50/52 — two targets fundamentally unreachable), b=6 PASS (52/52),
+  b=7 PASS. Minimal three-deal full-deck pile count: SIX.
+procedure: [tricks/t22_general_b_law.py](tricks/t22_general_b_law.py)
+scores: n/a (invariant)
+verified: 2026-08-27 session 10, verify() ok for all 27 in-condition
+  configs plus below-condition passes at (5,27,3), (6,45,3), (6,52,3),
+  (7,52,3)
+canonical_form: Gergonne-dynamics closed form (any N, any b)
+notes: FULL-DECK ACAAN IN SIX PHYSICAL STEPS (b=6, r=3) — the most
+  efficient performable form found; b=4/r=4 remains the recommended
+  human version (quarter-bucket rule). b=2 gives a two-pile binary
+  version a spectator could deal themselves (N <= 32 within the step
+  cap). Open: characterize the exact necessary (b, N, r) frontier — the
+  b=5/N=52 near-miss (50/52) suggests reachable ~ min(N, 2b^2) at r=3.
+
 ---
 
 ## Session log
 
+- 2026-08-27 session 10 (queue item 1): t22 general-b law. Closed-form
+  correction derived for all pile counts; 32,896 cases verified over
+  b = 2, 5, 6, 7, 8 first-attempt (family now spans b = 2..8). Frontier
+  mapped at r=3/N=52: six piles is the three-deal minimum (b=5 misses by
+  exactly two targets). 1 invariant commit (capstone).
 - 2026-08-27 session 9 (queue item 1): t21 four-pile law. Derived and
   verified base-(-4) analog over 24,415 cases (24 sizes, all residues
   mod 4, first-attempt PASS incl. 16 tight fits). Full-deck ACAAN drops

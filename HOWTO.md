@@ -77,6 +77,25 @@ needs only FOUR deals, and 52 splits evenly (13/13/13/13).
   ≡2 (0,2,2,0), ≡3 (0,1,2,0); pick the digit leaving |z| smallest;
   4^(r−1) ≥ N rounds.
 
+## The expert form: six piles, three deals (six steps total)
+Verified (t22): with SIX piles the full deck needs only THREE rounds.
+Heavier mental math — six candidates per digit — so this is the expert
+option; the four-pile version stays the recommended one.
+- rho = 52 mod 6 = 4; corrections per digit a = 0..5: (0, 2, 4, 6, 4, 0).
+- z = 2n − 53; three times: compute −6z + (2a−5)·52 + 2·corr(a) for each
+  a, keep the digit whose result is smallest in absolute value (tie: the
+  larger digit), update z to it. Reverse the three digits.
+- Example (code-generated): n=15 → pickups 5, 2, 1.
+- Deal into six piles left to right; digit = how many of the other five
+  piles go above the pointed pile, others keeping left-to-right order.
+
+## The general law (any piles, any packet)
+For b piles, N cards, r deals with b^(r−1) ≥ N (often fewer work):
+z = 2(n−1) − (N−1); each step choose the digit a in 0..b−1 minimizing
+|−b·z + (2a+1−b)·N + 2·min(a,ρ)·(b − max(a+1,ρ))| where ρ = N mod b;
+update z; reverse the digits. Every instance in this file is this one
+law.
+
 ## Any packet size (three piles)
 The same algorithm runs any packet of N cards with r pickups where
 3^(r−1) ≥ N (r=3 up to 9 cards, r=4 up to 27, r=5 up to 81):
