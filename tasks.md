@@ -4,12 +4,12 @@ Popped tasks move to LIBRARY.md's session log. Seeded per curriculum order.
 
 ## Next up
 
-1. SYNTHESIZE: extend the [[alternating-radix-law]] to N ≡ 2 (mod 3) —
-   there the a=1 gather constant is pile-dependent (2s0-1 vs 2s0-2), so
-   the clean law cannot apply as stated. Candidate fixes: an adaptive
-   correction digit conditioned on the pointed pile (one bit of the
-   observation), or a compensating pre-cut. Also probe b=4 uneven piles
-   (N ≡ 1 mod 4) for the analogous coincidence and law.
+1. SYNTHESIZE: the b=4-pile analog of [[universal-radix-law]] — do the
+   gather constants stay pile-independent-up-to-absorbable-offsets for 4
+   uneven piles, giving a base-(-4) law (fewer rounds: 4^(r-1) >= N means
+   r=4 covers 64)? Also: pin the exact NECESSARY r-boundary per residue
+   (N=12 r=3 passes below the sufficient condition; N=26 r=3 is
+   fundamentally infeasible — map the frontier).
 2. SYNTHESIZE: cut-invariant opener. Cyclic stacks survive straight cuts
    (rotation). Prefix verified tricks with "spectator cuts as many times as
    they like": verify [[gilbreath-suit-divination]] with all 52 pre-cut

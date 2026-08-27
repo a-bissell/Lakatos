@@ -459,10 +459,45 @@ notes: the mathematical territory (floor-map dynamics of uneven Gergonne
   here and not found published. Open: N ≡ 2 (mod 3), where the a=1 gather
   constant becomes pile-dependent and the law as stated cannot apply.
 
+### universal-radix-law
+kind: invariant (extends [[alternating-radix-law]] to EVERY deck size)
+domain |D|: 18 deck sizes x full (card, n) grids = 18,223 cases, all three
+  residues mod 3, six tight boundary fits; round formula checked exactly
+  at all 18 sizes
+invariant: session 7's claim that the law "cannot apply as stated" for
+  N ≡ 2 (mod 3) was WRONG — the pile-dependent gather constant meshes
+  with floor(x/3) so requirement preimages stay contiguous, and the
+  midpoint constants are unchanged. Universal integer form (tie-free —
+  6m is even, thresholds odd):
+      K = (N-2, 2N-1, 3N-2), middle 2N-2 when 3 | N
+      m starts at n-1; r times:
+        6m < 2N-3 -> digit 0 | between -> digit 1 | 6m > 4N-3 -> digit 2
+        then m <- K[digit] - 3m
+      digits REVERSED = pickups ("piles above the pointed pile")
+  Validity: 3^(r-1) >= N is SUFFICIENT everywhere (18/18 PASS) but not
+  necessary: N=12 r=3 passes below it (N ≡ 0 contracts better; its
+  correction term is zero), while N=26 r=3 fails fundamentally (6/26
+  targets reachable by any vector).
+procedure: [tricks/t20_universal_radix_law.py](tricks/t20_universal_radix_law.py)
+scores: n/a (invariant)
+verified: 2026-08-27 session 8, verify() ok for N = 8,11,14,20,26,35,44,50
+  (≡2), 9,12,18,24,27,36,45,51 (≡0), 25,52 (≡1) at r per condition
+canonical_form: Gergonne-dynamics closed form (any N, 3 piles)
+notes: one mental algorithm now performs ACAAN on ANY packet: r=3 to 9
+  cards, r=4 to 27, r=5 to 81. For N = 3^k the classic law (t3/t6) is
+  depth-optimal (r=k); the universal law trades depth for universality.
+  Performance write-up: [HOWTO.md](HOWTO.md). Open: exact necessary
+  r-boundary per residue; the b=4-pile analog.
+
 ---
 
 ## Session log
 
+- 2026-08-27 session 8 (queue item 1): t20 universal radix law. Session-7
+  N≡2 impossibility claim REFUTED by redoing the interval algebra; one
+  integer law now covers every N (18,223 cases, 18 sizes, all residues).
+  Human-performable write-up committed (HOWTO.md + artifact). 1 invariant
+  commit; second self-correction on the record.
 - 2026-08-27 session 7 (queue item 1): t19 closed form for the ACAAN crib.
   One-round formula verified at 10 deck sizes; alternating-radix law
   verified over 9,349 cases with validity condition 3^(r-1) >= N; the two
