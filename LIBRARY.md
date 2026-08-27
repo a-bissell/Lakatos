@@ -581,7 +581,12 @@ notes: the six-step full-deck ACAAN now needs no candidate arithmetic —
   self-check, t22, t23 all pass unchanged) + make_packet(N) primitive,
   all unit-checked. Demonstrated by t24: general-b law verified on
   abstract packets at five tight fits up to N=144/b=12 (47,954 cases) —
-  configs session 10 could not test. Engine queue items 2-8 pending.
+  configs session 10 could not test. Item 2: library-as-known — the
+  oracle gains an extensional LibraryTargeting recognizer (fixed-vector
+  reproduction of the whole map; refines Gergonne; abstains when b^r too
+  large) — acceptance ledger passed 6/6 first run incl. REAL adaptive
+  t15 caught as a library known; demo regression clean. Engine queue
+  items 3-8 pending.
 - 2026-08-27 session 11 (user follow-up): t23 six-pile bucket rule —
   thresholds derived from candidate midpoints, equivalence with argmin
   proven over [-400,400], trick re-verified 2704/2704 on buckets alone;
