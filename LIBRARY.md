@@ -358,10 +358,59 @@ notes: VIOLATES the 12-step performability cap (8 deals + 8 pickups = 16)
   rounds for other target pairs; strategy compression; whether a smaller
   uneven deck (e.g. 20 cards, piles 7/7/6) gives a performable version.
 
+### double-reveal-performable
+kind: trick
+domain |D|: 110 — every ordered pair of DISTINCT thought-of cards from an
+  11-card packet (spectator A's card to top, B's to bottom)
+invariant: none in closed form — a REACTIVE strategy: the pickup ordering
+  depends ONLY on (round, pile A points at, pile B points at), no history.
+  Found by greedy synthesis under full-information distance pruning
+  (admissible: every image pair must stay within reach of the remaining
+  rounds), deterministic LCG restarts.
+procedure: [tricks/t17_small_double_reveal.py](tricks/t17_small_double_reveal.py)
+scores: freedom=4, opacity=5, simplicity=4, elegance=4
+verified: 2026-08-27 session 5, verify() ok TWICE over 110 ordered pairs
+  (A-top and B-bottom); re-verified in-repo after sync on 2026-08-27
+canonical_form: adaptive-strategy-targeting(pair, uneven piles, reactive)
+canonical note: NOVEL COMMIT (session 5, #1): first PERFORMABLE
+  multi-spectator entry — 11 cards, 4 piles (3/3/3/2), 4 deals + 4 pickups
+  = 8 steps, and a 47-entry crib (16/12/10/9 rows per round) instead of
+  machine-sized trees.
+notes: sweep results (min full-info rounds for top/bottom, cap 6):
+  b=2 never within 6; b=3: N=8,10,11 need 4, N=13..20 need 5-6;
+  b=4: N=9..14 need 3, N=15..19 need 4. Info constraint costs +1 round
+  (rounds=3 adaptive-impossible for all b=4 configs tried). N=9, N=10
+  have adaptive trees at 4 rounds but no reactive table was found; N=11 is
+  the smallest with one. N=13 ("think of any spade") resisted reactive
+  search at rounds 4 AND 5 over 100k+ restarts — NOT proven impossible,
+  queued. Structural bonus found in the tables: rounds 3-4 contain no
+  diagonal observations — the strategy provably separates the two cards
+  into distinct piles from round 3 on.
+  Reactive tables (observation (pileA,pileB) -> pickup order, top first):
+    round 1: (0,0)->1230 (0,1)->1320 (0,2)->2310 (0,3)->3210 (1,0)->0231
+             (1,1)->1320 (1,2)->2301 (1,3)->3201 (2,0)->0132 (2,1)->1302
+             (2,2)->2103 (2,3)->0312 (3,0)->0213 (3,1)->1023 (3,2)->2103
+             (3,3)->1023
+    round 2: (0,0)->1023 (0,1)->2130 (0,2)->1230 (0,3)->0123 (1,0)->2130
+             (1,1)->2130 (1,2)->2310 (1,3)->1023 (2,0)->2301 (2,1)->0132
+             (2,2)->2103 (2,3)->2103
+    round 3: (0,1)->1320 (0,2)->2301 (0,3)->3210 (1,0)->0213 (1,2)->2301
+             (2,1)->1032 (2,3)->0312 (3,0)->0132 (3,1)->1230 (3,2)->2013
+    round 4: (0,1)->0231 (1,0)->1320 (1,2)->1302 (2,0)->2130 (2,1)->2031
+             (2,3)->2013 (3,0)->3120 (3,1)->3021 (3,2)->3012
+
 ---
 
 ## Session log
 
+- 2026-08-27 session 5 (single task, user-directed): t17 performable double
+  reveal. Sweep over uneven (N, b) configs; N=11/b=4/4 rounds admits a
+  REACTIVE strategy (found via distance-pruned greedy synthesis), verified
+  2x110. N=13 resisted reactive search (open). 1 novel commit. NOTE: macOS
+  TCC revoked repo access mid-session; work done in scratchpad against a
+  byte-identical reconstruction of deck_sim.py (diff-confirmed after access
+  was restored); commits staged in scratchpad/pending_sync and applied +
+  re-verified in-repo on 2026-08-27, same day the repo was placed under git.
 - 2026-08-27 session 4 (single task, user-directed): t16 double reveal.
   Part A: two-card agreement conservation verified exhaustively (702
   targets x 3 depths, 0 violations) — even-pile double targeting

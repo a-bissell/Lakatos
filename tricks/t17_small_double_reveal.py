@@ -19,7 +19,8 @@ Pipeline:
   4. full end-to-end verify() (both reveals) of the reactive trick.
 """
 import sys
-sys.path.insert(0, '/Users/app13/Documents/GitHub/card_stuff')
+
+sys.path.insert(0, '..')
 from itertools import permutations
 from deck_sim import make_deck, deal_into_piles, gather_order, verify
 
@@ -43,7 +44,6 @@ def all_pairs(n):
 def distance_map(G, n, b, target, cap):
     """D[(x,y)] = min rounds to reach target with full information."""
     D = {target: 0}
-    frontier = {target}
     for r in range(1, cap + 1):
         frontier = {(x, y) for (x, y) in all_pairs(n) if (x, y) not in D
                     and any((G[x][s], G[y][s]) in D
@@ -153,7 +153,6 @@ def sweep():
 
 if __name__ == '__main__':
     results = sweep()
-    # shortlist: smallest full-info rounds, prefer small b and moderate N
     ranked = sorted(((r, b, n) for (n, b), (r, _, _) in results.items()
                      if r is not None), key=lambda t: (t[0], t[1], t[2]))
     print("\nShortlist (rounds, piles, N):", ranked[:6])

@@ -14,12 +14,14 @@ Popped tasks move to LIBRARY.md's session log. Seeded per curriculum order.
    they like": verify [[gilbreath-suit-divination]] with all 52 pre-cut
    offsets added to the domain, and check which targeting tricks tolerate a
    pre-cut with a compensating placement adjustment.
-3. REFINE [[double-reveal-uneven]]: (a) find the smallest uneven deck /
-   round count giving a PERFORMABLE double reveal (e.g. 20 cards, piles
-   7/7/6 — rerun the t16 pipeline over small N); (b) exploit
+3. REFINE: (a) reactive strategy for the 13-card double reveal ("think of
+   any spade") — smarter search than distance-pruned greedy (SAT/CP
+   encoding, or simulated annealing over table space), or prove no
+   reactive table exists at rounds 4-5; (b) exploit
    [[two-card-agreement-conservation]] positively: an even-pile double
    trick whose TARGETS adapt to the observed agreement pattern ("your
-   cards will meet at positions I'll now announce").
+   cards will meet at positions I'll now announce"); (c) pattern-mine the
+   47-entry N=11 crib ([[double-reveal-performable]]) for a human rule.
 4. MUTATE: [[any-card-any-packet-size]] with an under-down deal (first card
    UNDER) and with k=3 elimination ("down, down, under") — re-derive J
    variants, re-verify, commit the family.
