@@ -1,4 +1,4 @@
-# card_stuff
+# Lakatos Engine
 
 A derive-and-verify system for self-working card tricks, and an engine
 that automates the derivation loop with its skepticism built in.
