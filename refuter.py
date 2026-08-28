@@ -72,6 +72,7 @@ class Conjecture:
     beyond: list = field(default_factory=list)     # params of larger scale
     boundary: list = field(default_factory=list)   # extreme params
     random_draw: list = field(default_factory=list)
+    param_names: tuple = None             # optional, for envelope reporting
 
 
 def confirmatory_verdict(conj):
@@ -96,13 +97,15 @@ def refute(conj, verbose=True):
     line(f"   claim: {conj.claim}")
 
     # 0. must hold where it was seen, or it was never even a candidate
-    max_insp = 0
+    max_insp, cases = 0, 0
     for p in conj.inspiring:
         ok, w, nc = conj.instance_test(*p)
         max_insp = max(max_insp, conj.scale(*p))
+        cases += nc
         if not ok:
             line(f"   [inspiring {p}] FAILS -> NOT_A_CANDIDATE  witness={w}")
-            return {'status': 'NOT_A_CANDIDATE', 'witness': w, 'log': log}
+            return {'status': 'NOT_A_CANDIDATE', 'witness': w, 'cases': cases,
+                    'log': log}
     line(f"   inspiring scales hold (max scale {max_insp}); "
          f"a confirmatory loop would COMMIT this now.")
 
@@ -119,6 +122,7 @@ def refute(conj, verbose=True):
     for sc, tag, p in attack:
         ok, w, nc = conj.instance_test(*p)
         tested += 1
+        cases += nc
         beyond_flag = " (scale>inspiring)" if sc > max_insp else ""
         if not ok:
             line(f"   [{tag} {p}]{beyond_flag} COUNTEREXAMPLE -> REFUTED")
@@ -126,16 +130,39 @@ def refute(conj, verbose=True):
             line(f"      false-confidence delta: confirmatory loop COMMITS; "
                  f"refuter KILLS at scale {sc}.")
             return {'status': 'REFUTED', 'witness': w, 'killed_at': p,
-                    'attacks_before_kill': tested, 'log': log}
+                    'attacks_before_kill': tested, 'cases': cases, 'log': log}
         else:
             line(f"   [{tag} {p}]{beyond_flag} holds ({nc} cases)")
 
-    span = [conj.scale(*p) for _, _, p in attack] or [max_insp]
+    # graded verdict — 'robust' is earned by scale BEYOND inspiring, not by
+    # merely having a list of attacks. An empty or too-timid battery must
+    # not launder a CANDIDATE into a robust stamp.
+    envelope = None
+    if conj.param_names:
+        allp = list(conj.inspiring) + [p for _, _, p in attack]
+        envelope = {nm: max(p[i] for p in allp)
+                    for i, nm in enumerate(conj.param_names)}
+    span = [sc for sc, _, _ in attack]
+    if tested == 0:
+        line("   NO attacks scheduled -> CANDIDATE (holds where seen; "
+             "not yet attacked).")
+        return {'status': 'CANDIDATE', 'witness': None, 'attacks_survived': 0,
+                'max_scale': max_insp, 'cases': cases, 'envelope': envelope,
+                'log': log}
+    if all(sc <= max_insp for sc in span):
+        line(f"   survived {tested} attacks, but none exceeded inspiring "
+             f"scale {max_insp} -> CONJECTURE (never attacked beyond).")
+        return {'status': 'CONJECTURE', 'witness': None,
+                'attacks_survived': tested, 'max_scale': max(span),
+                'cases': cases, 'envelope': envelope, 'log': log}
     line(f"   survived {tested} adversarial params, scale up to {max(span)} "
          f"(inspiring max {max_insp}).")
+    if envelope:
+        line(f"   envelope: {envelope}")
     line(f"   -> ROBUST_CONJECTURE (empirical). NOT a theorem: no proof exists.")
     return {'status': 'ROBUST_CONJECTURE', 'witness': None,
-            'attacks_survived': tested, 'max_scale': max(span), 'log': log}
+            'attacks_survived': tested, 'max_scale': max(span),
+            'cases': cases, 'envelope': envelope, 'log': log}
 
 
 if __name__ == '__main__':

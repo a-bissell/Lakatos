@@ -28,10 +28,13 @@ generator runs.
    unaided (no-hints guard enforced mechanically); first attempt
    REFUTED by own battery (q0-pocket overfit), fixed via two-pass
    extraction + grid diversity.
-4. REFUTER: automation. Derive attack schedules from a conjecture's
-   parameter signature (monotone escalation on every axis, no curated
-   lists); generate Conjecture objects from LIBRARY entries; re-run the
-   ladder over the whole library as a regression battery.
+4. ~~REFUTER: automation~~ DONE (session 14, refuter_auto.py +
+   refuter_battery.py + refute() grading upgrade): schedules derived
+   from parameter signatures (floor probes, multi-anchor walks,
+   envelope-edge bisection, no-silent-caps reports); 6 library entries
+   -> Conjecture objects; whole-library ladder 7/7, 3.67M cases, 101s,
+   all envelopes extended. Laundering demo: curated adversary stamps a
+   false ROBUST, derived schedule refutes at a floor probe.
 5. INTEGRATION LOOP: generator -> oracle -> conjecture-former -> refuter
    with per-run budgets and the suppressed log as the live drift metric.
    Ship as a single runnable (engine.py) with a dry-run mode.

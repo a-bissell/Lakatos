@@ -606,10 +606,62 @@ notes: the no-hints boundary is enforced mechanically — the acceptance
   floor. Negative control: down-under elimination correctly refused as
   outside the grammar rather than approximated.
 
+### signature-derived-refutation
+kind: engine (refuter automation; the anti-laundering layer)
+domain |D|: whole-library regression ladder = 3,665,316 cases in 101s,
+  7/7 checks; plus the laundering demo (10,844-case curated battery
+  stamps a false conjecture ROBUST; the derived schedule kills it at a
+  floor probe)
+invariant: attack schedules are DERIVED from a conjecture's parameter
+  signature (axes + validity predicate + cost model), never curated:
+  floor probes bisected against validity, escalation walks beyond every
+  inspiring maximum from multiple anchors (a cheap corner affords the
+  deep walk the expensive corner cannot), envelope-edge bisection when a
+  walk overshoots or completes clean, deterministic out-of-grid draws.
+  No silent caps: every axis reports 'escalated to V' or an explicit
+  validity/cost limit. refute() now grades honestly — CANDIDATE (no
+  attacks), CONJECTURE (attacked, never beyond inspiring scale),
+  ROBUST_CONJECTURE (survived beyond) — and carries a per-axis envelope,
+  so an empty or timid battery can no longer launder a robust stamp.
+  Library ladder results (all ROBUST_CONJECTURE): general-b law to
+  b=52 piles / N=104 / r=202; parity radix law to b=391; Josephus J(n)
+  to n=6,656; Gilbreath to N=20, k=8 (2^20 interleavings); agreement
+  conservation to N=32 (b=2, m=5), b=4, 136 rounds; bucket==argmin to
+  |z| <= 91,366.
+procedure: [refuter_auto.py](refuter_auto.py) +
+  [refuter_battery.py](refuter_battery.py) (refute() grading upgraded in
+  [refuter.py](refuter.py))
+scores: n/a (engine)
+verified: 2026-08-28 session 14, battery 7/7
+canonical_form: derive_schedule(axes, inspiring, valid, cost, cap) ->
+  (schedule, per-axis report)
+notes: the laundering specimen is the parity rule claimed for every
+  N <= b^r — its inspiring data AND a diverse-looking curated adversary
+  sample only N = b^r, so the curated ladder awards a false ROBUST; the
+  derived schedule's floor probe (b=2, N=2, r=5) kills it instantly.
+  Coverage map and exclusions (strategy-search entries, exhausted finite
+  constructions, engine self-audits) documented in refuter_battery.py.
+  Conservation newly generalized: verified beyond the b=3 entry at b=2
+  and b=4 packets. Battery caps trim the historical parity envelope
+  (scale-512 (2,9) stands from refuter.py's own demo, which still runs).
+
 ---
 
 ## Session log
 
+- 2026-08-28 session 14 (engine item 4): refuter automation.
+  refuter_auto.py derives attack schedules from parameter signatures
+  (floor probes, multi-anchor escalation walks, envelope-edge bisection,
+  deterministic draws, no-silent-caps axis reports); refuter.py refute()
+  upgraded to graded verdicts (CANDIDATE / CONJECTURE /
+  ROBUST_CONJECTURE by whether attacks exceeded inspiring scale) with
+  per-axis envelopes and case accounting; refuter_battery.py generates
+  Conjecture objects from six library entries and runs the whole-library
+  ladder: 7/7, 3.67M cases, 101s, every envelope pushed past prior
+  testing. Laundering demo executed: curated adversary awards the false
+  robust stamp, derived schedule refutes at a floor probe. Regressions
+  clean (former acceptance 6/6 under new refuter; C1/C2 demo intact).
+  Items 5-8 pending.
 - 2026-08-27 session 13 (engine item 3): conjecture former. former.py is
   a generic exact-fit engine — rational incremental RREF with early
   inconsistency exit, model trees split on atom comparisons, refusal as
