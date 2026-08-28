@@ -80,10 +80,24 @@ ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
   to exact one-step pattern rotation per round; evenness shown
   necessary by a concrete uneven violation. First impossibility
   theorem.
-- Candidate theorem #3: the reversed-rest pickup laws (generator
-  survivors). Open question first: does preimage contiguity survive
-  the reversed-rest gather order? Check empirically against the
-  simulator before attempting the item-8 playbook.
+- Candidate theorem #3: reversed-rest pickups. GATE CHECK DONE
+  (session 16, scratchpad rr_contiguity.py, 30 configs b=3..7 all
+  residues): two families distinguished. (A) The generator survivors'
+  literal family (pile-IDENTITY a on top, card-independent) is a
+  bijection family — single-target preimages trivial, interval
+  preimages scatter (excess spread up to 22), so no fixed-vector
+  targeting exists there; proving the survivors' round law needs only
+  item-8 Lemma-2 concatenation algebra, no contiguity. (B) The
+  rank-parameterized card-dependent sibling (pointed pile inserted at
+  rank c, others largest-first) has ALL single-target preimages = b
+  consecutive positions and adjacent targets tile (425 preimages, 0
+  failures; control gather_position also clean) — the full item-8
+  playbook (midpoint recursion, corr-analog, envelope) applies.
+  Family B == gather_position at even N and edge ranks, differs at
+  EVERY uneven-N interior-rank pair (74/74 in grid): the new content
+  is exactly the uneven regime the literature search found silent.
+  Next session: derive corr_rr(c), state theorem #3 (targeting law
+  for largest-first pickups), run the playbook.
 
 ## Mathematics backlog (paused, unblocked as engine items land)
 
