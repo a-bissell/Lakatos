@@ -521,8 +521,12 @@ notes: FULL-DECK ACAAN IN FOUR DEALS (8 physical steps, down from 10) —
   r-frontier per (b, residue).
 
 ### general-b-radix-law
-kind: invariant (capstone: unifies [[universal-radix-law]] (b=3) and
-  [[four-pile-universal-law]] (b=4) as special cases)
+kind: invariant — STATUS: THEOREM as of 2026-08-28 session 15
+  (capstone: unifies [[universal-radix-law]] (b=3) and
+  [[four-pile-universal-law]] (b=4) as special cases; proof artifact
+  [[general-b-law-theorem]] = PROOF.md + proof.py — sufficiency
+  b^(r-1) >= N is now PROVEN over the whole hypothesis region, not
+  only verified on tested grids)
 domain |D|: 27 new (b, N) configs x full grids = 32,896 cases over
   b = 2, 5, 6, 7, 8 (with t20/t21: every pile count 2..8); round formula
   checked exactly at all 27; 20 of 27 configs were tight fits
@@ -729,6 +733,51 @@ notes: PROVENANCE (item 7, PROVENANCE.md reversed-rest-pickup-laws):
   survive — fixed with minimal/odd-offset probes in derive_schedule.
   Each guardrail caught the layer above it.
 
+### general-b-law-theorem
+kind: proof (engine item 8: the ladder's top rung, occupied)
+domain |D|: hypothesis region H1 b >= 2, H2 N >= b, H3 b^(r-1) >= N —
+  ALL of it, by proof; plus 27,700 fresh verify() cases at
+  boundary-tight configs and 4 extensional law_vector cross-checks
+invariant: THEOREM — under H1-H3 the argmin recursion
+  z <- -b*z + (2a+1-b)N + 2*corr(a) (digits reversed = pickups) brings
+  every card to every named target. Proof chain (PROOF.md): pile-size
+  algebra (division uniqueness, certified quotient/remainder) ->
+  round-map closed form C(j,a) -> single-target preimage = b
+  consecutive positions (run concatenation) -> interval tiling and the
+  midpoint recursion as EXACT endpoint algebra (no floors, no halving)
+  -> offset span [-(b-1)N, (b-1)N] with gaps in
+  [2(N-b+1), 2(N+b-2)] -> one-step bound |z'| <= N + max(b-2, b*d) ->
+  envelope |z_k| <= N + (b-2)b^(k-1) -> coverage iff |z_r| <= b^r - N,
+  and (b^r - N) - (N + (b-2)b^(r-1)) = 2b^(r-1) - 2N: hypothesis H3
+  IS the coverage condition with zero slack — explaining both why the
+  bound is sufficient and why it is not necessary (the envelope is
+  worst-case over targets; t22's frontier data lives in the slack).
+procedure: [PROOF.md](PROOF.md) (theorem + lemmas, machine-check IDs
+  C1-C10, prose steps P1-P3) + [proof.py](proof.py) (kernel: Farkas
+  certificates + exact polynomial identities, sympy-backed; kernel
+  failure modes unit-tested; simulator grounding C1/C2/C4; ground
+  truth C10)
+scores: n/a (proof)
+verified: 2026-08-28 session 15, PROOF CHECKS PASS C1-C10 (incl.
+  verify() at (5,25,3), (6,36,3), (7,49,3), (2,32,6) — all
+  b^(r-1) = N exactly — plus uneven near-boundary (6,33,3), (5,23,3)
+  and abstract (12,144,3))
+canonical_form: theorem(general-b law; semi-formal, machine-checked
+  algebra + prose skeleton P1-P3)
+notes: division of labor is explicit in PROOF.md's "Scope and
+  honesty": every identity/inequality is machine-certified; the three
+  prose steps are the discrete intermediate-value argument, the
+  induction over rounds, and the backward/forward duality — standard
+  finite arguments, none touching the corr algebra where this
+  project's historical errors lived. Process note (tradition upheld):
+  the kernel caught a genuinely missing case during construction —
+  the a = b-1 pickup has an EMPTY second run in the preimage
+  concatenation, and the draft case analysis asserted it nonempty;
+  the Farkas check refused the certificate (residual -1) and forced
+  the a = b-1 sub-case. The refuter ladder's grading still tops at
+  ROBUST_CONJECTURE by design: refutation can never promote to
+  THEOREM — only a proof artifact can, and this entry is the first.
+
 ### provenance-log
 kind: engine (item 7: literature logs as first-class artifacts)
 domain |D|: 9 dated records covering 17 library entries; 12 logged
@@ -771,6 +820,18 @@ notes: headline verdicts. KNOWN: the Mongean position law (session 14's
 
 ## Session log
 
+- 2026-08-28 session 15 (engine item 8, user-directed): the proof
+  step. PROOF.md + proof.py: the general-b law's sufficiency
+  b^(r-1) >= N proven over the entire hypothesis region — pile-size
+  algebra -> closed form -> preimage contiguity -> endpoint/midpoint
+  recursion -> offset gaps -> envelope |z_k| <= N + (b-2)b^(k-1) ->
+  coverage, with H3 exactly the zero-slack coverage condition. Proof
+  kernel: Farkas certificates + exact polynomial identities (checks
+  C1-C10; prose P1-P3 documented); kernel caught a missing a = b-1
+  empty-run case during construction. Fresh ground truth: 27,700
+  verify() cases at boundary-tight configs. general-b-radix-law
+  upgraded to THEOREM status — the ladder's top rung occupied for the
+  first time. ENGINE QUEUE COMPLETE (items 1-8).
 - 2026-08-28 session 15 (engine item 7, user-directed): provenance.
   12 web queries + 4 fetches run against every novelty claim; 9 dated
   records in PROVENANCE.md covering 17 entries; provenance_audit.py

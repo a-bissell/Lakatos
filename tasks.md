@@ -60,9 +60,17 @@ generator runs.
    found); two-card shared-gather NOT-FOUND (strongest candidates).
    Known limit: web search only; magic-literature databases and
    paywalled journals not consulted.
-8. PROOF STEP: formalize the general-b law derivation (pile-size algebra
-   -> preimage contiguity -> midpoint recursion) at least semi-formally;
-   first THEOREM-status entry, validating the ladder's top rung.
+8. ~~PROOF STEP~~ DONE (session 15, PROOF.md + proof.py): general-b
+   law proven over the whole hypothesis region (b >= 2, N >= b,
+   b^(r-1) >= N) — envelope |z_k| <= N + (b-2)b^(k-1) makes H3 the
+   EXACT zero-slack coverage condition. Machine checks C1-C10 (Farkas
+   certificates + exact polynomial identities, simulator grounding,
+   27,700 fresh verify() cases at boundary-tight configs incl.
+   b^(r-1) = N); prose steps P1-P3 documented. First THEOREM-status
+   entry; refuter grading intentionally still tops at
+   ROBUST_CONJECTURE (only a proof artifact promotes).
+
+ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
 
 ## Mathematics backlog (paused, unblocked as engine items land)
 
