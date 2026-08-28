@@ -323,7 +323,12 @@ notes: the two-card problem needs the full b! action space; gather_position
   is the special case preserving the others' relative order.
 
 ### two-card-agreement-conservation
-kind: invariant (impossibility theorem)
+kind: invariant — STATUS: THEOREM as of 2026-08-28 session 16 (proof
+  artifact [[two-card-conservation-theorem]] = PROOF_conservation.md +
+  proof_conservation.py; proven for all b >= 2, N = b^m, every round
+  count, every strategy — and STRENGTHENED: the agreement pattern is
+  rotated by exactly one digit position per round, not merely
+  permuted)
 domain |D|: all 702 ordered target pairs x all 702 start pairs, N=27,
   b=3 even piles, rounds 3, 4, 5 — full-information backward reachability
 invariant: two cards dealt into the same pile receive EQUAL new position
@@ -778,6 +783,51 @@ notes: division of labor is explicit in PROOF.md's "Scope and
   ROBUST_CONJECTURE by design: refutation can never promote to
   THEOREM — only a proof artifact can, and this entry is the first.
 
+### two-card-conservation-theorem
+kind: proof (theorem #2; the first impossibility theorem — quantified
+  over EVERY gathering strategy)
+domain |D|: all b >= 2, m >= 1, N = b^m, all round counts, all
+  strategies (adaptive included) — by proof; one-round content ALSO
+  verified exhaustively in every quantifier: 1,151,500 (pair, order)
+  cases across 9 configs, multi-round over all sigma-sequences at
+  (3,2,2)/(2,3,3), 3,040 cases
+invariant: THEOREM — one deal-and-gather round with even piles acts
+  on the two cards' base-b digit strings as: old low digit ->
+  new high digit through the gather-order permutation, all other
+  digits complemented (b-1-d) and shifted down one position. Both
+  transformations preserve per-digit (dis)agreement, so
+  A(p', q') = rot(A(p, q)) with rot(i) = (i-1) mod m, for EVERY
+  gather order — the agreement set rotates one step per round,
+  independent of strategy. Corollaries: |A| invariant; reachability
+  requires A(targets) = rot^r(A(start)); top/bottom double targeting
+  needs cards differing in EVERY digit (216/702 ordered pairs at
+  N=27; the other 486 unreachable at any depth); at m=3, rot^3 = id
+  explains t16's observed one-class-per-target structure at r=3
+  exactly.
+procedure: [PROOF_conservation.md](PROOF_conservation.md) +
+  [proof_conservation.py](proof_conservation.py) (kernel shared with
+  proof.py; checks D1-D8, prose Q1-Q3)
+scores: n/a (proof)
+verified: 2026-08-28 session 16, D1-D8 PASS (incl. exhaustive
+  single-round theorem check and the D7 negative control: a concrete
+  conservation violation at uneven N=10, b=3 — order (0,1,2), pair
+  (0,2) — proving the evenness hypothesis is necessary, not cautious)
+canonical_form: theorem(agreement rotation; even piles b^m; all
+  strategies)
+notes: the impossibility quantifier ("no strategy exists") is exactly
+  what a battery handles worst — the refuter's envelope
+  (m=5/b=4/rounds=136) brute-forces small sizes, the proof covers all
+  of them unconditionally. The strategy quantifier collapses in one
+  line: gather orders enter the digit action only as a permutation of
+  the new high digit, and permutations preserve (dis)agreement.
+  Complementary to [[general-b-law-theorem]]: the pile-size
+  irregularity that corr(a) repairs for one tracked card is the same
+  irregularity that dissolves this conservation law for two (D7's
+  witness), which is why the uneven 52-card double reveal (t16 part
+  B) exists. Per PROVENANCE.md (two-card-shared-gather, NOT-FOUND),
+  this is the library's strongest new-result candidate — now its
+  best-established entry.
+
 ### provenance-log
 kind: engine (item 7: literature logs as first-class artifacts)
 domain |D|: 9 dated records covering 17 library entries; 12 logged
@@ -820,6 +870,17 @@ notes: headline verdicts. KNOWN: the Mongean position law (session 14's
 
 ## Session log
 
+- 2026-08-28 session 16 (user-directed): theorem #2 — two-card
+  agreement conservation proven for all b >= 2, N = b^m, every round
+  count, every strategy, STRENGTHENED to exact one-step rotation of
+  the agreement pattern per round. PROOF_conservation.md +
+  proof_conservation.py (kernel shared with proof.py): D1-D8 incl.
+  exhaustive single-round verification in every quantifier (1.15M
+  cases, 9 configs), all sigma-sequences multi-round, the 486/702
+  impossibility count at N=27, rot^3 = id explaining t16's class
+  structure, and a concrete uneven-N violation proving the evenness
+  hypothesis necessary. First impossibility theorem; the strongest
+  new-result candidate is now the best-established entry.
 - 2026-08-28 session 15 (engine item 8, user-directed): the proof
   step. PROOF.md + proof.py: the general-b law's sufficiency
   b^(r-1) >= N proven over the entire hypothesis region — pile-size

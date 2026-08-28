@@ -72,6 +72,19 @@ generator runs.
 
 ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
 
+## Post-queue theorems
+
+- ~~Two-card agreement conservation~~ THEOREM #2 (session 16,
+  PROOF_conservation.md + proof_conservation.py): proven for all
+  b >= 2, N = b^m, every round count, every strategy — strengthened
+  to exact one-step pattern rotation per round; evenness shown
+  necessary by a concrete uneven violation. First impossibility
+  theorem.
+- Candidate theorem #3: the reversed-rest pickup laws (generator
+  survivors). Open question first: does preimage contiguity survive
+  the reversed-rest gather order? Check empirically against the
+  simulator before attempting the item-8 playbook.
+
 ## Mathematics backlog (paused, unblocked as engine items land)
 
 - Exact necessary (b, N, r) frontier (unblocked by item 1; conjecture

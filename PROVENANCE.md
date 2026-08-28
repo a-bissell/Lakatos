@@ -98,7 +98,7 @@ consequence: the floor-map dynamics of Gergonne deals are thoroughly
   This matches the wording already in [[alternating-radix-law]].
 
 ### two-card-shared-gather
-entries: two-card-agreement-conservation, double-reveal-uneven, double-reveal-performable
+entries: two-card-agreement-conservation, double-reveal-uneven, double-reveal-performable, two-card-conservation-theorem
 claim: the two-spectator shared-deal targeting problem — its even-pile
   conservation obstruction (digit-agreement pattern conserved by every
   gathering strategy) and its uneven-pile adaptive/reactive solutions.

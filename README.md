@@ -30,10 +30,13 @@ pose as new, and a proof layer for the one result that earned it.
   A four-deal version with even piles and a quarter-bucket rule is in
   [tricks/t21_four_pile_law.py](tricks/t21_four_pile_law.py).
   Performance protocols: [HOWTO.md](HOWTO.md).
-- **A two-card conservation law**: with even piles, the pattern of
-  digit positions where two tracked cards agree is conserved by every
-  gathering strategy, so double targeting is impossible at any depth;
-  uneven piles dissolve the obstruction and adaptive strategies exist
+- **A two-card conservation law** (THEOREM,
+  [PROOF_conservation.md](PROOF_conservation.md)): with even piles
+  (N = b^m), each round rotates the pattern of digit positions where
+  two tracked cards agree by exactly one place, under every gathering
+  strategy — so double targeting is impossible at any depth unless
+  the start pair sits in the target pair's rotated agreement class.
+  Uneven piles dissolve the obstruction and adaptive strategies exist
   ([tricks/t16_double_reveal.py](tricks/t16_double_reveal.py), a
   performable 11-card version in t17). No trace of this question was
   found in the literature searched ([PROVENANCE.md](PROVENANCE.md)).
@@ -124,7 +127,11 @@ python3 provenance_audit.py    # novelty-claim coverage audit
 ```
 
 ```bash
-python3 proof.py               # theorem checks C1-C10 (~30s)
+python3 proof.py               # theorem #1 checks C1-C10 (~30s)
+```
+
+```bash
+python3 proof_conservation.py  # theorem #2 checks D1-D8 (~30s)
 ```
 
 ## Honesty notes
