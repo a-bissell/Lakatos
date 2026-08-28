@@ -94,6 +94,7 @@ the oracle/refuter layer are in
 | [PROOF_reversed_rest.md](PROOF_reversed_rest.md) / [proof_rr.py](proof_rr.py) | theorem #3 (largest-first ACAAN, via reflection conjugacy) |
 | [PROVENANCE.md](PROVENANCE.md) / [provenance_audit.py](provenance_audit.py) | literature search records and the audit that enforces them |
 | [HOWTO.md](HOWTO.md) | human performance protocols for the ACAAN family |
+| [HOWTO_double_reveal.md](HOWTO_double_reveal.md) | performance protocol for the 11-card two-spectator double reveal |
 | [tasks.md](tasks.md) | queue, budgets, and backlog |
 | [files/agent_prompt.md](files/agent_prompt.md) | the original project spec |
 

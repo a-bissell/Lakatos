@@ -390,7 +390,14 @@ canonical note: NOVEL COMMIT (session 5, #1): first PERFORMABLE
   multi-spectator entry — 11 cards, 4 piles (3/3/3/2), 4 deals + 4 pickups
   = 8 steps, and a 47-entry crib (16/12/10/9 rows per round) instead of
   machine-sized trees.
-notes: sweep results (min full-info rounds for top/bottom, cap 6):
+notes: performance write-up: [HOWTO_double_reveal.md](HOWTO_double_reveal.md)
+  (2026-08-28). ROUND-4 SIMPLIFICATION found while writing it: the
+  fourth pickup is a RULE, not a table — A's pile on top, B's pile on
+  bottom, middle two in EITHER order (machine-verified 2026-08-28,
+  both reveals x 110 for each middle ordering; the search's round-4
+  entries were one arbitrary resolution of this freedom). Crib
+  effectively 38 entries + one rule.
+  Sweep results (min full-info rounds for top/bottom, cap 6):
   b=2 never within 6; b=3: N=8,10,11 need 4, N=13..20 need 5-6;
   b=4: N=9..14 need 3, N=15..19 need 4. Info constraint costs +1 round
   (rounds=3 adaptive-impossible for all b=4 configs tried). N=9, N=10
@@ -912,6 +919,17 @@ notes: headline verdicts. KNOWN: the Mongean position law (session 14's
 
 ## Session log
 
+- 2026-08-28 session 17 (user-directed, follow-up): double-reveal
+  performance write-up (HOWTO_double_reveal.md) — t17 tables
+  re-derived and re-verified (2x110), crib formatted as per-round
+  grids generated from the live search output (no hand
+  transcription). Discovery while formatting: round 4 is a rule (A's
+  pile top, B's bottom, middle free) — verified both middle orders
+  2x110; crib 47 -> 38 entries + rule. Also verified three
+  performance consequences of theorems #1/#3 for the ACAAN family
+  (largest-first variants of the b=3 and b=6 tricks, four-pile
+  mirror crib halving; 2,704 cases each) — recorded here, HOWTO
+  variations section not yet written.
 - 2026-08-28 session 17 (user-directed): theorem #3 — the
   largest-first ACAAN (t26). Gate check had opened the door; the
   algebra walked through it: corr_rr(c) = -corr(b-1-c) conjectured
