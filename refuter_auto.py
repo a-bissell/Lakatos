@@ -142,6 +142,16 @@ def derive_schedule(axes, inspiring, valid=None, cost=None, cap=None,
                 if e is not None:
                     add(beyond, _with(anchor, i, e))
                     got = max(got or 0, e)
+        # residue-breaking probes: doubling walks preserve divisibility
+        # (grid N all = 0 mod b stays = 0 mod b forever), so a law wrong
+        # only off the grid's residue class would survive pure doubling.
+        # Minimal (+1) and odd-offset probes break the alignment.
+        if ax.step == 'linear':
+            for v in (mx[i] + 1, 2 * mx[i] + 1, 2 * mx[i] + 3):
+                p = _with(ref, i, v)
+                if _ok(p, valid, cost, cap):
+                    add(beyond, p)
+                    got = max(got or 0, v)
         if got:
             esc_hi[i] = got
             report[ax.name] = f'escalated to {got}'

@@ -92,15 +92,17 @@ def run_engine(candidates, budget=None, verbose=True):
             continue
         processed += 1
         say(f'\n[{processed}] {cand.name}  (from: {cand.provenance})')
-        review_note = None
+        review_note, oracle_verdict = None, None
 
         # ---- stage 1: novelty oracle (log-and-suppress) ----------------
         if cand.oracle_view is not None:
             v = classify(cand.oracle_view(), log)
+            oracle_verdict = v['verdict']
             if v['verdict'] == 'MATCHED':
                 say(f"    oracle: MATCHED {v['family']} -> suppressed "
                     f"(witness logged)")
                 rows.append(dict(name=cand.name, disposition='SUPPRESSED',
+                                 oracle='MATCHED',
                                  detail=f"{v['family']}: {v['witness']}"))
                 continue
             if v['verdict'] == 'ABSTAIN':
@@ -111,36 +113,59 @@ def run_engine(candidates, budget=None, verbose=True):
                 say(f"    oracle: NOT_MATCHED "
                     f"({v.get('families_checked')} families) -> routed on")
 
-        # ---- stage 2: conjecture former --------------------------------
-        conj, report, model = None, None, None
+        # ---- stages 2+3: former <-> refuter (with bounded repair) ------
+        # A parametric candidate whose conjecture is REFUTED gets the
+        # killing config ADDED to its fit grid and is refit — the refuter
+        # teaching the former — at most MAX_REPAIRS times. Direct
+        # conjectures have nothing to refit and die where they die.
+        MAX_REPAIRS = 2
+        conj, report, model, res, repairs = None, None, None, None, 0
         if cand.parametric is not None:
             p = cand.parametric
-            model = fit_round_model(p['query'], p['fit_grid'])
+            grid = list(p['fit_grid'])
+            while True:
+                model = fit_round_model(p['query'], grid)
+                if model is None:
+                    break
+                conj, report = auto_conjecture(
+                    cand.name, p['claim'],
+                    make_instance_test(model, p['query']),
+                    p['axes'], grid, p['valid'], p['cost'], p['cap'])
+                res = refute(conj, verbose=False)
+                cases_used += model.n_points + res['cases']
+                if (res['status'] in ('REFUTED', 'NOT_A_CANDIDATE')
+                        and repairs < MAX_REPAIRS):
+                    repairs += 1
+                    grid.append(tuple(res['killed_at']))
+                    say(f"    repair {repairs}: refuted at "
+                        f"{res['killed_at']} — adding it to the fit grid "
+                        f"and refitting")
+                    continue
+                break
             if model is None:
                 say('    former: REFUSED (outside grammar) -> backlog')
                 rows.append(dict(name=cand.name, disposition='UNSTRUCTURED',
+                                 oracle=oracle_verdict,
                                  detail='former refused: not affine-in-floor '
                                         'over the declared grid'
+                                        + (f' (after {repairs} repairs)'
+                                           if repairs else '')
                                         + (f'; review: {review_note}'
                                            if review_note else '')))
                 continue
-            cases_used += model.n_points
-            say(f'    former: fit ({model.n_points} cells) -> conjecture')
-            conj, report = auto_conjecture(
-                cand.name, p['claim'],
-                make_instance_test(model, p['query']),
-                p['axes'], p['fit_grid'], p['valid'], p['cost'], p['cap'])
+            say(f'    former: fit ({model.n_points} cells'
+                + (f', {repairs} repairs' if repairs else '') + ')')
         elif cand.conjecture_spec is not None:
             s = cand.conjecture_spec
             conj, report = auto_conjecture(
                 cand.name, s['claim'], s['instance'], s['axes'],
                 s['inspiring'], s['valid'], s['cost'], s['cap'])
-
-        # ---- stage 3: refuter (derived schedule only) ------------------
-        if conj is not None:
             res = refute(conj, verbose=False)
             cases_used += res['cases']
+
+        if res is not None:
             st = res['status']
+            repair_note = f' (after {repairs} repairs)' if repairs else ''
             n_att = res.get('attacks_survived',
                             res.get('attacks_before_kill', 0))
             say(f"    refuter: {st} ({n_att} attacks, {res['cases']} cases)"
@@ -148,16 +173,20 @@ def run_engine(candidates, budget=None, verbose=True):
             if st == 'ROBUST_CONJECTURE':
                 rows.append(dict(
                     name=cand.name, disposition='SURVIVOR', model=model,
-                    detail=f"ROBUST_CONJECTURE, envelope {res['envelope']}; "
-                           f"provenance search pending (item 7)"))
+                    oracle=oracle_verdict, repairs=repairs,
+                    detail=f"ROBUST_CONJECTURE, envelope {res['envelope']}"
+                           f"{repair_note}; provenance search pending "
+                           f"(item 7)"))
             elif st in ('REFUTED', 'NOT_A_CANDIDATE'):
                 rows.append(dict(
                     name=cand.name, disposition='REFUTED',
+                    oracle=oracle_verdict, repairs=repairs,
                     detail=f"killed at {res.get('killed_at')}, witness "
-                           f"{res.get('witness')}"))
+                           f"{res.get('witness')}{repair_note}"))
             else:
                 rows.append(dict(
                     name=cand.name, disposition='DOWNGRADED',
+                    oracle=oracle_verdict,
                     detail=f'{st}: schedule could not attack beyond '
                            f'inspiring scale; axes: {report}'))
             continue
@@ -165,9 +194,10 @@ def run_engine(candidates, budget=None, verbose=True):
         # ---- nothing left to test: route or surface --------------------
         if review_note:
             rows.append(dict(name=cand.name, disposition='REVIEW',
-                             detail=review_note))
+                             oracle=oracle_verdict, detail=review_note))
         else:
             rows.append(dict(name=cand.name, disposition='ROUTED',
+                             oracle=oracle_verdict,
                              detail='not matched, no parametric content — '
                                     'study backlog'))
 
@@ -217,7 +247,29 @@ def _unit_engine():
     assert d['unit-bad'] == 'SKIPPED (budget)' and out['skipped'] == ['unit-bad']
 
 
+def _unit_repair_loop():
+    """The refuter must be able to TEACH the former: a family whose fit
+    grid only samples rho = 0 fits a law missing the [j < rho] term; an
+    off-grid attack kills it; the repair adds the killing config and the
+    refit learns the term."""
+    def q(N, b, a):
+        return [(x // b) + (b if (x % b) < (N % b) else 0)
+                for x in range(N)]
+    cand = EngineCandidate(
+        'unit-repair', 'unit', parametric=dict(
+            query=q, fit_grid=[(6, 3), (9, 3), (12, 3), (30, 3)],
+            axes=[Axis('N', lo=2), Axis('b', lo=2)],
+            valid=lambda N, b: b == 3 and N >= b,
+            cost=lambda N, b: N * b, cap=2000,
+            claim='unit: slope 1, intercept b*[j<rho]'))
+    out = run_engine([cand], verbose=False)
+    r = out['rows'][0]
+    assert r['disposition'] == 'SURVIVOR' and r['repairs'] >= 1, \
+        (r['disposition'], r.get('repairs'), r['detail'])
+
+
 _unit_engine()
+_unit_repair_loop()
 
 
 # ---- dry-run generator: fixed mix exercising every path ----------------------

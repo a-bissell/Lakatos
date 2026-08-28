@@ -40,11 +40,15 @@ generator runs.
    drift metric, 8 dispositions, dry-run-as-acceptance 9/9. First
    autonomous product: Mongean position law (SURVIVOR, envelope
    N=1500). Generator slot is an interface awaiting item 6.
-6. GENERATOR v1: question schemas over the existing op vocabulary
-   (targets, constraints, multi-card state, shuffle classes,
-   impossibility probes) — NOT new primitives. Success metric: suppressed
-   log shows exploration, and at least one NOT_MATCHED survivor reaches
-   ROBUST_CONJECTURE.
+6. ~~GENERATOR v1~~ DONE (session 14, generator.py): round-position-law
+   schema over existing ops, oracle-ignorant emission, extensional
+   dedup; metric met 11/11 — 6/9 suppressed across 3 families, 2
+   NOT_MATCHED survivors at ROBUST (reversed-rest pickup laws b=3/4,
+   envelopes N>5,000), cut-then-deal honestly refused. Engine gained
+   the bounded repair loop; derive_schedule gained residue probes.
+   v2 backlog: more schemas (targets, multi-card, shuffle classes,
+   impossibility probes); grammar v2 for floor((x-k)/b) families
+   (cut compositions).
 7. PROVENANCE: per-entry literature log (queries run, sources checked,
    date) so "likely new" claims are auditable like verify() counts.
 8. PROOF STEP: formalize the general-b law derivation (pile-size algebra

@@ -676,10 +676,60 @@ notes: FIRST FULLY-AUTONOMOUS PIPELINE PRODUCT: the Mongean position
   supplied the form. Survivor rows carry "provenance search pending
   (item 7)" so the missing literature half stays visible.
 
+### generator-v1-round-laws
+kind: engine (item 6: the inventive slot, v1) + two invariant products
+domain |D|: 9 candidates through the full loop (88,031 cases, 1.5s);
+  metric ledger 11/11
+invariant: generator.py instantiates ONE question schema — the
+  round-position-law question — over the existing op vocabulary
+  (pointed/cyclic/reversed pickups, cut-then-deal, interleaves,
+  down-under), emitting each instance with BOTH an oracle view and a
+  parametric former view: the generator is deliberately ignorant of
+  what is known (pre-filtering would re-introduce author blind spots
+  upstream of the guardrails). Dedup is extensional (b=2 cyclic ==
+  b=2 reversed-rest: one dropped). Engine run: 6/9 suppressed across
+  three families (Gergonne x4, Faro, Josephus — the drift metric
+  measuring "orbiting the known"), cut-then-deal honestly REFUSED
+  (position law lives in floor((x-a)/b), outside the v1 grammar —
+  grammar-v2 backlog), and TWO oracle-NOT_MATCHED survivors at
+  ROBUST_CONJECTURE: the REVERSED-REST PICKUP position laws for b=3
+  (envelope N=5,248) and b=4 (envelope N=5,000) — machine-fitted
+  closed forms for "pile a on top, rest right-to-left", a pickup
+  outside the Gergonne gather family.
+procedure: [generator.py](generator.py) (running it executes the
+  item-6 success metric as a ledger); engine repair loop + scheduler
+  residue probes in [engine.py](engine.py) / [refuter_auto.py](refuter_auto.py)
+scores: n/a (engine)
+verified: 2026-08-28 session 14, metric ledger 11/11
+canonical_form: schema x op-vocabulary -> EngineCandidate stream
+notes: three self-corrections in one item, all caught by the machinery:
+  (1) the draft claim said "every packet size N" — the refuter's floor
+  probe produced N=2,b=3 (empty pile) instantly; scoped to N >= b with
+  the counterexample recorded; (2) with b fixed per candidate the
+  sparse grid let an exact-on-grid tree alias off-grid (killed at
+  N=54) — fixed by densifying the mechanical grid AND adding the
+  engine's bounded REPAIR loop (refuter witness joins the fit grid,
+  former refits; unit-tested); (3) the repair unit then exposed a
+  scheduler blind spot — pure doubling escalation preserves residue
+  classes (N = 0 mod b forever), so residue-keyed errors could
+  survive — fixed with minimal/odd-offset probes in derive_schedule.
+  Each guardrail caught the layer above it.
+
 ---
 
 ## Session log
 
+- 2026-08-28 session 14 (engine item 6): generator v1. One schema
+  (round-position-law) over existing ops, oracle-ignorant emission,
+  extensional dedup, full-loop run 9 candidates: 6 suppressed (3
+  families), 1 honest refusal, 2 NOT_MATCHED survivors at ROBUST
+  (reversed-rest pickup laws, b=3/b=4, envelopes past N=5,000) —
+  item-6 success metric met, 11/11. Along the way: claim scoped to
+  N >= b by a refuter floor kill; engine gained the bounded
+  repair loop (refuter witness -> refit); derive_schedule gained
+  residue-breaking probes after the repair unit caught doubling-walk
+  residue blindness. Battery + dry-run + acceptance regressions green.
+  Session budget reached (3 commits); items 7-8 next.
 - 2026-08-28 session 14 (engine items 4+5): refuter automation + the
   integration loop. Item 5: engine.py — oracle/former/refuter chained
   under candidate-atomic budgets, suppressed-log drift metric, dry-run
