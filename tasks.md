@@ -80,7 +80,16 @@ ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
   to exact one-step pattern rotation per round; evenness shown
   necessary by a concrete uneven violation. First impossibility
   theorem.
-- Candidate theorem #3: reversed-rest pickups. GATE CHECK DONE
+- ~~Candidate theorem #3~~ THEOREM #3 (session 17, t26 +
+  PROOF_reversed_rest.md + proof_rr.py): the largest-first ACAAN law,
+  corr_rr(c) = -corr(b-1-c). Proven via Lemma R (reflection
+  conjugacy: rr_c = reflect . gergonne_{b-1-c} . reflect), inheriting
+  theorem #1 wholesale; verified 33,141 cases over 13 configs; added
+  to the refuter battery (8 checks). Honest framing: structural
+  corollary of theorem #1 — the contribution is the duality, the
+  survivor-family resolution, and a second performable pickup
+  convention. Gate-check record follows.
+- Gate check (session 16): reversed-rest contiguity. GATE CHECK DONE
   (session 16, scratchpad rr_contiguity.py, 30 configs b=3..7 all
   residues): two families distinguished. (A) The generator survivors'
   literal family (pile-IDENTITY a on top, card-independent) is a

@@ -72,6 +72,25 @@ def general_b_instance(b, N, r):
     return ok, (counter[0] if counter else None), len(domain)
 
 
+def reversed_rest_instance(b, N, r):
+    import t26_reversed_rest_acaan as t26
+    vec = {n: t26.law_vector_rr(n, N, b, r) for n in range(1, N + 1)}
+
+    def trick(deck, ch):
+        d = list(deck)
+        for c in vec[ch['n']]:
+            piles = deal_into_piles(d, b)
+            j = next(i for i, p in enumerate(piles) if ch['card'] in p)
+            d = t26.gather_rr(piles, j, c)
+        return d
+
+    domain = [{'card': c, 'n': n}
+              for c in range(N) for n in range(1, N + 1)]
+    ok, counter = verify(trick, domain, lambda f, ch: f[ch['n'] - 1],
+                         deck_factory=lambda: make_packet(N))
+    return ok, (counter[0] if counter else None), len(domain)
+
+
 def parity_instance(b, r):
     return targeting_instance(b, r, parity=True)
 
@@ -191,6 +210,19 @@ SPECS = [
          axes=[Axis('b', lo=2), Axis('N', lo=2),
                Axis('r', lo=1, step='increment')],
          inspiring=T22_GRID + T20_T21_REPS,
+         valid=lambda b, N, r: N >= b >= 2 and r >= 1
+               and b ** (r - 1) >= N,
+         cost=lambda b, N, r: N ** 3 * r, cap=int(1.2e8)),
+    dict(name='largest-first ACAAN law  [t26, theorem #3]',
+         claim='law_vector_rr(n, N, b, r) sends every card to position '
+               'n under largest-first pickups whenever N >= b and '
+               'b^(r-1) >= N',
+         instance=reversed_rest_instance,
+         axes=[Axis('b', lo=2), Axis('N', lo=2),
+               Axis('r', lo=1, step='increment')],
+         inspiring=[(3, 7, 3), (4, 10, 3), (5, 23, 3), (6, 33, 3),
+                    (5, 25, 3), (6, 36, 3), (2, 32, 6), (4, 52, 4),
+                    (6, 52, 4)],
          valid=lambda b, N, r: N >= b >= 2 and r >= 1
                and b ** (r - 1) >= N,
          cost=lambda b, N, r: N ** 3 * r, cap=int(1.2e8)),

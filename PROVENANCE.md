@@ -50,7 +50,7 @@ consequence: REDISCOVERY. Position tracking under the Monge shuffle has
   not a discovery), and the LIBRARY entry now says so.
 
 ### reversed-rest-pickup-laws
-entries: generator-v1-round-laws
+entries: generator-v1-round-laws, largest-first-acaan
 claim: machine-fitted round-position closed forms for the reversed-rest
   pickup ("pile a on top, rest right-to-left"), b=3 and b=4, valid for
   every N >= b including N not divisible by b.

@@ -828,6 +828,48 @@ notes: the impossibility quantifier ("no strategy exists") is exactly
   this is the library's strongest new-result candidate — now its
   best-established entry.
 
+### largest-first-acaan
+kind: trick + invariant — STATUS: THEOREM at birth (theorem #3; the
+  first entry to enter the library already proven)
+domain |D|: verify() 33,141 cases over 13 configs, twelve
+  boundary-tight, incl. full-deck b=4/b=6 and abstract (12,144,3);
+  proof covers all b >= 2, N >= b, b^(r-1) >= N
+invariant: ACAAN where the performer picks piles up
+  LARGEST-INDEX-FIRST, pointed pile inserted at rank c:
+      z <- -b*z + (2c+1-b)*N + 2*corr_rr(c),
+      corr_rr(c) = -corr(b-1-c)   (t22's corr, negated at the
+      complementary rank); argmin digit, digits reversed = ranks,
+      valid b^(r-1) >= N.
+  LEMMA R (the reason it works): the largest-first round map is the
+  position-reflection conjugate of the Gergonne round map,
+  rr_c = r . gp_{b-1-c} . r with r(x) = N-1-x — algebraic core
+  C_rr(j,c) + C_gp((rho-1-j) mod b, b-1-c) = N - 2 + sizes[j].
+  So theorem #3 inherits theorem #1 wholesale, and the vector for
+  target n is (up to argmin ties) the digit-complement of the
+  Gergonne vector for the mirror target N+1-n. The family differs
+  from Gergonne gathering at EVERY uneven-N interior rank (45/45 on
+  the proof grid) and coincides at even N and edge ranks.
+procedure: [tricks/t26_reversed_rest_acaan.py](tricks/t26_reversed_rest_acaan.py) +
+  [PROOF_reversed_rest.md](PROOF_reversed_rest.md) +
+  [proof_rr.py](proof_rr.py) (checks E1-E8, prose R1-R2)
+scores: freedom=5, opacity=4, simplicity=3, elegance=5
+verified: 2026-08-28 session 17, t26 grid PASS + proof checks E1-E8
+  PASS + battery spec added: ROBUST_CONJECTURE on the empirical rung
+  (37 attacks, 227,029 cases, envelope b=74 piles / N=216 / r=112;
+  whole battery 8/8, 3.92M cases) — THEOREM from the proof artifact
+canonical_form: Gergonne-dynamics closed form, reflected (any N, any
+  b, largest-first pickups)
+notes: honest framing per PROOF_reversed_rest.md: the mathematics is
+  a structural COROLLARY of [[general-b-law-theorem]] via Lemma R,
+  not an independent discovery — the contribution is the duality
+  itself, the resolution of [[generator-v1-round-laws]]'s survivor
+  family (its card-dependent sibling now has a proven targeting law;
+  the survivors' own card-independent maps are bijections and
+  provably admit no fixed-vector targeting), and a second performable
+  pickup convention whose crib is "complement the digits, mirror the
+  target". Performance note: largest-first is arguably the more
+  natural physical pickup for a right-handed performer.
+
 ### provenance-log
 kind: engine (item 7: literature logs as first-class artifacts)
 domain |D|: 9 dated records covering 17 library entries; 12 logged
@@ -870,6 +912,20 @@ notes: headline verdicts. KNOWN: the Mongean position law (session 14's
 
 ## Session log
 
+- 2026-08-28 session 17 (user-directed): theorem #3 — the
+  largest-first ACAAN (t26). Gate check had opened the door; the
+  algebra walked through it: corr_rr(c) = -corr(b-1-c) conjectured
+  from the preimage derivation, passed verify() first try, then
+  Lemma R discovered — the round map is the exact position-reflection
+  conjugate of the Gergonne map (90/90 on the gate grid, then proven:
+  E3 core identity + E4 reflection algebra). Theorem #3 = corollary
+  of theorem #1 via the mirror; vector duality rr(n) =
+  complement(gergonne(N+1-n)) up to argmin ties (66/73 exact, 7
+  tie-shifted, all verify). t26: 33,141 cases, 13 configs, twelve
+  tight. proof_rr.py E1-E8 PASS (one cert slip caught by the kernel:
+  a redundant +1 in the cell-B rank bound). Battery gains the t26
+  spec (8 checks). First entry born at THEOREM status. Honest
+  framing recorded: structural corollary, not independent discovery.
 - 2026-08-28 session 16 (user-directed): theorem #2 — two-card
   agreement conservation proven for all b >= 2, N = b^m, every round
   count, every strategy, STRENGTHENED to exact one-step rotation of

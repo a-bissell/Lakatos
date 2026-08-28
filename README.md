@@ -74,8 +74,11 @@ pose as new, and a proof layer for the one result that earned it.
 
 Verdicts are graded: `REFUTED` (with witness) < `CONJECTURE` <
 `ROBUST_CONJECTURE` (with envelope) < `THEOREM`. The refuter cannot
-promote anything to THEOREM; only a proof artifact can, and one entry
-has one. Design notes for the oracle/refuter layer are in
+promote anything to THEOREM; only a proof artifact can, and three
+entries hold one: the general-b law, the two-card conservation law,
+and the largest-first ACAAN (a reflection conjugate of the first,
+[PROOF_reversed_rest.md](PROOF_reversed_rest.md)). Design notes for
+the oracle/refuter layer are in
 [ENGINE.md](ENGINE.md); the full history of the engine build is in
 [CAPSTONE.md](CAPSTONE.md).
 
@@ -86,7 +89,9 @@ has one. Design notes for the oracle/refuter layer are in
 | [deck_sim.py](deck_sim.py) | simulator + `verify()`/`verify_prop()` harness (ground truth) |
 | [tricks/](tricks/) | 24 runnable proofs, t2–t25; each prints its own verification ledger |
 | [LIBRARY.md](LIBRARY.md) | 35 verified entries with domains, scores, and session log |
-| [PROOF.md](PROOF.md) / [proof.py](proof.py) | the general-b theorem and its machine checks |
+| [PROOF.md](PROOF.md) / [proof.py](proof.py) | theorem #1 (general-b law) and its machine checks |
+| [PROOF_conservation.md](PROOF_conservation.md) / [proof_conservation.py](proof_conservation.py) | theorem #2 (two-card conservation) |
+| [PROOF_reversed_rest.md](PROOF_reversed_rest.md) / [proof_rr.py](proof_rr.py) | theorem #3 (largest-first ACAAN, via reflection conjugacy) |
 | [PROVENANCE.md](PROVENANCE.md) / [provenance_audit.py](provenance_audit.py) | literature search records and the audit that enforces them |
 | [HOWTO.md](HOWTO.md) | human performance protocols for the ACAAN family |
 | [tasks.md](tasks.md) | queue, budgets, and backlog |
