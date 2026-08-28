@@ -35,9 +35,11 @@ generator runs.
    -> Conjecture objects; whole-library ladder 7/7, 3.67M cases, 101s,
    all envelopes extended. Laundering demo: curated adversary stamps a
    false ROBUST, derived schedule refutes at a floor probe.
-5. INTEGRATION LOOP: generator -> oracle -> conjecture-former -> refuter
-   with per-run budgets and the suppressed log as the live drift metric.
-   Ship as a single runnable (engine.py) with a dry-run mode.
+5. ~~INTEGRATION LOOP~~ DONE (session 14, engine.py): pipeline chained
+   with candidate-atomic budgets (every skip named), suppressed-log
+   drift metric, 8 dispositions, dry-run-as-acceptance 9/9. First
+   autonomous product: Mongean position law (SURVIVOR, envelope
+   N=1500). Generator slot is an interface awaiting item 6.
 6. GENERATOR v1: question schemas over the existing op vocabulary
    (targets, constraints, multi-card state, shuffle classes,
    impossibility probes) — NOT new primitives. Success metric: suppressed

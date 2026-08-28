@@ -645,10 +645,48 @@ notes: the laundering specimen is the parity rule claimed for every
   and b=4 packets. Battery caps trim the historical parity envelope
   (scale-512 (2,9) stands from refuter.py's own demo, which still runs).
 
+### integrated-engine-loop
+kind: engine (item 5: the pipeline as one runnable)
+domain |D|: dry-run acceptance 9/9 checks, 12,947 cases, under a second;
+  every pipeline path exercised against real library material
+invariant: engine.py chains generator -> novelty oracle
+  (log-and-suppress) -> conjecture former -> refuter (signature-derived
+  schedules only) under per-run budgets (candidates / cases / seconds,
+  candidate-atomic, every skip named — no silent truncation), with the
+  suppressed log as the live drift metric. Eight dispositions:
+  SUPPRESSED / REVIEW / ROUTED / UNSTRUCTURED / SURVIVOR / REFUTED /
+  DOWNGRADED / SKIPPED. The generator slot is an interface (item 6);
+  the dry-run replays a fixed mix: a t15-style disguised fixed-vector
+  ACAAN (suppressed via [[machine-rederived-round-law]]'s sibling
+  recognizer), out-faro (suppressed), the same faro on a partial sample
+  (sampling pin -> REVIEW), the Mongean family (SURVIVOR — see notes),
+  the milk shuffle (former refuses: rise-then-fold is outside the
+  grammar), full reversal (ROUTED), and the naive-parity laundering
+  specimen as a ready-made claim (REFUTED at the derived floor probe).
+procedure: [engine.py](engine.py) (dry-run mode doubles as the
+  acceptance ledger; unit checks at import)
+scores: n/a (engine)
+verified: 2026-08-28 session 14, dry-run ledger 9/9
+canonical_form: run_engine(candidates, budget) -> report rows + drift +
+  budget accounting
+notes: FIRST FULLY-AUTONOMOUS PIPELINE PRODUCT: the Mongean position
+  law — newpos = (2j-1)*floor(x/2) + (q0 + rho + j - 1), j = x mod 2 —
+  oracle-cleared (outside all five families), machine-fitted from 40
+  black-box cells, ROBUST_CONJECTURE with envelope N=1500. No human
+  supplied the form. Survivor rows carry "provenance search pending
+  (item 7)" so the missing literature half stays visible.
+
 ---
 
 ## Session log
 
+- 2026-08-28 session 14 (engine items 4+5): refuter automation + the
+  integration loop. Item 5: engine.py — oracle/former/refuter chained
+  under candidate-atomic budgets, suppressed-log drift metric, dry-run
+  acceptance 9/9 (12,947 cases, 0.9s); first autonomous product = the
+  Mongean position law (SURVIVOR, envelope N=1500); milk shuffle
+  honestly refused; laundering specimen killed inside the loop.
+  Items 6-8 pending.
 - 2026-08-28 session 14 (engine item 4): refuter automation.
   refuter_auto.py derives attack schedules from parameter signatures
   (floor probes, multi-anchor escalation walks, envelope-edge bisection,
