@@ -49,8 +49,17 @@ generator runs.
    v2 backlog: more schemas (targets, multi-card, shuffle classes,
    impossibility probes); grammar v2 for floor((x-k)/b) families
    (cut compositions).
-7. PROVENANCE: per-entry literature log (queries run, sources checked,
-   date) so "likely new" claims are auditable like verify() counts.
+7. ~~PROVENANCE~~ DONE (session 15, PROVENANCE.md +
+   provenance_audit.py): 9 dated records (12 queries, 4 fetches, 21
+   sources) covering 17 entries; audit enforces coverage, verdict
+   vocabulary (KNOWN / KNOWN-FAMILY / NOT-FOUND), KNOWN-acknowledgment,
+   and no stale tags — mechanically, with unit checks for 7 failure
+   modes. Headline: Mongean law is a REDISCOVERY (Monge 1773) — entry
+   corrected; uneven-radix family (t19-t23) and reversed-rest laws
+   scoped KNOWN-FAMILY (even-N slice charted, uneven-N forms not
+   found); two-card shared-gather NOT-FOUND (strongest candidates).
+   Known limit: web search only; magic-literature databases and
+   paywalled journals not consulted.
 8. PROOF STEP: formalize the general-b law derivation (pile-size algebra
    -> preimage contiguity -> midpoint recursion) at least semi-formally;
    first THEOREM-status entry, validating the ladder's top rung.

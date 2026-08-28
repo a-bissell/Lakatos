@@ -21,7 +21,8 @@ pipeline path against real library material:
                        grammar, never a hallucinated fit
   SURVIVOR             former fit a closed form and the refuter awarded
                        ROBUST_CONJECTURE on a signature-derived schedule
-                       (provenance search = item 7, pending)
+                       (needs a PROVENANCE.md record before any
+                       novelty claim — see provenance_audit.py)
   REFUTED              the refuter killed it; witness recorded — a kill
                        is a result, not a failure
   DOWNGRADED           refuter returned CANDIDATE/CONJECTURE (schedule
@@ -175,8 +176,8 @@ def run_engine(candidates, budget=None, verbose=True):
                     name=cand.name, disposition='SURVIVOR', model=model,
                     oracle=oracle_verdict, repairs=repairs,
                     detail=f"ROBUST_CONJECTURE, envelope {res['envelope']}"
-                           f"{repair_note}; provenance search pending "
-                           f"(item 7)"))
+                           f"{repair_note}; provenance log required "
+                           f"(PROVENANCE.md)"))
             elif st in ('REFUTED', 'NOT_A_CANDIDATE'):
                 rows.append(dict(
                     name=cand.name, disposition='REFUTED',

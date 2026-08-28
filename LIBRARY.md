@@ -219,7 +219,10 @@ canonical_form: cyclic-stack(4) ∘ riffle ∘ remove-one -> suit-reveal
 canonical note: NOVEL COMMIT (session 3, #1): first spectator-shuffle trick
   with a reveal (t9 committed only the bare invariant).
 notes: spectator shuffles, chooses the quartet AND the removed card;
-  performer computes nothing but "which suit is missing".
+  performer computes nothing but "which suit is missing". Suit-based
+  Gilbreath reveals are standard repertoire in the literature (Mulcahy,
+  AMS feature column) — "NOVEL COMMIT" here means novel to this
+  library, per PROVENANCE.md gilbreath-rediscovery.
 
 ### spell-48
 kind: trick (extension of spell-your-own-card; same canonical family)
@@ -673,8 +676,13 @@ notes: FIRST FULLY-AUTONOMOUS PIPELINE PRODUCT: the Mongean position
   law — newpos = (2j-1)*floor(x/2) + (q0 + rho + j - 1), j = x mod 2 —
   oracle-cleared (outside all five families), machine-fitted from 40
   black-box cells, ROBUST_CONJECTURE with envelope N=1500. No human
-  supplied the form. Survivor rows carry "provenance search pending
-  (item 7)" so the missing literature half stays visible.
+  supplied the form. PROVENANCE (item 7, PROVENANCE.md
+  mongean-position-law): verdict KNOWN — a REDISCOVERY. Position
+  tracking under the Monge shuffle is published since Monge (1773);
+  MathWorld carries the iterated closed form. The oracle cleared it
+  only because no Monge recognizer exists — a recognizer-coverage gap.
+  The pipeline's value here is validation, not discovery; survivor rows
+  now carry "provenance log required (PROVENANCE.md)".
 
 ### generator-v1-round-laws
 kind: engine (item 6: the inventive slot, v1) + two invariant products
@@ -702,7 +710,13 @@ procedure: [generator.py](generator.py) (running it executes the
 scores: n/a (engine)
 verified: 2026-08-28 session 14, metric ledger 11/11
 canonical_form: schema x op-vocabulary -> EngineCandidate stream
-notes: three self-corrections in one item, all caught by the machinery:
+notes: PROVENANCE (item 7, PROVENANCE.md reversed-rest-pickup-laws):
+  verdict KNOWN-FAMILY — arbitrary collection orders on evenly
+  divisible decks sit inside the charted p-pile framework (DAM 1997,
+  Quintero 2017), so the b | N slice is known territory; the uneven-N
+  closed forms (q0/rho case-split intercepts, N mod b != 0) were not
+  found — likely new in that regime, relative to the logged queries.
+  Three self-corrections in one item, all caught by the machinery:
   (1) the draft claim said "every packet size N" — the refuter's floor
   probe produced N=2,b=3 (empty pile) instantly; scoped to N >= b with
   the counterexample recorded; (2) with b fixed per candidate the
@@ -715,10 +729,57 @@ notes: three self-corrections in one item, all caught by the machinery:
   survive — fixed with minimal/odd-offset probes in derive_schedule.
   Each guardrail caught the layer above it.
 
+### provenance-log
+kind: engine (item 7: literature logs as first-class artifacts)
+domain |D|: 9 dated records covering 17 library entries; 12 logged
+  queries + 4 page fetches; audit ledger 9/9 unit checks + full-file
+  audit PASS
+invariant: claims of newness are now auditable the way "verified" is —
+  PROVENANCE.md holds one dated record per novelty claim (queries run,
+  sources with URLs, verdict from a controlled vocabulary: KNOWN /
+  KNOWN-FAMILY / NOT-FOUND), and provenance_audit.py enforces the link
+  mechanically: every entry whose text claims novelty must be covered
+  by a record; records may not cite nonexistent entries; a KNOWN
+  verdict requires the entry itself to acknowledge the literature; the
+  stale "pending" tag may not survive. Verdicts are explicitly relative
+  to the logged queries — a NOT-FOUND is a statement about a search,
+  never about the literature.
+procedure: [PROVENANCE.md](PROVENANCE.md) +
+  [provenance_audit.py](provenance_audit.py) (unit checks at import;
+  __main__ audits the real files and exits nonzero on any gap)
+scores: n/a (engine)
+verified: 2026-08-28 session 15, audit PASS over the live files
+canonical_form: novelty claim -> dated search record -> mechanical audit
+notes: headline verdicts. KNOWN: the Mongean position law (session 14's
+  "first autonomous product") is a REDISCOVERY — Monge 1773, closed
+  form on MathWorld — recorded as pipeline validation, not discovery.
+  KNOWN-FAMILY: the whole uneven-radix family (t19-t23) — floor-map
+  Gergonne dynamics are charted (Bolker 2010; DAM 1997; Quintero 2017),
+  but every source found treats evenly divisible decks and/or
+  fixed-point convergence; the uneven-N corr(a) targeting laws and the
+  b^(r-1) >= N boundary were not found. Same verdict for the
+  reversed-rest pickup laws (even-N slice charted, uneven-N not found).
+  NOT-FOUND: the two-card shared-gather problem (conservation
+  obstruction + double reveals) — still the library's strongest
+  new-result candidates. A 2025 arXiv survey (Card Dealing Math, 2509.11395) now
+  charts the under-down genre including audience-controlled counts, so
+  t13's genre is KNOWN-FAMILY. Known limit: web search only — magic
+  literature databases and paywalled journals not consulted; records
+  append, never edit.
+
 ---
 
 ## Session log
 
+- 2026-08-28 session 15 (engine item 7, user-directed): provenance.
+  12 web queries + 4 fetches run against every novelty claim; 9 dated
+  records in PROVENANCE.md covering 17 entries; provenance_audit.py
+  enforces coverage/vocabulary/acknowledgment mechanically (unit checks
+  7 failure modes; full-file audit PASS). Humbling headline: the
+  Mongean law is a rediscovery (Monge 1773) — LIBRARY entry corrected;
+  reversed-rest laws scoped to "likely new only for N not divisible by
+  b"; two-card shared-gather problem remains NOT-FOUND (strongest
+  candidates). Item 8 (proof step) next.
 - 2026-08-28 session 14 (engine item 6): generator v1. One schema
   (round-position-law) over existing ops, oracle-ignorant emission,
   extensional dedup, full-loop run 9 candidates: 6 suppressed (3
