@@ -11,6 +11,7 @@ on lakatos, never the reverse.
   lakatos.oracle        rediscovery-filter policy: SuppressedLog, RecognizerSet, classify
   lakatos.refuter       Conjecture, refute(), the status ladder, false-confidence delta
   lakatos.engine        run_engine(): budgets, eight dispositions, drift metric
+  lakatos.protocols     the published four-plug contract + mechanical validators
   lakatos.proof_kernel  Farkas certificate kernel (NOT imported here: needs sympy,
                         an optional dependency — `pip install lakatos[proof]`;
                         import it explicitly: `from lakatos.proof_kernel import Ctx`)
@@ -30,8 +31,13 @@ from lakatos.fitter import (FeatureBasis, exact_fit, fit_tree, tree_eval,
 from lakatos.oracle import SuppressedLog, RecognizerSet, classify
 from lakatos.refuter import Conjecture, confirmatory_verdict, refute
 from lakatos.engine import run_engine, EngineCandidate, DEFAULT_BUDGET
+from lakatos.protocols import (Decider, Recognizer, CandidateSource,
+                               InstanceTest, Triple, check_conjecture_spec,
+                               check_parametric, check_plugs)
 
 __all__ = [
+    'Decider', 'Recognizer', 'CandidateSource', 'InstanceTest', 'Triple',
+    'check_conjecture_spec', 'check_parametric', 'check_plugs',
     'Axis', 'derive_schedule', 'auto_conjecture',
     'FeatureBasis', 'exact_fit', 'fit_tree', 'tree_eval', 'tree_str',
     'simplify_tree', 'Leaf', 'Node',

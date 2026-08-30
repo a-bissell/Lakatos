@@ -47,24 +47,25 @@ kernel's sympy is the `[proof]` extra). Prose below still says "core" for the
 concept; every path says `lakatos/`.*
 
 ```
-lakatos/
-  ladder.py       status ladder + Envelope (the load-bearing labels)
-  decider.py      the Decider protocol + the exhaustive-check contract
-  refuter.py      Conjecture, refute(), confirmatory_verdict, false-confidence delta
+lakatos/                    (as shipped; the sketch's ladder.py folded into
+                             refuter.py, its decider.py into protocols.py)
+  protocols.py    the published four-plug contract + mechanical validators [step 5]
+  refuter.py      Conjecture, refute(), the status ladder, false-confidence delta
   schedule.py     Axis, derive_schedule(), auto_conjecture()   [= refuter_auto.py, verbatim]
-  fitter.py       _Echelon, exact_fit, fit_tree, tree_eval     [= former.py fitter core, verbatim]
-  oracle.py       SuppressedLog + classify() policy engine     [recognizers injected]
+  fitter.py       _Echelon, exact_fit, fit_tree, tree_eval     [FeatureBasis-injected]
+  oracle.py       SuppressedLog + RecognizerSet + classify()   [recognizers injected]
   engine.py       run_engine(): budgets, 8 dispositions, drift metric [plugs injected]
-  provenance.py   the audit: novelty claims require dated records
-  proof_kernel.py Ctx, nonneg(), infeasible(), base_ctx()      [Farkas cert kernel]
+  proof_kernel.py Ctx, nonneg(), infeasible()                  [Farkas kernel; [proof] extra]
+  # provenance audit not yet extracted: provenance_audit.py at root is still
+  # card-flavored (LIBRARY.md entry format); that policy/domain cut is future work
 
 domains/cards/
-  decider.py      deck_sim: make_packet, deal/gather/spell ops, verify/verify_prop
-  recognizers.py  _match_gergonne/faro/josephus/gilbreath/library_targeting
-  schemas.py      generator q_* question schemas + Axis signatures per schema
-  round_model.py  fit_round_model, FittedRoundModel (the card-shaped fit target)
-  proofs/         C1–C10 (general-b), conservation, reversed-rest
-  provenance/     PROVENANCE.md records
+  __init__.py     the WIRING (step 5): DECIDER adapts verify/verify_prop to the
+                  universal triple; PLUGS = classify / fit_round_model /
+                  make_instance_test; conformance checks at import
+  # the card modules themselves (deck_sim, recognizers, round model, schemas,
+  # proofs, PROVENANCE) still live at the repo root — their relocation into
+  # this package is the deferred pure move (see the note under §6)
 
   # every existing .md (ENGINE, CAPSTONE, HOWTO*, PROOF*) is domain narrative
 ```
@@ -99,10 +100,13 @@ unchanged. Current recognizers already return exactly this shape:
 
 ```python
 class Recognizer(Protocol):
-    family: str
     def __call__(self, cand) -> dict | None:
         # {'family': str, 'confidence': 'exact'|'abstain', 'witness': str}  or None
 ```
+
+(The family name travels in the hit and in `RecognizerSet.checked` — not as an
+attribute: the shipped recognizers are plain functions, and the published
+protocol in `lakatos/protocols.py` matches the code, not the earlier sketch.)
 
 The core policy — **asymmetric error** (false KNOWN is invisible & catastrophic
 → abstain when unsure), **log-and-suppress with a witness**, the **sampling
@@ -222,14 +226,25 @@ injected plugs.
    former_acceptance/refuter_battery; this also fixed a step-1 core→root leak
    (`lakatos/schedule.py` now imports `Conjecture` from `lakatos.refuter`). Green:
    engine dry-run 13167 cases, generator 11/11, former_acceptance 6/6.
-5. Define the four `Protocol`s in `lakatos/` as the published contract; write a
-   `domains/cards/__init__.py` that wires the plugs. The engine dry-run is now
-   the framework's conformance test for the cards domain.
+5. **DONE**. `lakatos/protocols.py` publishes the contract: the `Decider` /
+   `Recognizer` / `CandidateSource` protocols, the `Triple` / `InstanceTest`
+   aliases, and — the real teeth, since `runtime_checkable` verifies attribute
+   existence only — mechanical validators (`check_conjecture_spec`,
+   `check_parametric`, `check_plugs`) that name what is missing.
+   `domains/cards/__init__.py` is the canonical wiring: `DECIDER` (a
+   `CardDecider` adapting `verify`/`verify_prop` to the triple — witness =
+   first counterexample) plus `PLUGS` (`classify` / `fit_round_model` /
+   `make_instance_test`), with structural conformance checks at import; root
+   `engine.py` now consumes `PLUGS` from it, so the wiring has one source of
+   truth. The engine dry-run is the framework's conformance test for the cards
+   domain. Also this step: the package renamed `core/` → `lakatos/` and became
+   pip-installable (`pyproject.toml`, zero dependencies, sympy as the
+   `[proof]` extra) so a second domain can `pip install -e` the engine.
 
-*Note: steps 1–2 kept the card domain files at repo root (as step 1 did for
-`deck_sim`/`former`); the `domains/cards/` relocation in §2 is a later pure
-move, deferred so each core extraction stays a small, green-at-every-step
-commit.*
+*Note: steps 1–5 kept the card domain files at repo root (as step 1 did for
+`deck_sim`/`former`); `domains/cards/` currently holds only the wiring, and
+the relocation of the card modules into it is a later pure move, deferred so
+each core extraction stays a small, green-at-every-step commit.*
 
 ## 7. Admissibility test for a second domain
 

@@ -38,17 +38,15 @@ sys.path.insert(0, os.path.join(ROOT, 'tricks'))
 
 from lakatos.engine import run_engine as _core_run_engine, EngineCandidate
 from lakatos.schedule import Axis
-from novelty_oracle import Candidate as OracleCandidate, classify as _classify
-from former import (fit_round_model as _fit_model,
-                    make_instance_test as _make_instance_test)
+from domains.cards import PLUGS, OracleCandidate
 
 
 def run_engine(candidates, budget=None, verbose=True):
     """The card-wired engine: the novelty oracle as the rediscovery filter and
-    the affine-in-floor round former, plugged into lakatos.engine's loop."""
+    the affine-in-floor round former, plugged into lakatos.engine's loop. The
+    plugs come from domains/cards (the canonical wiring, FRAMEWORK step 5)."""
     return _core_run_engine(candidates, budget=budget, verbose=verbose,
-                            classify=_classify, fit=_fit_model,
-                            make_instance_test=_make_instance_test)
+                            **PLUGS)
 
 
 # ---- unit checks (run at import; lakatos.engine's own units ran on its import) --
