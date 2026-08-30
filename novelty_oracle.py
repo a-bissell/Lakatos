@@ -19,6 +19,10 @@ Verdicts:
 from collections import deque
 from deck_sim import (deal_into_piles, gather_position, deal_pile,
                       riffle_merge, down_under_survivor)
+# The asymmetric-error POLICY and its audit log live in core.oracle
+# (FRAMEWORK.md step 2); this module supplies the card family recognizers and
+# the per-candidate RecognizerSet. SuppressedLog is re-exported for callers.
+from core.oracle import SuppressedLog, RecognizerSet, classify as _classify
 
 
 # ---- behavioral signatures (what a family DOES to positions) -----------------
@@ -67,28 +71,6 @@ def down_under_elim_perm(N):
             q.append(c)
         down = not down
     return tuple(order)
-
-
-# ---- suppressed log (audit surface for the dangerous error) ------------------
-
-class SuppressedLog:
-    def __init__(self):
-        self.entries = []
-
-    def record(self, name, family, confidence, witness, N):
-        self.entries.append(dict(name=name, family=family,
-                                 confidence=confidence, witness=witness, N=N))
-
-    def review_queue(self):
-        """What a human should actually look at: anything not an exact match.
-        Exact permutation-signature matches sit quietly; uncertainty surfaces."""
-        return [e for e in self.entries if e['confidence'] != 'exact']
-
-    def summary(self):
-        from collections import Counter
-        fam = Counter(e['family'] for e in self.entries)
-        return dict(total=len(self.entries), by_family=dict(fam),
-                    needs_review=len(self.review_queue()))
 
 
 # ---- the oracle --------------------------------------------------------------
@@ -290,59 +272,40 @@ def _match_hummer(cand):
     return None
 
 
-def classify(cand, log):
-    """Run the recognizers, apply asymmetric policy, log-and-suppress matches.
+# ---- the card RecognizerSets + dispatcher (POLICY lives in core.oracle) ------
 
-    Sampling pin (audit fix): a signature match earned on a PARTIAL sample
-    never suppresses — it ABSTAINS and surfaces for review, because a
-    branching procedure could look like a family on the sampled cards and
-    diverge on the rest (the residual false-KNOWN vector). Property-kind
-    recognizers enumerate their whole domain internally and are exempt."""
-    if cand.kind == 'permutation':
-        recognizers = (_match_gergonne, _match_faro, _match_josephus,
-                       _match_library_targeting)
-        checked = ['Gergonne', 'Faro', 'Josephus', 'LibraryTargeting']
-    else:
-        recognizers = (_match_gilbreath,)
-        checked = ['Gilbreath']
+_PERM_RECOGNIZERS = (_match_gergonne, _match_faro, _match_josephus,
+                     _match_library_targeting)
+_PROP_RECOGNIZERS = (_match_gilbreath,)
 
-    hits = [r(cand) for r in recognizers]
-    exact = [h for h in hits if h and h['confidence'] == 'exact']
-    abstains = [h for h in hits if h and h['confidence'] == 'abstain']
+# Hummer is DECLARED but unwired (see _match_hummer): disclosed in every
+# NOT_MATCHED so the family's absence is a documented decision, not an omission.
+_HUMMER_NOTE = ("Hummer declared but unimplemented (no orientation ops in "
+                "vocabulary)")
 
-    # refinement, not ambiguity: a LibraryTargeting instance is per-round
-    # Gergonne by construction — the more specific verdict wins.
+
+def _refine_library(exact):
+    """Refinement, not ambiguity: a LibraryTargeting instance is per-round
+    Gergonne by construction — the more specific verdict wins."""
     if any(h['family'] == 'LibraryTargeting' for h in exact):
-        exact = [h for h in exact if h['family'] == 'LibraryTargeting']
+        return [h for h in exact if h['family'] == 'LibraryTargeting']
+    return exact
 
-    if exact and cand.kind == 'permutation' \
-            and cand.sample_scope != 'exhaustive':
-        fams = [h['family'] for h in exact]
-        log.record(cand.name, '+'.join(fams), 'sampled',
-                   f"signature match on PARTIAL sample "
-                   f"(scope={cand.sample_scope}) — not suppressed", cand.N)
-        return {'verdict': 'ABSTAIN', 'families': fams,
-                'reason': f"matched {'+'.join(fams)} on a partial sample — "
-                          f"pin to exhaustive card sampling to suppress"}
-    if len(exact) == 1:
-        h = exact[0]
-        witness = h['witness'] + f" [sample scope: {cand.sample_scope}]"
-        log.record(cand.name, h['family'], 'exact', witness, cand.N)
-        return {'verdict': 'MATCHED', 'family': h['family'],
-                'confidence': 'exact', 'witness': witness}
-    if len(exact) > 1:                        # two families at once = suspicious
-        log.record(cand.name, '+'.join(h['family'] for h in exact),
-                   'ambiguous', 'multiple exact matches', cand.N)
-        return {'verdict': 'ABSTAIN', 'reason': 'multiple family matches',
-                'families': [h['family'] for h in exact]}
-    if abstains:
-        log.record(cand.name, abstains[0]['family'], 'abstain',
-                   abstains[0]['witness'], cand.N)
-        return {'verdict': 'ABSTAIN', 'reason': abstains[0]['witness']}
-    return {'verdict': 'NOT_MATCHED', 'families_checked': checked,
-            'note': f"not one of the checked families ({', '.join(checked)}) "
-                    f"— routed onward, NOT certified novel; Hummer declared "
-                    f"but unimplemented (no orientation ops in vocabulary)"}
+
+def classify(cand, log):
+    """Card dispatcher: pick the RecognizerSet for this candidate's kind and
+    hand it to the domain-agnostic policy in core.oracle. Permutation-kind
+    candidates match on a SAMPLE (subject to the sampling pin); property-kind
+    recognizers enumerate their whole domain internally (pin exempt)."""
+    if cand.kind == 'permutation':
+        rset = RecognizerSet(
+            _PERM_RECOGNIZERS,
+            ['Gergonne', 'Faro', 'Josephus', 'LibraryTargeting'],
+            sampling_pin=True, refine=_refine_library, note=_HUMMER_NOTE)
+    else:
+        rset = RecognizerSet(_PROP_RECOGNIZERS, ['Gilbreath'],
+                             sampling_pin=False, note=_HUMMER_NOTE)
+    return _classify(cand, rset, log)
 
 
 # ---- demonstration -----------------------------------------------------------
