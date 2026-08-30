@@ -8,9 +8,10 @@ Design contract (the no-hints boundary):
   * Input is a BLACK-BOX parametric round operation
         query(N, b, a) -> newpos list   (newpos[x] = where start position x lands)
     over a packet of N tokens with a round parameter a in 0..b-1. This module
-    imports NOTHING from the project: it knows nothing about the simulator's
-    operations or any committed law. former_acceptance.py enforces that
-    boundary mechanically by scanning this file's source.
+    knows nothing about the simulator's operations or any committed law: it
+    imports only the domain-agnostic fitter in core/fitter.py, which itself
+    carries no simulator or law knowledge. former_acceptance.py enforces that
+    boundary mechanically by scanning BOTH files' source.
   * Declared inductive bias (checked point-by-point, never silently assumed):
         newpos(x) = slope(j, a; N, b) * floor(x / b) + intercept(j, a; N, b)
     with j = x mod b, where slope and intercept are PIECEWISE-LINEAR over the
@@ -24,8 +25,18 @@ Design contract (the no-hints boundary):
     refutable beyond it. make_instance_test() packages model-vs-black-box
     comparison for refuter.py's ladder; auto_battery() derives the attack
     schedule mechanically from the fit grid's parameter signature.
+
+The exact-fit and model-tree machinery lives in core/fitter.py (domain-free,
+basis-injected, FRAMEWORK.md step 1). This module supplies only the card
+round-model feature basis (ROUND_BASIS) and the black-box extraction and
+conjecture-packaging built on top of it.
 """
-from fractions import Fraction
+from core.fitter import (FeatureBasis, exact_fit as _exact_fit,
+                         fit_tree as _fit_tree, tree_eval as _tree_eval,
+                         tree_str as _tree_str, simplify_tree, Leaf, Node,
+                         _FitBudget)
+
+# ---- the round-model feature basis (the ONLY domain content here) ------------
 
 ATOMS = ('a', 'j', 'rho', 'q0', 'b', 'N')
 
@@ -36,173 +47,30 @@ def atom_values(pt):
             'b': b, 'N': N}
 
 
+ROUND_BASIS = FeatureBasis(ATOMS, atom_values)
+FEATURE_NAMES = tuple(ROUND_BASIS.names)
+
+
 def feature_row(pt):
-    v = atom_values(pt)
-    xs = [v[nm] for nm in ATOMS]
-    row = [1] + xs
-    for i in range(len(xs)):
-        for k in range(i, len(xs)):
-            row.append(xs[i] * xs[k])
-    return row
-
-
-FEATURE_NAMES = (['1'] + list(ATOMS) +
-                 [f'{ATOMS[i]}*{ATOMS[k]}'
-                  for i in range(len(ATOMS)) for k in range(i, len(ATOMS))])
-
-
-# ---- exact linear algebra (incremental RREF, early inconsistency exit) -------
-
-class _Echelon:
-    """Incremental exact row reduction. add() returns False the moment the
-    system becomes inconsistent, so failed fits are cheap."""
-
-    def __init__(self, width):
-        self.width = width
-        self.rows = []          # (coeffs list[Fraction], rhs, pivot_col), RREF
-
-    def add(self, feats, y):
-        r = [Fraction(f) for f in feats]
-        rhs = Fraction(y)
-        for prow, prhs, pcol in self.rows:
-            f = r[pcol]
-            if f:
-                r = [ri - f * pi for ri, pi in zip(r, prow)]
-                rhs -= f * prhs
-        pcol = next((i for i, ri in enumerate(r) if ri), None)
-        if pcol is None:
-            return rhs == 0
-        inv = Fraction(1) / r[pcol]
-        r = [ri * inv for ri in r]
-        rhs *= inv
-        for k, (er, erhs, ecol) in enumerate(self.rows):
-            f = er[pcol]
-            if f:
-                self.rows[k] = ([ei - f * ri for ei, ri in zip(er, r)],
-                                erhs - f * rhs, ecol)
-        self.rows.append((r, rhs, pcol))
-        return True
-
-    def solve(self):
-        """One exact solution with every free variable set to 0."""
-        sol = [Fraction(0)] * self.width
-        for prow, prhs, pcol in self.rows:
-            sol[pcol] = prhs
-        return sol
+    return ROUND_BASIS.feature_row(pt)
 
 
 def exact_fit(pts, ys):
-    """Exact linear fit of ys over feature_row(pts), or None if inconsistent.
-    The returned coefficients are re-verified against every point."""
-    ech = _Echelon(len(FEATURE_NAMES))
-    for pt, y in zip(pts, ys):
-        if not ech.add(feature_row(pt), y):
-            return None
-    sol = ech.solve()
-    for pt, y in zip(pts, ys):
-        if sum(c * f for c, f in zip(sol, feature_row(pt)) if c) != y:
-            return None
-    return sol
-
-
-# ---- model tree: piecewise-linear with atom-comparison splits ----------------
-
-PREDICATES = [(u, v) for u in ATOMS for v in ATOMS if u != v]   # u < v
-
-
-class _FitBudget(Exception):
-    pass
-
-
-class Leaf:
-    def __init__(self, coeffs):
-        self.coeffs = coeffs
-
-
-class Node:
-    def __init__(self, u, v, lo, hi):
-        self.u, self.v, self.lo, self.hi = u, v, lo, hi      # lo: u < v
+    """Card-basis exact fit — see core.fitter.exact_fit."""
+    return _exact_fit(ROUND_BASIS, pts, ys)
 
 
 def fit_tree(pts, ys, depth=5, min_side=6, budget=None):
-    """Smallest-first DFS for an exact model tree. None if no fit in grammar."""
-    if budget is None:
-        budget = {'solves': 0, 'cap': 4000}
-    budget['solves'] += 1
-    if budget['solves'] > budget['cap']:
-        raise _FitBudget()
-    sol = exact_fit(pts, ys)
-    if sol is not None:
-        return Leaf(sol)
-    if depth == 0:
-        return None
-    for u, v in PREDICATES:
-        lo_i = [i for i, pt in enumerate(pts)
-                if atom_values(pt)[u] < atom_values(pt)[v]]
-        if len(lo_i) < min_side or len(pts) - len(lo_i) < min_side:
-            continue
-        lo_set = set(lo_i)
-        hi_i = [i for i in range(len(pts)) if i not in lo_set]
-        lo = fit_tree([pts[i] for i in lo_i], [ys[i] for i in lo_i],
-                      depth - 1, min_side, budget)
-        if lo is None:
-            continue
-        hi = fit_tree([pts[i] for i in hi_i], [ys[i] for i in hi_i],
-                      depth - 1, min_side, budget)
-        if hi is None:
-            continue
-        return Node(u, v, lo, hi)
-    return None
-
-
-def _tree_eq(t1, t2):
-    if isinstance(t1, Leaf) and isinstance(t2, Leaf):
-        return t1.coeffs == t2.coeffs
-    if isinstance(t1, Node) and isinstance(t2, Node):
-        return ((t1.u, t1.v) == (t2.u, t2.v)
-                and _tree_eq(t1.lo, t2.lo) and _tree_eq(t1.hi, t2.hi))
-    return False
-
-
-def simplify_tree(t):
-    """Merge structurally identical branches (a split the data never needed).
-    Exactly semantics-preserving."""
-    if isinstance(t, Leaf):
-        return t
-    lo, hi = simplify_tree(t.lo), simplify_tree(t.hi)
-    return lo if _tree_eq(lo, hi) else Node(t.u, t.v, lo, hi)
+    """Card-basis model tree — see core.fitter.fit_tree."""
+    return _fit_tree(ROUND_BASIS, pts, ys, depth, min_side, budget)
 
 
 def tree_eval(tree, pt):
-    while isinstance(tree, Node):
-        v = atom_values(pt)
-        tree = tree.lo if v[tree.u] < v[tree.v] else tree.hi
-    return sum(c * f for c, f in zip(tree.coeffs, feature_row(pt)) if c)
-
-
-def _linear_str(coeffs):
-    terms = []
-    for c, nm in zip(coeffs, FEATURE_NAMES):
-        if c == 0:
-            continue
-        if nm == '1':
-            terms.append(str(c))
-        elif c == 1:
-            terms.append(nm)
-        elif c == -1:
-            terms.append(f'-{nm}')
-        else:
-            terms.append(f'{c}*{nm}')
-    return ' + '.join(terms).replace('+ -', '- ') if terms else '0'
+    return _tree_eval(ROUND_BASIS, tree, pt)
 
 
 def tree_str(tree, indent='    '):
-    if isinstance(tree, Leaf):
-        return indent + _linear_str(tree.coeffs)
-    return (f'{indent}if {tree.u} < {tree.v}:\n'
-            f'{tree_str(tree.lo, indent + "    ")}\n'
-            f'{indent}else:\n'
-            f'{tree_str(tree.hi, indent + "    ")}')
+    return _tree_str(ROUND_BASIS, tree, indent)
 
 
 # ---- stage 1: extract per-(j, a) cells from the black box --------------------

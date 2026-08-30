@@ -248,7 +248,7 @@ _unit_limits_reported()
 
 
 if __name__ == '__main__':
-    print('refuter_auto.py unit checks: PASS (escalation on every axis, '
+    print('core/schedule.py unit checks: PASS (escalation on every axis, '
           'floor probes, envelope-edge bisection, limit reporting, '
           'determinism)')
     axes = [Axis('b', lo=2), Axis('N', lo=2), Axis('r', lo=1,

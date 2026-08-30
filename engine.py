@@ -44,7 +44,7 @@ sys.path.insert(0, os.path.join(ROOT, 'tricks'))
 from novelty_oracle import Candidate as OracleCandidate, SuppressedLog, classify
 from former import fit_round_model, make_instance_test
 from refuter import refute
-from refuter_auto import Axis, auto_conjecture
+from core.schedule import Axis, auto_conjecture
 
 
 class EngineCandidate:

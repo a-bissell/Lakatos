@@ -83,7 +83,12 @@ GROUND_TRUTH_GRID = [(52, 6, 3), (32, 2, 6), (25, 5, 3)]
 # ---- ledger checks -----------------------------------------------------------
 
 def check_no_hints():
-    src = open(os.path.join(ROOT, 'former.py')).read()
+    # The no-hints boundary spans both files the former is built from:
+    # former.py (round-model basis + extraction) and core/fitter.py (the
+    # domain-agnostic exact-fit / model-tree machinery it imports). Neither
+    # may mention the simulator's operations or any committed law.
+    src = (open(os.path.join(ROOT, 'former.py')).read()
+           + open(os.path.join(ROOT, 'core', 'fitter.py')).read())
     banned = ('deck_sim', 'gather', 'deal', 'pile', 'corr',
               'gergonne', 'Gergonne', 'law_vector')
     found = [w for w in banned if w in src]
