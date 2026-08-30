@@ -1,12 +1,11 @@
-"""engine.py — the integration loop (engine item 5).
+"""engine.py — card wiring for the integration loop (engine item 5).
 
-    generator -> novelty oracle -> conjecture former -> refuter
-
-as one runnable, with per-run BUDGETS, the suppressed log as the live
-DRIFT metric, and a dry-run mode that doubles as the acceptance ledger.
-
-The generator slot is an interface — item 6 supplies the real one. Until
-then the dry-run replays a fixed candidate mix that exercises every
+The loop itself (run_engine, EngineCandidate, per-run BUDGETS, the eight
+dispositions, the suppressed log as the live DRIFT metric) is domain-agnostic
+and lives in core/engine.py (FRAMEWORK.md step 4). This module wires the CARD
+plugs into it — the novelty oracle as the rediscovery filter and the
+affine-in-floor round former — and holds the dry-run that doubles as the
+acceptance ledger, replaying a fixed candidate mix that exercises every
 pipeline path against real library material:
 
   disposition          path exercised
@@ -29,224 +28,30 @@ pipeline path against real library material:
                        could not attack beyond inspiring scale)
   SKIPPED (budget)     run budget exhausted BEFORE this candidate — every
                        skip is named in the report; no silent truncation
-
-Budgets are candidate-atomic: they are checked at candidate entry, so a
-candidate either runs its full pipeline or is skipped whole.
 """
 import os
 import sys
-import time
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, 'tricks'))
 
-from novelty_oracle import Candidate as OracleCandidate, SuppressedLog, classify
-from former import fit_round_model, make_instance_test
-from refuter import refute
-from core.schedule import Axis, auto_conjecture
-
-
-class EngineCandidate:
-    """One unit of generator output. Any subset of the three views:
-    oracle_view() -> novelty_oracle.Candidate (behavioral, for matching);
-    parametric = dict(query, fit_grid, axes, valid, cost, cap, claim) for
-    the former; conjecture_spec = dict(instance, axes, inspiring, valid,
-    cost, cap, claim) for candidates that arrive as ready-made claims."""
-
-    def __init__(self, name, provenance, oracle_view=None, parametric=None,
-                 conjecture_spec=None):
-        self.name = name
-        self.provenance = provenance
-        self.oracle_view = oracle_view
-        self.parametric = parametric
-        self.conjecture_spec = conjecture_spec
-
-
-DEFAULT_BUDGET = dict(max_candidates=50, max_cases=5_000_000,
-                      max_seconds=600.0)
+from core.engine import run_engine as _core_run_engine, EngineCandidate
+from core.schedule import Axis
+from novelty_oracle import Candidate as OracleCandidate, classify as _classify
+from former import (fit_round_model as _fit_model,
+                    make_instance_test as _make_instance_test)
 
 
 def run_engine(candidates, budget=None, verbose=True):
-    """Run the pipeline over candidates under a budget. Returns a report:
-    {'rows': [...], 'drift': suppressed-log summary, 'cases': int,
-     'elapsed': float, 'skipped': [names]}."""
-    budget = dict(DEFAULT_BUDGET, **(budget or {}))
-    log = SuppressedLog()
-    rows, skipped = [], []
-    cases_used, processed = 0, 0
-    t0 = time.monotonic()
-
-    def say(s):
-        if verbose:
-            print(s)
-
-    for cand in candidates:
-        elapsed = time.monotonic() - t0
-        if (processed >= budget['max_candidates']
-                or cases_used >= budget['max_cases']
-                or elapsed >= budget['max_seconds']):
-            skipped.append(cand.name)
-            rows.append(dict(name=cand.name, disposition='SKIPPED (budget)',
-                             detail=f'at candidate {processed + 1}: '
-                                    f'{cases_used} cases, {elapsed:.1f}s'))
-            continue
-        processed += 1
-        say(f'\n[{processed}] {cand.name}  (from: {cand.provenance})')
-        review_note, oracle_verdict = None, None
-
-        # ---- stage 1: novelty oracle (log-and-suppress) ----------------
-        if cand.oracle_view is not None:
-            v = classify(cand.oracle_view(), log)
-            oracle_verdict = v['verdict']
-            if v['verdict'] == 'MATCHED':
-                say(f"    oracle: MATCHED {v['family']} -> suppressed "
-                    f"(witness logged)")
-                rows.append(dict(name=cand.name, disposition='SUPPRESSED',
-                                 oracle='MATCHED',
-                                 detail=f"{v['family']}: {v['witness']}"))
-                continue
-            if v['verdict'] == 'ABSTAIN':
-                review_note = v['reason']
-                say(f"    oracle: ABSTAIN ({review_note}) -> surfaced, "
-                    f"routed onward")
-            else:
-                say(f"    oracle: NOT_MATCHED "
-                    f"({v.get('families_checked')} families) -> routed on")
-
-        # ---- stages 2+3: former <-> refuter (with bounded repair) ------
-        # A parametric candidate whose conjecture is REFUTED gets the
-        # killing config ADDED to its fit grid and is refit — the refuter
-        # teaching the former — at most MAX_REPAIRS times. Direct
-        # conjectures have nothing to refit and die where they die.
-        MAX_REPAIRS = 2
-        conj, report, model, res, repairs = None, None, None, None, 0
-        if cand.parametric is not None:
-            p = cand.parametric
-            grid = list(p['fit_grid'])
-            while True:
-                model = fit_round_model(p['query'], grid)
-                if model is None:
-                    break
-                conj, report = auto_conjecture(
-                    cand.name, p['claim'],
-                    make_instance_test(model, p['query']),
-                    p['axes'], grid, p['valid'], p['cost'], p['cap'])
-                res = refute(conj, verbose=False)
-                cases_used += model.n_points + res['cases']
-                if (res['status'] in ('REFUTED', 'NOT_A_CANDIDATE')
-                        and repairs < MAX_REPAIRS):
-                    repairs += 1
-                    grid.append(tuple(res['killed_at']))
-                    say(f"    repair {repairs}: refuted at "
-                        f"{res['killed_at']} — adding it to the fit grid "
-                        f"and refitting")
-                    continue
-                break
-            if model is None:
-                say('    former: REFUSED (outside grammar) -> backlog')
-                rows.append(dict(name=cand.name, disposition='UNSTRUCTURED',
-                                 oracle=oracle_verdict,
-                                 detail='former refused: not affine-in-floor '
-                                        'over the declared grid'
-                                        + (f' (after {repairs} repairs)'
-                                           if repairs else '')
-                                        + (f'; review: {review_note}'
-                                           if review_note else '')))
-                continue
-            say(f'    former: fit ({model.n_points} cells'
-                + (f', {repairs} repairs' if repairs else '') + ')')
-        elif cand.conjecture_spec is not None:
-            s = cand.conjecture_spec
-            conj, report = auto_conjecture(
-                cand.name, s['claim'], s['instance'], s['axes'],
-                s['inspiring'], s['valid'], s['cost'], s['cap'])
-            res = refute(conj, verbose=False)
-            cases_used += res['cases']
-
-        if res is not None:
-            st = res['status']
-            repair_note = f' (after {repairs} repairs)' if repairs else ''
-            n_att = res.get('attacks_survived',
-                            res.get('attacks_before_kill', 0))
-            say(f"    refuter: {st} ({n_att} attacks, {res['cases']} cases)"
-                f"  axes: {report}")
-            if st == 'ROBUST_CONJECTURE':
-                rows.append(dict(
-                    name=cand.name, disposition='SURVIVOR', model=model,
-                    oracle=oracle_verdict, repairs=repairs,
-                    detail=f"ROBUST_CONJECTURE, envelope {res['envelope']}"
-                           f"{repair_note}; provenance log required "
-                           f"(PROVENANCE.md)"))
-            elif st in ('REFUTED', 'NOT_A_CANDIDATE'):
-                rows.append(dict(
-                    name=cand.name, disposition='REFUTED',
-                    oracle=oracle_verdict, repairs=repairs,
-                    detail=f"killed at {res.get('killed_at')}, witness "
-                           f"{res.get('witness')}{repair_note}"))
-            else:
-                rows.append(dict(
-                    name=cand.name, disposition='DOWNGRADED',
-                    oracle=oracle_verdict,
-                    detail=f'{st}: schedule could not attack beyond '
-                           f'inspiring scale; axes: {report}'))
-            continue
-
-        # ---- nothing left to test: route or surface --------------------
-        if review_note:
-            rows.append(dict(name=cand.name, disposition='REVIEW',
-                             oracle=oracle_verdict, detail=review_note))
-        else:
-            rows.append(dict(name=cand.name, disposition='ROUTED',
-                             oracle=oracle_verdict,
-                             detail='not matched, no parametric content — '
-                                    'study backlog'))
-
-    drift = log.summary()
-    elapsed = time.monotonic() - t0
-    if verbose:
-        print('\n---- run report ----')
-        for r in rows:
-            print(f"  {r['name']:<38} {r['disposition']:<18} {r['detail']}")
-        n_sup = sum(r['disposition'] == 'SUPPRESSED' for r in rows)
-        print(f"  drift: {n_sup}/{processed} suppressed as known "
-              f"{dict(drift['by_family'])}; review queue "
-              f"{drift['needs_review']}")
-        print(f"  budget: {processed} candidates, {cases_used} cases, "
-              f"{elapsed:.1f}s "
-              f"(caps {budget['max_candidates']}/{budget['max_cases']}/"
-              f"{budget['max_seconds']:.0f}s)")
-        if skipped:
-            print(f"  skipped on budget ({len(skipped)}): "
-                  f"{', '.join(skipped)}")
-    return dict(rows=rows, drift=drift, cases=cases_used, elapsed=elapsed,
-                skipped=skipped)
+    """The card-wired engine: the novelty oracle as the rediscovery filter and
+    the affine-in-floor round former, plugged into core.engine's loop."""
+    return _core_run_engine(candidates, budget=budget, verbose=verbose,
+                            classify=_classify, fit=_fit_model,
+                            make_instance_test=_make_instance_test)
 
 
-# ---- unit checks (run at import, per project convention) ---------------------
-
-def _unit_engine():
-    good = EngineCandidate(
-        'unit-good', 'unit', conjecture_spec=dict(
-            claim='always true', instance=lambda n: (True, None, 1),
-            axes=[Axis('n', lo=1)], inspiring=[(4,)],
-            valid=lambda n: n >= 1, cost=lambda n: n, cap=64))
-    bad = EngineCandidate(
-        'unit-bad', 'unit', conjecture_spec=dict(
-            claim='fails past 5', instance=lambda n:
-                (n <= 5, None if n <= 5 else {'n': n}, 1),
-            axes=[Axis('n', lo=1)], inspiring=[(4,)],
-            valid=lambda n: n >= 1, cost=lambda n: n, cap=64))
-    out = run_engine([good, bad], verbose=False)
-    d = {r['name']: r['disposition'] for r in out['rows']}
-    assert d == {'unit-good': 'SURVIVOR', 'unit-bad': 'REFUTED'}, d
-    # budget: candidate-atomic skip, named in the report
-    out = run_engine([good, bad], budget=dict(max_candidates=1),
-                     verbose=False)
-    d = {r['name']: r['disposition'] for r in out['rows']}
-    assert d['unit-good'] == 'SURVIVOR'
-    assert d['unit-bad'] == 'SKIPPED (budget)' and out['skipped'] == ['unit-bad']
-
+# ---- unit checks (run at import; core.engine's own units ran on its import) --
 
 def _unit_repair_loop():
     """The refuter must be able to TEACH the former: a family whose fit
@@ -269,7 +74,6 @@ def _unit_repair_loop():
         (r['disposition'], r.get('repairs'), r['detail'])
 
 
-_unit_engine()
 _unit_repair_loop()
 
 
@@ -430,7 +234,8 @@ EXPECTED = {
 
 
 if __name__ == '__main__':
-    print('engine.py unit checks: PASS (dispositions, budget-atomic skip)')
+    print('engine.py (card wiring): core.engine units ran on import; '
+          'repair-loop unit PASS')
     print('\n================ DRY RUN (doubles as acceptance ledger) '
           '================')
     out = run_engine(dry_run_candidates())

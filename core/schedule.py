@@ -189,7 +189,7 @@ def auto_conjecture(name, claim, instance_test, axes, inspiring,
                     seed=20260828):
     """Build a refuter.Conjecture whose entire battery is derived from the
     signature. Returns (conjecture, axis_report)."""
-    from refuter import Conjecture
+    from core.refuter import Conjecture
     sched, report = derive_schedule(axes, inspiring, valid, cost, cap, seed)
     conj = Conjecture(
         name=name, claim=claim, instance_test=instance_test,

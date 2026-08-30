@@ -204,8 +204,18 @@ injected plugs.
    kernel so `proof_conservation.py` (theorem #2) and `proof_rr.py`
    (theorem #3) are untouched. Green: C1–C10 PASS (27,700 cases), D1–D8
    PASS, E1–E8 PASS.
-4. Turn `engine.run_engine` imports into constructor args (decider, recognizers,
-   source). Re-run the dry-run acceptance ledger (9/9).
+4. **DONE**. The loop is now domain-agnostic in `core/engine.py`, taking three
+   injected plugs (keyword-only): `classify` (oracle dispatcher), `fit`
+   (former), `make_instance_test`. `engine.py` at root became card wiring — it
+   supplies `novelty_oracle.classify` + `former.fit_round_model` and keeps the
+   dry-run acceptance ledger; `generator.py`'s `from engine import …` is
+   untouched. The refuter's generic core (`Conjecture`, `confirmatory_verdict`,
+   `refute` — dataclass + `typing`, no `deck_sim`) moved with it to
+   `core/refuter.py`, leaving `refuter.py` as card wiring (`radix_place`,
+   `targeting_instance`, drift specimens) that re-exports for
+   former_acceptance/refuter_battery; this also fixed a step-1 core→root leak
+   (`core/schedule.py` now imports `Conjecture` from `core.refuter`). Green:
+   engine dry-run 13167 cases, generator 11/11, former_acceptance 6/6.
 5. Define the four `Protocol`s in `core/` as the published contract; write a
    `domains/cards/__init__.py` that wires the plugs. The engine dry-run is now
    the framework's conformance test for the cards domain.
