@@ -183,16 +183,31 @@ injected plugs.
 
 ## 6. Migration order (each step leaves the tree green)
 
-1. Move `refuter_auto.py` → `core/schedule.py`, `former.py` fitter core →
-   `core/fitter.py`. No behavior change; run the existing unit blocks.
-2. Extract `core/oracle.py` policy; inject the card recognizer list. Re-run the
-   oracle acceptance (t18–t23 MATCH, t16/t17 route on).
+1. **DONE** (commit `b13680a`). `git mv refuter_auto.py` → `core/schedule.py`
+   (verbatim; only `dataclasses`); `former.py` fitter core → `core/fitter.py`,
+   parameterized by an injected `FeatureBasis` so core carries no card/law
+   knowledge. `former.py` keeps only `ROUND_BASIS` + extraction, re-exposing
+   every public signature via thin wrappers (−164 net lines). No-hints guard
+   hardened to scan both files. Green: former_acceptance 6/6, engine 13167
+   cases, refuter_battery 8/8 (3.92M), t25 PASS.
+2. **DONE** (commit `473496c`). Extracted the asymmetric-error POLICY to
+   `core/oracle.py` (`SuppressedLog`, `classify`, `RecognizerSet`);
+   `novelty_oracle.py` became a thin dispatcher supplying the five card
+   recognizers, with the two domain-specific policy inputs injected (`refine`
+   = LibraryTargeting ≻ Gergonne; `note` = Hummer disclosure). All four
+   importers untouched via re-export. Green: oracle_audit + library_known_audit
+   ACCEPTANCE PASS, t18–t23 MATCH / t16/t17 route on, generator 11/11.
 3. Extract `core/proof_kernel.py`; re-run C1–C10 against it.
 4. Turn `engine.run_engine` imports into constructor args (decider, recognizers,
    source). Re-run the dry-run acceptance ledger (9/9).
 5. Define the four `Protocol`s in `core/` as the published contract; write a
    `domains/cards/__init__.py` that wires the plugs. The engine dry-run is now
    the framework's conformance test for the cards domain.
+
+*Note: steps 1–2 kept the card domain files at repo root (as step 1 did for
+`deck_sim`/`former`); the `domains/cards/` relocation in §2 is a later pure
+move, deferred so each core extraction stays a small, green-at-every-step
+commit.*
 
 ## 7. Admissibility test for a second domain
 
