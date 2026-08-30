@@ -197,7 +197,13 @@ injected plugs.
    = LibraryTargeting ≻ Gergonne; `note` = Hummer disclosure). All four
    importers untouched via re-export. Green: oracle_audit + library_known_audit
    ACCEPTANCE PASS, t18–t23 MATCH / t16/t17 route on, generator 11/11.
-3. Extract `core/proof_kernel.py`; re-run C1–C10 against it.
+3. **DONE**. Extracted the Farkas kernel (`zero`, `Ctx` with
+   `nonneg`/`infeasible`) to `core/proof_kernel.py`, sympy-only, with a
+   generic-symbol self-test at import; `proof.py` keeps the card symbols,
+   `base_ctx`, the law algebra, and C1–C10, importing + re-exporting the
+   kernel so `proof_conservation.py` (theorem #2) and `proof_rr.py`
+   (theorem #3) are untouched. Green: C1–C10 PASS (27,700 cases), D1–D8
+   PASS, E1–E8 PASS.
 4. Turn `engine.run_engine` imports into constructor args (decider, recognizers,
    source). Re-run the dry-run acceptance ledger (9/9).
 5. Define the four `Protocol`s in `core/` as the published contract; write a

@@ -1,15 +1,10 @@
 """proof.py — machine checks C1-C10 for PROOF.md (engine item 8).
 
-The proof kernel is deliberately tiny and auditable:
-
-  * zero(e)            — exact polynomial identity (sympy expand == 0);
-  * Ctx.nonneg(goal)   — goal >= 0 by a Farkas certificate: goal is
-                         EXACTLY a nonnegative rational combination of
-                         hypothesis facts (each asserted >= 0), products
-                         of facts allowed, plus a nonnegative constant;
-  * Ctx.infeasible()   — facts jointly impossible: a nonnegative
-                         combination of them is IDENTICALLY a negative
-                         constant.
+The proof kernel (zero / Ctx.nonneg / Ctx.infeasible — exact identities and
+Farkas certificates) lives in core/proof_kernel.py, domain-agnostic
+(FRAMEWORK.md step 3) and imported here. This module supplies the card
+symbols, the general-b hypothesis context (base_ctx), the law algebra, and the
+straight-line case analysis C1-C10 built on top of that kernel.
 
 Everything else is straight-line case analysis: each case fixes the
 outcomes of the min/max/indicator comparisons, justifies every
@@ -28,46 +23,11 @@ wrongly-claimed infeasibility.
 import sympy as sp
 from deck_sim import (make_deck, make_packet, deal_into_piles,
                       gather_position, verify)
+from core.proof_kernel import zero, Ctx   # Farkas kernel (FRAMEWORK step 3)
 
 b, q0, rho, a, j, t, t1, t2, v, z, d, B, W, fa, fb = sp.symbols(
     'b q0 rho a j t t1 t2 v z d B W fa fb')
 N = b * q0 + rho
-
-
-def zero(e, what=''):
-    r = sp.expand(e)
-    assert r == 0, f'identity fails{" (" + what + ")" if what else ""}: {r}'
-
-
-class Ctx:
-    """Facts: {name: expr}, each asserted >= 0 under the case's
-    hypotheses. Certificates reference facts by name."""
-
-    def __init__(self, **facts):
-        self.facts = {k: sp.expand(e) for k, e in facts.items()}
-
-    def _combo(self, lam, prods, const):
-        e = sp.Rational(const)
-        assert sp.Rational(const) >= 0
-        for name, c in lam:
-            assert sp.Rational(c) >= 0, (name, c)
-            e += sp.Rational(c) * self.facts[name]
-        for names, c in prods:
-            assert sp.Rational(c) >= 0, (names, c)
-            p = sp.Rational(c)
-            for nm in names:
-                p *= self.facts[nm]
-            e += p
-        return e
-
-    def nonneg(self, goal, lam=(), prods=(), const=0, what=''):
-        r = sp.expand(goal - self._combo(lam, prods, const))
-        assert r == 0, f'Farkas cert fails{" (" + what + ")" if what else ""}: residual {r}'
-
-    def infeasible(self, lam, what=''):
-        e = sp.expand(self._combo(lam, (), 0))
-        assert e.is_number and e < 0, \
-            f'infeasibility cert fails{" (" + what + ")" if what else ""}: {e}'
 
 
 def base_ctx(**extra):
@@ -418,35 +378,6 @@ def check_C10():
     return len(configs), total
 
 
-# ---- kernel unit checks (run at import) -------------------------------------
-
-def _unit_kernel():
-    c = Ctx(p=b - 2, q=q0 - 1)
-    c.nonneg(b - 2, lam=[('p', 1)])
-    c.nonneg(2 * b + 3 * q0 - 7, lam=[('p', 2), ('q', 3)])
-    c.nonneg((b - 2) * (q0 - 1), prods=[(('p', 'q'), 1)])
-    for bad in (lambda: c.nonneg(b - 3, lam=[('p', 1)]),
-                lambda: c.nonneg(2 - b, lam=[('p', 1)]),
-                lambda: c.nonneg(b - 2, lam=[('p', -1)], const=2 * b - 4),
-                lambda: zero(b - 2)):
-        try:
-            bad()
-        except (AssertionError, TypeError):
-            continue  # rejected (TypeError = non-rational certificate part)
-        raise AssertionError('kernel accepted a bad certificate')
-    c = Ctx(x=v - 1, y=-v)   # v >= 1 and v <= 0: impossible
-    c.infeasible([('x', 1), ('y', 1)])
-    try:
-        Ctx(x=v - 1, y=v).infeasible([('x', 1), ('y', 1)])
-    except AssertionError:
-        pass
-    else:
-        raise AssertionError('kernel accepted a bad infeasibility cert')
-
-
-_unit_kernel()
-
-
 if __name__ == '__main__':
     checks = [('C1s division algebra for pile sizes', check_C1s),
               ('C1  sizes/depths == simulator (grid)', check_C1),
@@ -458,7 +389,8 @@ if __name__ == '__main__':
               ('C7  one-step bound arithmetic', check_C7),
               ('C8  envelope step + coverage <=> H3', check_C8),
               ('C9  initial bound |z_0| <= N-1', check_C9)]
-    print('proof.py kernel unit checks: PASS (bad certs rejected)')
+    print('proof.py: core.proof_kernel self-checked on import (bad certs '
+          'rejected)')
     for name, fn in checks:
         fn()
         print(f'  PASS  {name}')
