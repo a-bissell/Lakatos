@@ -19,10 +19,10 @@ Verdicts:
 from collections import deque
 from deck_sim import (deal_into_piles, gather_position, deal_pile,
                       riffle_merge, down_under_survivor)
-# The asymmetric-error POLICY and its audit log live in core.oracle
+# The asymmetric-error POLICY and its audit log live in lakatos.oracle
 # (FRAMEWORK.md step 2); this module supplies the card family recognizers and
 # the per-candidate RecognizerSet. SuppressedLog is re-exported for callers.
-from core.oracle import SuppressedLog, RecognizerSet, classify as _classify
+from lakatos.oracle import SuppressedLog, RecognizerSet, classify as _classify
 
 
 # ---- behavioral signatures (what a family DOES to positions) -----------------
@@ -272,7 +272,7 @@ def _match_hummer(cand):
     return None
 
 
-# ---- the card RecognizerSets + dispatcher (POLICY lives in core.oracle) ------
+# ---- the card RecognizerSets + dispatcher (POLICY lives in lakatos.oracle) ------
 
 _PERM_RECOGNIZERS = (_match_gergonne, _match_faro, _match_josephus,
                      _match_library_targeting)
@@ -294,7 +294,7 @@ def _refine_library(exact):
 
 def classify(cand, log):
     """Card dispatcher: pick the RecognizerSet for this candidate's kind and
-    hand it to the domain-agnostic policy in core.oracle. Permutation-kind
+    hand it to the domain-agnostic policy in lakatos.oracle. Permutation-kind
     candidates match on a SAMPLE (subject to the sampling pin); property-kind
     recognizers enumerate their whole domain internally (pin exempt)."""
     if cand.kind == 'permutation':

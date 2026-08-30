@@ -33,7 +33,7 @@ sys.path.insert(0, ROOT)
 
 from deck_sim import cut, deal_into_piles, gather_position, gather_order
 from novelty_oracle import Candidate as OracleCandidate
-from core.schedule import Axis
+from lakatos.schedule import Axis
 from engine import EngineCandidate, run_engine
 
 

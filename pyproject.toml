@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lakatos"
+version = "0.1.0"
+description = "A domain-agnostic Lakatos-style discovery engine: generate, filter rediscoveries, fit exact conjectures, refute adversarially, grade honestly, prove."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Alexander Bissell" }]
+
+# The engine proper has ZERO runtime dependencies. Only the proof kernel
+# (lakatos.proof_kernel — the Farkas certificate layer that promotes
+# ROBUST_CONJECTURE to THEOREM) needs sympy, so it is an extra: the loop
+# runs without it, and the ladder honestly tops out at ROBUST_CONJECTURE.
+[project.optional-dependencies]
+proof = ["sympy"]
+
+# Only the lakatos package installs. Everything at the repo root (deck_sim,
+# engine.py, the card recognizers/proofs) is the cards DOMAIN — the testbed
+# and conformance suite, not the library.
+[tool.setuptools]
+packages = ["lakatos"]

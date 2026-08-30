@@ -1,6 +1,6 @@
-"""core/oracle.py — the rediscovery-filter POLICY, domain-agnostic.
+"""lakatos/oracle.py — the rediscovery-filter POLICY, domain-agnostic.
 
-Extracted from novelty_oracle.py (engine item 2) as part of the core/domains
+Extracted from novelty_oracle.py (engine item 2) as part of the lakatos/domains
 split (FRAMEWORK.md, step 2). The asymmetric-error POLICY lives here; the
 family recognizers that define what "known" MEANS stay in the domain
 (novelty_oracle.py, for cards).

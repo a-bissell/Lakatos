@@ -2,7 +2,7 @@
 
 The adversarial refuter itself (Conjecture / confirmatory_verdict / refute —
 the anti-drift core, the status ladder, the false-confidence delta) is
-domain-agnostic and lives in core/refuter.py (FRAMEWORK.md step 4). It is
+domain-agnostic and lives in lakatos/refuter.py (FRAMEWORK.md step 4). It is
 re-exported here so existing callers (former_acceptance, refuter_battery) are
 untouched.
 
@@ -12,7 +12,7 @@ drift specimens — the naive vs parity-corrected radix laws that demonstrate th
 false-confidence delta (a confirmatory loop commits the naive law; the refuter
 kills it at r >= 2).
 """
-from core.refuter import Conjecture, confirmatory_verdict, refute
+from lakatos.refuter import Conjecture, confirmatory_verdict, refute
 
 from deck_sim import deal_into_piles, gather_position
 

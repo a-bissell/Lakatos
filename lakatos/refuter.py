@@ -1,4 +1,4 @@
-"""core/refuter.py — the adversarial promotion path, domain-agnostic.
+"""lakatos/refuter.py — the adversarial promotion path, domain-agnostic.
 
 Extracted from refuter.py (FRAMEWORK.md step 4). The anti-drift core:
   * The refuter's JOB is to kill conjectures; it is built to want them dead.
@@ -159,5 +159,5 @@ _unit_refuter()
 
 
 if __name__ == '__main__':
-    print('core/refuter.py unit checks: PASS (ROBUST / REFUTED / CONJECTURE '
+    print('lakatos/refuter.py unit checks: PASS (ROBUST / REFUTED / CONJECTURE '
           'grading; a timid battery cannot launder a robust stamp)')

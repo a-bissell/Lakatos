@@ -1,4 +1,4 @@
-# FRAMEWORK.md — the core/domains split
+# FRAMEWORK.md — the lakatos/domains split
 
 *A design sketch for extracting the Lakatos discovery engine from the card
 domain. The thesis: the engine that turns "search" into an honest theorem-hunt
@@ -26,7 +26,7 @@ hardcoded call sites into injected plugs.
 
 ## 1. The one principle
 
-**`core/` may not import from any domain. Domains provide four plugs and
+**`lakatos/` may not import from any domain. Domains provide four plugs and
 inherit everything else.** The universal currency between them is one triple,
 which the code already speaks everywhere:
 
@@ -40,8 +40,14 @@ mentions cards.
 
 ## 2. Directory layout
 
+*The core package was named `core/` through step 4; it is `lakatos/` from the
+packaging commit on — `core` is too collision-prone a name to install, and the
+package now pip-installs (`pip install -e .`, zero dependencies; the proof
+kernel's sympy is the `[proof]` extra). Prose below still says "core" for the
+concept; every path says `lakatos/`.*
+
 ```
-core/
+lakatos/
   ladder.py       status ladder + Envelope (the load-bearing labels)
   decider.py      the Decider protocol + the exhaustive-check contract
   refuter.py      Conjecture, refute(), confirmatory_verdict, false-confidence delta
@@ -88,7 +94,7 @@ item 1) is what let the same decider run at N=144; that generalization is the
 template for every port.
 
 ### Plug 2 — Recognizers  *(known-result filter)*
-A domain supplies a list; `core/oracle.classify()` runs the **policy** over them
+A domain supplies a list; `lakatos.oracle.classify()` runs the **policy** over them
 unchanged. Current recognizers already return exactly this shape:
 
 ```python
@@ -141,7 +147,7 @@ instance_test : Callable[..., tuple]   # params -> (ok, witness, n_cases)   <- P
 ```
 
 `refuter_auto.py` proves this is already clean: it imports nothing but
-`dataclasses`. Move it to `core/schedule.py` untouched.
+`dataclasses`. Move it to `lakatos/schedule.py` untouched.
 
 ## 4. What core keeps, unchanged in spirit
 
@@ -166,13 +172,13 @@ instance_test : Callable[..., tuple]   # params -> (ok, witness, n_cases)   <- P
 
 ## 5. The three real splits (everything else is a move)
 
-1. **`novelty_oracle.py`** → `core/oracle.py` (SuppressedLog + `classify` policy)
+1. **`novelty_oracle.py`** → `lakatos/oracle.py` (SuppressedLog + `classify` policy)
    + `domains/cards/recognizers.py` (the five `_match_*`). Line of the cut
    already visible at 301–307.
-2. **`proof.py`** → `core/proof_kernel.py` (`Ctx`, `nonneg`, `infeasible`,
+2. **`proof.py`** → `lakatos/proof_kernel.py` (`Ctx`, `nonneg`, `infeasible`,
    `base_ctx`) + `domains/cards/proofs/` (C1–C10 and the law algebra). The
    kernel already knows nothing about the specific inequalities.
-3. **`former.py`** → `core/fitter.py` (`_Echelon`, `exact_fit`, `fit_tree`,
+3. **`former.py`** → `lakatos/fitter.py` (`_Echelon`, `exact_fit`, `fit_tree`,
    `tree_eval` — already zero-dependency) + `domains/cards/round_model.py`
    (`fit_round_model`, `FittedRoundModel` — card-shaped: slope/const trees over
    b, N). The generic fitter does not know a "round" from a "row."
@@ -183,40 +189,40 @@ injected plugs.
 
 ## 6. Migration order (each step leaves the tree green)
 
-1. **DONE** (commit `b13680a`). `git mv refuter_auto.py` → `core/schedule.py`
-   (verbatim; only `dataclasses`); `former.py` fitter core → `core/fitter.py`,
+1. **DONE** (commit `b13680a`). `git mv refuter_auto.py` → `lakatos/schedule.py`
+   (verbatim; only `dataclasses`); `former.py` fitter core → `lakatos/fitter.py`,
    parameterized by an injected `FeatureBasis` so core carries no card/law
    knowledge. `former.py` keeps only `ROUND_BASIS` + extraction, re-exposing
    every public signature via thin wrappers (−164 net lines). No-hints guard
    hardened to scan both files. Green: former_acceptance 6/6, engine 13167
    cases, refuter_battery 8/8 (3.92M), t25 PASS.
 2. **DONE** (commit `473496c`). Extracted the asymmetric-error POLICY to
-   `core/oracle.py` (`SuppressedLog`, `classify`, `RecognizerSet`);
+   `lakatos/oracle.py` (`SuppressedLog`, `classify`, `RecognizerSet`);
    `novelty_oracle.py` became a thin dispatcher supplying the five card
    recognizers, with the two domain-specific policy inputs injected (`refine`
    = LibraryTargeting ≻ Gergonne; `note` = Hummer disclosure). All four
    importers untouched via re-export. Green: oracle_audit + library_known_audit
    ACCEPTANCE PASS, t18–t23 MATCH / t16/t17 route on, generator 11/11.
 3. **DONE**. Extracted the Farkas kernel (`zero`, `Ctx` with
-   `nonneg`/`infeasible`) to `core/proof_kernel.py`, sympy-only, with a
+   `nonneg`/`infeasible`) to `lakatos/proof_kernel.py`, sympy-only, with a
    generic-symbol self-test at import; `proof.py` keeps the card symbols,
    `base_ctx`, the law algebra, and C1–C10, importing + re-exporting the
    kernel so `proof_conservation.py` (theorem #2) and `proof_rr.py`
    (theorem #3) are untouched. Green: C1–C10 PASS (27,700 cases), D1–D8
    PASS, E1–E8 PASS.
-4. **DONE**. The loop is now domain-agnostic in `core/engine.py`, taking three
+4. **DONE**. The loop is now domain-agnostic in `lakatos/engine.py`, taking three
    injected plugs (keyword-only): `classify` (oracle dispatcher), `fit`
    (former), `make_instance_test`. `engine.py` at root became card wiring — it
    supplies `novelty_oracle.classify` + `former.fit_round_model` and keeps the
    dry-run acceptance ledger; `generator.py`'s `from engine import …` is
    untouched. The refuter's generic core (`Conjecture`, `confirmatory_verdict`,
    `refute` — dataclass + `typing`, no `deck_sim`) moved with it to
-   `core/refuter.py`, leaving `refuter.py` as card wiring (`radix_place`,
+   `lakatos/refuter.py`, leaving `refuter.py` as card wiring (`radix_place`,
    `targeting_instance`, drift specimens) that re-exports for
    former_acceptance/refuter_battery; this also fixed a step-1 core→root leak
-   (`core/schedule.py` now imports `Conjecture` from `core.refuter`). Green:
+   (`lakatos/schedule.py` now imports `Conjecture` from `lakatos.refuter`). Green:
    engine dry-run 13167 cases, generator 11/11, former_acceptance 6/6.
-5. Define the four `Protocol`s in `core/` as the published contract; write a
+5. Define the four `Protocol`s in `lakatos/` as the published contract; write a
    `domains/cards/__init__.py` that wires the plugs. The engine dry-run is now
    the framework's conformance test for the cards domain.
 

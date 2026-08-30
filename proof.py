@@ -1,7 +1,7 @@
 """proof.py — machine checks C1-C10 for PROOF.md (engine item 8).
 
 The proof kernel (zero / Ctx.nonneg / Ctx.infeasible — exact identities and
-Farkas certificates) lives in core/proof_kernel.py, domain-agnostic
+Farkas certificates) lives in lakatos/proof_kernel.py, domain-agnostic
 (FRAMEWORK.md step 3) and imported here. This module supplies the card
 symbols, the general-b hypothesis context (base_ctx), the law algebra, and the
 straight-line case analysis C1-C10 built on top of that kernel.
@@ -23,7 +23,7 @@ wrongly-claimed infeasibility.
 import sympy as sp
 from deck_sim import (make_deck, make_packet, deal_into_piles,
                       gather_position, verify)
-from core.proof_kernel import zero, Ctx   # Farkas kernel (FRAMEWORK step 3)
+from lakatos.proof_kernel import zero, Ctx   # Farkas kernel (FRAMEWORK step 3)
 
 b, q0, rho, a, j, t, t1, t2, v, z, d, B, W, fa, fb = sp.symbols(
     'b q0 rho a j t t1 t2 v z d B W fa fb')
@@ -389,7 +389,7 @@ if __name__ == '__main__':
               ('C7  one-step bound arithmetic', check_C7),
               ('C8  envelope step + coverage <=> H3', check_C8),
               ('C9  initial bound |z_0| <= N-1', check_C9)]
-    print('proof.py: core.proof_kernel self-checked on import (bad certs '
+    print('proof.py: lakatos.proof_kernel self-checked on import (bad certs '
           'rejected)')
     for name, fn in checks:
         fn()

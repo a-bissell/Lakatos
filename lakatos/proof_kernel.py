@@ -1,4 +1,4 @@
-"""core/proof_kernel.py — the Farkas certificate kernel, domain-agnostic.
+"""lakatos/proof_kernel.py — the Farkas certificate kernel, domain-agnostic.
 
 Extracted from proof.py (engine item 8) per FRAMEWORK.md step 3. The kernel is
 deliberately tiny and auditable, and knows nothing about any domain — it
@@ -89,5 +89,5 @@ _unit_kernel()
 
 
 if __name__ == '__main__':
-    print('core/proof_kernel.py unit checks: PASS (bad certs / false '
+    print('lakatos/proof_kernel.py unit checks: PASS (bad certs / false '
           'identities / wrong infeasibility all rejected, generic symbols)')

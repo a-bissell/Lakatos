@@ -3,7 +3,7 @@
 Conjecture objects are GENERATED from LIBRARY entries: each spec below
 names the entry, states its claim as a parametric instance test, and
 declares only the parameter SIGNATURE (axes, validity, cost model). The
-attack schedule is derived by core.schedule — no curated lists.
+attack schedule is derived by lakatos.schedule — no curated lists.
 
 Also runs the LAUNDERING DEMO the README promised: a false conjecture
 ("the parity digit rule targets any position for EVERY packet size
@@ -47,7 +47,7 @@ from deck_sim import (make_packet, deal_into_piles, gather_position,
                       gather_order, deal_pile, riffle_merge,
                       down_under_survivor, verify)
 from refuter import Conjecture, refute, targeting_instance
-from core.schedule import Axis, auto_conjecture
+from lakatos.schedule import Axis, auto_conjecture
 import t22_general_b_law as t22
 from t23_six_pile_buckets import bucket_digit, argmin_digit
 

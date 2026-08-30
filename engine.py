@@ -2,7 +2,7 @@
 
 The loop itself (run_engine, EngineCandidate, per-run BUDGETS, the eight
 dispositions, the suppressed log as the live DRIFT metric) is domain-agnostic
-and lives in core/engine.py (FRAMEWORK.md step 4). This module wires the CARD
+and lives in lakatos/engine.py (FRAMEWORK.md step 4). This module wires the CARD
 plugs into it — the novelty oracle as the rediscovery filter and the
 affine-in-floor round former — and holds the dry-run that doubles as the
 acceptance ledger, replaying a fixed candidate mix that exercises every
@@ -36,8 +36,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, 'tricks'))
 
-from core.engine import run_engine as _core_run_engine, EngineCandidate
-from core.schedule import Axis
+from lakatos.engine import run_engine as _core_run_engine, EngineCandidate
+from lakatos.schedule import Axis
 from novelty_oracle import Candidate as OracleCandidate, classify as _classify
 from former import (fit_round_model as _fit_model,
                     make_instance_test as _make_instance_test)
@@ -45,13 +45,13 @@ from former import (fit_round_model as _fit_model,
 
 def run_engine(candidates, budget=None, verbose=True):
     """The card-wired engine: the novelty oracle as the rediscovery filter and
-    the affine-in-floor round former, plugged into core.engine's loop."""
+    the affine-in-floor round former, plugged into lakatos.engine's loop."""
     return _core_run_engine(candidates, budget=budget, verbose=verbose,
                             classify=_classify, fit=_fit_model,
                             make_instance_test=_make_instance_test)
 
 
-# ---- unit checks (run at import; core.engine's own units ran on its import) --
+# ---- unit checks (run at import; lakatos.engine's own units ran on its import) --
 
 def _unit_repair_loop():
     """The refuter must be able to TEACH the former: a family whose fit
@@ -234,7 +234,7 @@ EXPECTED = {
 
 
 if __name__ == '__main__':
-    print('engine.py (card wiring): core.engine units ran on import; '
+    print('engine.py (card wiring): lakatos.engine units ran on import; '
           'repair-loop unit PASS')
     print('\n================ DRY RUN (doubles as acceptance ledger) '
           '================')

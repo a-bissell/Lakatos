@@ -1,4 +1,4 @@
-"""core/engine.py — the integration loop, domain-agnostic.
+"""lakatos/engine.py — the integration loop, domain-agnostic.
 
     candidates -> novelty oracle -> conjecture former -> refuter
 
@@ -32,9 +32,9 @@ either runs its full pipeline or is skipped whole. No silent truncation.
 """
 import time
 
-from core.oracle import SuppressedLog
-from core.schedule import Axis, auto_conjecture
-from core.refuter import refute
+from lakatos.oracle import SuppressedLog
+from lakatos.schedule import Axis, auto_conjecture
+from lakatos.refuter import refute
 
 
 class EngineCandidate:
@@ -248,5 +248,5 @@ _unit_engine()
 
 
 if __name__ == '__main__':
-    print('core/engine.py unit checks: PASS (dispositions, budget-atomic '
+    print('lakatos/engine.py unit checks: PASS (dispositions, budget-atomic '
           'skip; conjecture_spec path, no domain plug needed)')

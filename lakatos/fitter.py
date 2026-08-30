@@ -1,6 +1,6 @@
-"""core/fitter.py — the exact conjecture-fitter, domain-agnostic.
+"""lakatos/fitter.py — the exact conjecture-fitter, domain-agnostic.
 
-Extracted from former.py (engine item 3) as part of the core/domains split
+Extracted from former.py (engine item 3) as part of the lakatos/domains split
 (FRAMEWORK.md, step 1). This is the mechanical heart of the former: exact
 rational linear fits and piecewise-linear model trees over an INJECTED feature
 basis. It knows nothing about the domain it fits — no cards, no simulator, no
@@ -224,7 +224,7 @@ _unit_generic_fit()
 
 
 if __name__ == '__main__':
-    print('core/fitter.py unit checks: PASS (exact fit, refusal, model tree '
+    print('lakatos/fitter.py unit checks: PASS (exact fit, refusal, model tree '
           '— over a generic non-card basis)')
     basis = FeatureBasis(('p', 'q'), lambda pt: {'p': pt['p'], 'q': pt['q']})
     pts = [{'p': p, 'q': q} for p in range(4) for q in range(4)]

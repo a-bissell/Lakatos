@@ -9,7 +9,7 @@ Design contract (the no-hints boundary):
         query(N, b, a) -> newpos list   (newpos[x] = where start position x lands)
     over a packet of N tokens with a round parameter a in 0..b-1. This module
     knows nothing about the simulator's operations or any committed law: it
-    imports only the domain-agnostic fitter in core/fitter.py, which itself
+    imports only the domain-agnostic fitter in lakatos/fitter.py, which itself
     carries no simulator or law knowledge. former_acceptance.py enforces that
     boundary mechanically by scanning BOTH files' source.
   * Declared inductive bias (checked point-by-point, never silently assumed):
@@ -26,12 +26,12 @@ Design contract (the no-hints boundary):
     comparison for refuter.py's ladder; auto_battery() derives the attack
     schedule mechanically from the fit grid's parameter signature.
 
-The exact-fit and model-tree machinery lives in core/fitter.py (domain-free,
+The exact-fit and model-tree machinery lives in lakatos/fitter.py (domain-free,
 basis-injected, FRAMEWORK.md step 1). This module supplies only the card
 round-model feature basis (ROUND_BASIS) and the black-box extraction and
 conjecture-packaging built on top of it.
 """
-from core.fitter import (FeatureBasis, exact_fit as _exact_fit,
+from lakatos.fitter import (FeatureBasis, exact_fit as _exact_fit,
                          fit_tree as _fit_tree, tree_eval as _tree_eval,
                          tree_str as _tree_str, simplify_tree, Leaf, Node,
                          _FitBudget)
@@ -56,12 +56,12 @@ def feature_row(pt):
 
 
 def exact_fit(pts, ys):
-    """Card-basis exact fit — see core.fitter.exact_fit."""
+    """Card-basis exact fit — see lakatos.fitter.exact_fit."""
     return _exact_fit(ROUND_BASIS, pts, ys)
 
 
 def fit_tree(pts, ys, depth=5, min_side=6, budget=None):
-    """Card-basis model tree — see core.fitter.fit_tree."""
+    """Card-basis model tree — see lakatos.fitter.fit_tree."""
     return _fit_tree(ROUND_BASIS, pts, ys, depth, min_side, budget)
 
 
