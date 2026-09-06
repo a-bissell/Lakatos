@@ -43,9 +43,12 @@ pose as new, and a proof layer for the one result that earned it.
 - **Machine-derived laws**: the pipeline re-derived the general-b
   round law from black-box behavior without hints (t25), produced the
   Mongean shuffle position law autonomously (a rediscovery — Monge
-  1773 — and recorded as such), and discovered position laws for a
+  1773 — and recorded as such), discovered position laws for a
   pickup order outside the classical gather family (reversed-rest,
-  b=3 and b=4).
+  b=3 and b=4), and — with the invariant-search schema — re-derived
+  the two-card conservation theorem blind from a grammar of 205
+  candidate quantities, locating its evenness hypothesis by refuting
+  the same claim without it (t27).
 
 ## The engine
 
@@ -56,6 +59,14 @@ pose as new, and a proof layer for the one result that earned it.
 - [generator.py](generator.py) invents candidates from question
   schemas over the op vocabulary. It is deliberately ignorant of what
   is known; the oracle decides.
+- [invariants.py](invariants.py) is the second question schema:
+  invariant search. It enumerates conserved or simply-transported
+  quantities from a small grammar over digit features, filters them on
+  a pilot, and hands survivors to the refuter through the Decider. Its
+  acceptance test re-derives theorem #2 blind
+  ([invariants_acceptance.py](invariants_acceptance.py)), and its
+  regime-break probe finds the theorem's evenness hypothesis by
+  refutation.
 - [novelty_oracle.py](novelty_oracle.py) recognizes library-known
   material extensionally and suppresses it into a drift log. Partial
   samples abstain instead of matching.
@@ -95,8 +106,8 @@ the oracle/refuter layer are in
 | [domains/cards/](domains/cards/) | the card domain's wiring of the four plugs (Decider, recognizers, candidate source, parameter signature) |
 | [FRAMEWORK.md](FRAMEWORK.md) | the lakatos/domains split: the principle, the plugs, the migration record, the admissibility test for a second domain |
 | [deck_sim.py](deck_sim.py) | simulator + `verify()`/`verify_prop()` harness (ground truth) |
-| [tricks/](tricks/) | 25 runnable proofs, t2–t26; each prints its own verification ledger |
-| [LIBRARY.md](LIBRARY.md) | 37 verified entries with domains, scores, and session log |
+| [tricks/](tricks/) | 26 runnable proofs, t2–t27; each prints its own verification ledger |
+| [LIBRARY.md](LIBRARY.md) | 38 verified entries with domains, scores, and session log |
 | [PROOF.md](PROOF.md) / [proof.py](proof.py) | theorem #1 (general-b law) and its machine checks |
 | [PROOF_conservation.md](PROOF_conservation.md) / [proof_conservation.py](proof_conservation.py) | theorem #2 (two-card conservation) |
 | [PROOF_reversed_rest.md](PROOF_reversed_rest.md) / [proof_rr.py](proof_rr.py) | theorem #3 (largest-first ACAAN, via reflection conjugacy) |
@@ -104,6 +115,7 @@ the oracle/refuter layer are in
 | [HOWTO.md](HOWTO.md) | human performance protocols for the ACAAN family |
 | [HOWTO_double_reveal.md](HOWTO_double_reveal.md) | performance protocol for the 11-card two-spectator double reveal |
 | [trainer.html](trainer.html) | browser trainer for the ACAAN family: a JS port of the simulator and the general law, with an in-page self-test over every (card, number) case of all four human forms |
+| [invariants.py](invariants.py) / [invariants_acceptance.py](invariants_acceptance.py) | generator schema v2 (invariant search) and its blind retrodiction ledger for theorem #2 |
 | [check_all.py](check_all.py) | the whole green bar in one command (`--slow` adds the battery and proofs) |
 | [tasks.md](tasks.md) | queue, budgets, and backlog |
 | [files/agent_prompt.md](files/agent_prompt.md) | the original project spec |
@@ -144,6 +156,10 @@ python3 generator.py           # generator metric ledger, 11/11 (~2s)
 
 ```bash
 python3 former_acceptance.py   # former ledger, 6/6 incl. no-hints guard
+```
+
+```bash
+python3 invariants_acceptance.py   # invariant search re-derives theorem #2 blind, 8/8 (~10s)
 ```
 
 ```bash

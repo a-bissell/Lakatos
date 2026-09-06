@@ -137,6 +137,23 @@ ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
   module ledgers; lakatos/oracle gained unit checks + a main block;
   `python3 -m domains.cards` prints the wiring ledger.
 
+- ~~Generator schema v2: invariant search~~ DONE (session 19,
+  invariants.py + invariants_acceptance.py + t27): grammar of 205
+  (quantity, transport) claims over digit features (lenses 2..5 and
+  the op radix; relations equal/less/diff/sum; aggregates count/tuple/
+  sorted/sum-mod; transports fixed/cycle-left/cycle-right/reverse),
+  pilot filter (constants, failures, extensional dups, IMPLIED claims),
+  survivors as conjecture specs through DECIDER (exhaustive), plus a
+  regime-break probe per survivor (hypothesis N=b^m dropped). Blind
+  test: theorem #2 re-derived as the single survivor (agreement-pattern
+  cycle-left), |A| as an implied corollary, probe REFUTED at (9,2,1);
+  acceptance 8/8. novelty_oracle: 'invariant' kind + LibraryInvariant.
+  Still open in the v2 backlog: target/multi-card position schemas,
+  shuffle classes, grammar v2 for cut compositions; and the grammar of
+  quantities is FIXED — next expansion candidates: relations across
+  three cards, order statistics, quantities of a pile rather than a
+  card.
+
 ## Mathematics backlog (paused, unblocked as engine items land)
 
 - Exact necessary (b, N, r) frontier (unblocked by item 1; conjecture

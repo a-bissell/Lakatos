@@ -87,13 +87,19 @@ class Candidate:
     vector. The scope is a declaration by the candidate's author; it is
     written into the log so a false declaration is auditable."""
     def __init__(self, name, N, kind, round_perms=None, sample_choices=None,
-                 shuffle=None, invariant_k=None, sample_scope='partial'):
+                 shuffle=None, invariant_k=None, sample_scope='partial',
+                 quantity=None, arity=2, transport='fixed', radix=None):
         self.name, self.N, self.kind = name, N, kind
         self.round_perms = round_perms          # choices -> list[tuple]
         self.sample_choices = sample_choices or []
         self.shuffle = shuffle                  # (deck, choices) -> deck
         self.invariant_k = invariant_k
         self.sample_scope = sample_scope
+        # invariant kind (generator v2): quantity(positions_tuple) ->
+        # hashable at the reference packet N, its arity, the transport the
+        # claim asserts per round, and the op radix (pile count) at N
+        self.quantity, self.arity = quantity, arity
+        self.transport, self.radix = transport, radix
 
 
 def _collect_round_perms(cand):
@@ -284,6 +290,76 @@ _HUMMER_NOTE = ("Hummer declared but unimplemented (no orientation ops in "
                 "vocabulary)")
 
 
+# ---- library-as-known: committed invariants (theorem #2) --------------------
+
+def _agreement_set(p, q, b, m):
+    return frozenset(i for i in range(m)
+                     if (p // b ** i) % b == (q // b ** i) % b)
+
+
+def _rot(A, m):
+    return frozenset((i - 1) % m for i in A)
+
+
+_TRANSPORTS = {
+    'fixed': lambda v: v,
+    'cycle-left': lambda v: v[1:] + v[:1],
+    'cycle-right': lambda v: v[-1:] + v[:-1],
+    'reverse': lambda v: v[::-1],
+}
+
+
+def _match_library_invariant(cand):
+    """Extensional: is the candidate's claimed conserved/transported
+    quantity a CONSEQUENCE of the committed two-card agreement theorem
+    ([[two-card-conservation-theorem]]: with N = b^m and any gather order,
+    A(p', q') = rot(A(p, q)), rot(i) = (i-1) mod m)? Exact iff, on every
+    ordered pair at the reference packet, the quantity is a function f of
+    the agreement set AND the claimed transport commutes: T(f(A)) =
+    f(rot(A)). A quantity that is not a function of A gets no opinion —
+    absence of a match is never evidence of novelty."""
+    if cand.kind != 'invariant' or cand.quantity is None or cand.arity != 2:
+        return None
+    b, N = cand.radix, cand.N
+    m = 0
+    while b ** m < N:
+        m += 1
+    if b ** m != N:
+        return None                          # theorem needs even piles
+    T = _TRANSPORTS.get(cand.transport)
+    if T is None:
+        return None
+    f, n_pairs = {}, 0
+    for p in range(N):
+        for q in range(N):
+            if p == q:
+                continue
+            n_pairs += 1
+            A = _agreement_set(p, q, b, m)
+            v = cand.quantity((p, q))
+            if f.setdefault(A, v) != v:
+                return None                  # not a function of A
+    # transport must agree with the theorem's rotation on every class
+    for A, v in f.items():
+        rv = f.get(_rot(A, m))
+        if rv is None:
+            return None
+        try:
+            tv = T(v) if isinstance(v, tuple) else v
+        except TypeError:
+            return None
+        if tv != rv:
+            return None
+    return {'family': 'LibraryInvariant', 'confidence': 'exact',
+            'witness': f"quantity is a function of the base-{b} agreement "
+                       f"set on all {n_pairs} ordered pairs at N={N}, and "
+                       f"transport '{cand.transport}' commutes with the "
+                       f"theorem's one-step rotation ({len(f)} classes)"}
+
+
+_INV_RECOGNIZERS = (_match_library_invariant,)
+
+
 def _refine_library(exact):
     """Refinement, not ambiguity: a LibraryTargeting instance is per-round
     Gergonne by construction — the more specific verdict wins."""
@@ -302,6 +378,9 @@ def classify(cand, log):
             _PERM_RECOGNIZERS,
             ['Gergonne', 'Faro', 'Josephus', 'LibraryTargeting'],
             sampling_pin=True, refine=_refine_library, note=_HUMMER_NOTE)
+    elif cand.kind == 'invariant':
+        rset = RecognizerSet(_INV_RECOGNIZERS, ['LibraryInvariant'],
+                             sampling_pin=True, note=_HUMMER_NOTE)
     else:
         rset = RecognizerSet(_PROP_RECOGNIZERS, ['Gilbreath'],
                              sampling_pin=False, note=_HUMMER_NOTE)

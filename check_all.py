@@ -3,8 +3,9 @@
 
     python3 check_all.py            fast tier: every ledger that runs in
                                     seconds (engine, former, generator, the
-                                    audits, the lakatos package, the cards
-                                    wiring, the harness, all 25 tricks)
+                                    audits, the invariant-search ledger, the
+                                    lakatos package, the cards wiring, the
+                                    harness, all 26 tricks)
     python3 check_all.py --slow     + the slow tier: whole-library battery
                                     (~2 min) and the three proof scripts
     python3 check_all.py --only t2  run the checks whose name matches
@@ -55,6 +56,8 @@ CHECKS = [
     C('former acceptance (no-hints, ladder, cross-cert)',
       [PY, 'former_acceptance.py'], r'ACCEPTANCE PASS'),
     C('generator v1 metric', [PY, 'generator.py'], r'GENERATOR v1 PASS'),
+    C('invariant search acceptance (theorem #2 blind)',
+      [PY, 'invariants_acceptance.py'], r'INVARIANT SEARCH ACCEPTANCE PASS'),
     C('oracle audit', [PY, 'oracle_audit.py'], r'FIXED-VECTOR ACAAN.*PASS'),
     C('library-known audit', [PY, 'library_known_audit.py'],
       r'ACCEPTANCE PASS'),

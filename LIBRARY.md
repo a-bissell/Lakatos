@@ -915,10 +915,73 @@ notes: headline verdicts. KNOWN: the Mongean position law (session 14's
   literature databases and paywalled journals not consulted; records
   append, never edit.
 
+### invariant-search-rediscovery
+kind: engine (generator schema v2 output; extensional twin of
+  [[two-card-conservation-theorem]], derived blind — a REDISCOVERY of
+  the library's own theorem #2, recorded as such)
+domain |D|: grammar of 205 (quantity, transport) claims over base-k
+  digit features for lenses k in {2,3,4,5, the op's radix}; pilot at
+  (m,b) = (2,3), (3,2) over every gather order and every tracked choice;
+  the survivor's refuter battery: 41 attacks, 2,517,204 exhaustive
+  (order-sequence x ordered-pair) cases, envelope m=9 / b=7 / rounds=17;
+  t27 ground truth 239,960 cases at 5 configs
+invariant: invariants.py — told only "here is an op family (deal into b
+  piles, gather in ANY order) and a grammar of quantities and
+  transports" — enumerated 205 claims; the pilot dropped 201 as failing
+  and 1 as an extensional duplicate; the implication filter marked
+  "count of equal digits | fixed" and "count mod k | fixed" as
+  corollaries of the one survivor:
+      pair digit-equal tuple (lens = radix) | cycle-left
+  i.e. for N = b^m the vector [digit_i(p) == digit_i(q)]_i moves to its
+  cyclic shift by one place per round under every gather order — the
+  strengthened statement of theorem #2, and |A| invariant as its
+  corollary, with no committed invariant, theorem, proof, or rotation
+  named in the schema's source (mechanically scanned). The regime-break
+  probe (same claim, hypothesis N = b^m dropped) was REFUTED by the
+  derived schedule at (N, b, rounds) = (9, 2, 1): the machine located
+  the theorem's load-bearing hypothesis (cf. proof_conservation D7).
+  Every claim under a fixed lens (2, 3, 4, 5) failed the pilot; only the
+  op's own radix carries an invariant. No single-card quantity survived.
+procedure: [invariants.py](invariants.py) +
+  [invariants_acceptance.py](invariants_acceptance.py) +
+  [tricks/t27_invariant_rediscovery.py](tricks/t27_invariant_rediscovery.py)
+scores: n/a (engine)
+verified: 2026-09-05 session 19, acceptance ledger 8/8 (no-hints guard,
+  grammar + pilot, blind run at ROBUST_CONJECTURE scope exhaustive,
+  extensional retrodiction on all 702 ordered pairs at N=27 incl. the
+  transport commuting with rot, corollary derived, regime break with
+  witness, negative space, library-as-known suppression)
+canonical_form: machine-found claim (quantity, transport), extensionally
+  == theorem #2's agreement-set rotation
+notes: the first schema whose product is a statement about a
+  conserved/transported quantity rather than a position law — the
+  question shape the strongest library result has. Instance tests are
+  built through the cards Decider (exhaustive by construction), so the
+  survivor rung is ROBUST_CONJECTURE, not ROBUST_SAMPLED. Library-as-
+  known closed the loop the same session: novelty_oracle gained an
+  'invariant' candidate kind and an extensional LibraryInvariant
+  recognizer (exact iff the quantity is a function of the agreement set
+  on every ordered pair at the reference packet AND the claimed
+  transport commutes with the theorem's rotation; anything else gets no
+  opinion), so the oracle-on run SUPPRESSES this rediscovery with an
+  exhaustive-scope witness and a future run cannot count it as novel.
+  What the search cannot do is also on record: the grammar is fixed, so
+  it can only find invariants expressible in it — the expanding-
+  representation problem is narrowed, not solved.
+
 ---
 
 ## Session log
 
+- 2026-09-05 session 19 (user-directed, engine, continued): GENERATOR
+  SCHEMA v2 — invariant search (invariants.py + invariants_acceptance.py
+  + t27). Blind retrodiction of theorem #2: 1 survivor of 205 claims,
+  extensionally the agreement-set rotation, count invariant derived as
+  a corollary, regime probe REFUTED at (9,2,1), acceptance 8/8, t27 PASS
+  239,960 cases. novelty_oracle gained the 'invariant' kind +
+  LibraryInvariant recognizer; oracle-on run suppresses the rediscovery.
+  Entry [[invariant-search-rediscovery]]. check_all fast tier gained the
+  acceptance ledger and t27.
 - 2026-09-05 session 19 (user-directed, engine): refuter sampling pin.
   Instance tests now declare a check scope; ROBUST_CONJECTURE requires
   exhaustive tests, sampled/undeclared ones top out at the new
