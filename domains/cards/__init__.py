@@ -109,8 +109,3 @@ def _unit_wiring():
 
 _unit_wiring()
 
-
-if __name__ == '__main__':
-    print('domains/cards wiring: PASS (plugs validated, Decider conforms, '
-          'toy triple holds/fails as built). Full conformance ledger: '
-          'python3 engine.py')

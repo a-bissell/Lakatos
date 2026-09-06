@@ -128,6 +128,15 @@ ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
   grid point no longer crashes the engine's repair loop (unit-checked in
   lakatos/engine.py: refits twice, reports REFUTED).
 
+- ~~check_all runner + runpy warning~~ DONE (session 19): check_all.py
+  runs every ledger and trick (fast tier ~30s; --slow adds battery +
+  proofs) with per-script PASS verdicts, forbidden markers, and
+  RuntimeWarning promoted to error on the lakatos ledger. lakatos/
+  __init__ now loads submodules lazily (PEP 562), so `python3 -m
+  lakatos.<module>` no longer warns; `python3 -m lakatos` runs all
+  module ledgers; lakatos/oracle gained unit checks + a main block;
+  `python3 -m domains.cards` prints the wiring ledger.
+
 ## Mathematics backlog (paused, unblocked as engine items land)
 
 - Exact necessary (b, N, r) frontier (unblocked by item 1; conjecture

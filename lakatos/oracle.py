@@ -114,3 +114,67 @@ def classify(cand, rset, log):
         note += f"; {rset.note}"
     return {'verdict': 'NOT_MATCHED', 'families_checked': rset.checked,
             'note': note}
+
+
+# ---- unit checks (run at import; generic stub candidates, no domain) --------
+
+class _Cand:
+    def __init__(self, name, scope='exhaustive', N=10):
+        self.name, self.sample_scope, self.N = name, scope, N
+
+
+def _hit(family, confidence='exact', witness='w'):
+    return lambda cand: {'family': family, 'confidence': confidence,
+                         'witness': witness}
+
+
+def _unit_policy():
+    none = lambda cand: None
+    # exact match on an exhaustive sample -> MATCHED, logged with witness
+    log = SuppressedLog()
+    v = classify(_Cand('a'), RecognizerSet([_hit('F'), none], ['F', 'G']), log)
+    assert v['verdict'] == 'MATCHED' and v['family'] == 'F'
+    assert log.entries[-1]['confidence'] == 'exact' and not log.review_queue()
+    # the sampling pin: the SAME match on a partial sample ABSTAINS and
+    # surfaces for review (logged as 'sampled')
+    v = classify(_Cand('b', scope='partial'),
+                 RecognizerSet([_hit('F')], ['F']), log)
+    assert v['verdict'] == 'ABSTAIN' and v['families'] == ['F']
+    assert log.entries[-1]['confidence'] == 'sampled' and log.review_queue()
+    # ... unless the recognizers enumerate their domain (pin off)
+    v = classify(_Cand('c', scope='partial'),
+                 RecognizerSet([_hit('F')], ['F'], sampling_pin=False), log)
+    assert v['verdict'] == 'MATCHED'
+    # two exact families at once = suspicious -> ABSTAIN
+    v = classify(_Cand('d'), RecognizerSet([_hit('F'), _hit('G')], ['F', 'G']),
+                 log)
+    assert v['verdict'] == 'ABSTAIN' and v['reason'] == 'multiple family matches'
+    # refine collapses a more-specific exact over a more-general one
+    v = classify(_Cand('e'), RecognizerSet(
+        [_hit('F'), _hit('G')], ['F', 'G'],
+        refine=lambda ex: [h for h in ex if h['family'] == 'G']), log)
+    assert v['verdict'] == 'MATCHED' and v['family'] == 'G'
+    # an abstaining recognizer alone -> ABSTAIN with its witness as reason
+    v = classify(_Cand('f'), RecognizerSet(
+        [_hit('F', 'abstain', 'unsure')], ['F']), log)
+    assert v['verdict'] == 'ABSTAIN' and v['reason'] == 'unsure'
+    # nothing fires -> NOT_MATCHED, never "novel"; note is appended
+    v = classify(_Cand('g'), RecognizerSet([none], ['F'], note='H unwired'),
+                 log)
+    assert v['verdict'] == 'NOT_MATCHED' and v['families_checked'] == ['F']
+    assert 'NOT certified novel' in v['note'] and 'H unwired' in v['note']
+    # the log is the drift metric: by-family counts + review count. Three
+    # entries surface for review — the sampled, the ambiguous, and the
+    # abstain — because anything short of an exact match is a human's call.
+    summ = log.summary()
+    assert summ['total'] == 6 and summ['needs_review'] == 3, summ
+    assert summ['by_family'] == {'F': 4, 'F+G': 1, 'G': 1}, summ
+
+
+_unit_policy()
+
+
+if __name__ == '__main__':
+    print('lakatos/oracle.py unit checks: PASS (log-and-suppress, sampling pin '
+          'on/off, multi-match and abstain-only ABSTAIN, refine, NOT_MATCHED '
+          'is not novel, drift summary — over stub recognizers, no domain)')

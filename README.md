@@ -95,7 +95,7 @@ the oracle/refuter layer are in
 | [domains/cards/](domains/cards/) | the card domain's wiring of the four plugs (Decider, recognizers, candidate source, parameter signature) |
 | [FRAMEWORK.md](FRAMEWORK.md) | the lakatos/domains split: the principle, the plugs, the migration record, the admissibility test for a second domain |
 | [deck_sim.py](deck_sim.py) | simulator + `verify()`/`verify_prop()` harness (ground truth) |
-| [tricks/](tricks/) | 26 runnable proofs, t2–t26; each prints its own verification ledger |
+| [tricks/](tricks/) | 25 runnable proofs, t2–t26; each prints its own verification ledger |
 | [LIBRARY.md](LIBRARY.md) | 37 verified entries with domains, scores, and session log |
 | [PROOF.md](PROOF.md) / [proof.py](proof.py) | theorem #1 (general-b law) and its machine checks |
 | [PROOF_conservation.md](PROOF_conservation.md) / [proof_conservation.py](proof_conservation.py) | theorem #2 (two-card conservation) |
@@ -104,6 +104,7 @@ the oracle/refuter layer are in
 | [HOWTO.md](HOWTO.md) | human performance protocols for the ACAAN family |
 | [HOWTO_double_reveal.md](HOWTO_double_reveal.md) | performance protocol for the 11-card two-spectator double reveal |
 | [trainer.html](trainer.html) | browser trainer for the ACAAN family: a JS port of the simulator and the general law, with an in-page self-test over every (card, number) case of all four human forms |
+| [check_all.py](check_all.py) | the whole green bar in one command (`--slow` adds the battery and proofs) |
 | [tasks.md](tasks.md) | queue, budgets, and backlog |
 | [files/agent_prompt.md](files/agent_prompt.md) | the original project spec |
 
@@ -111,7 +112,19 @@ the oracle/refuter layer are in
 
 Everything is plain Python 3; [proof.py](proof.py) additionally needs
 `sympy`. Each module runs its unit checks at import and prints a
-ledger when executed directly.
+ledger when executed directly. One command runs the whole green bar:
+
+```bash
+python3 check_all.py           # fast tier: every ledger + all tricks (~30s)
+```
+
+```bash
+python3 check_all.py --slow    # + battery and the three proofs (~2 min wall)
+```
+
+A check passes only if the script exits 0 and prints its own PASS
+verdict ([check_all.py](check_all.py) never infers success from
+silence). The individual ledgers:
 
 ```bash
 python3 deck_sim.py            # harness self-check (21-card trick)
@@ -154,7 +167,7 @@ python3 proof_rr.py            # theorem #3 checks E1-E8
 ```
 
 ```bash
-python3 -m lakatos.protocols   # any lakatos module runs its ledger this way
+python3 -m lakatos             # every lakatos module ledger; `-m lakatos refuter` for one
 ```
 
 ## Honesty notes
