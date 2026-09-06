@@ -22,11 +22,16 @@ Status ladder — labels are load-bearing:
 |---|---|---|
 | `NOT_A_CANDIDATE` | fails at its own inspiring scales | — |
 | `REFUTED` | counterexample found (witness recorded) | **sound**: a kill is real |
-| `ROBUST_CONJECTURE` | survived the adversarial battery; no proof | **incomplete**: "unrefuted within the declared, escalated envelope" |
+| `ROBUST_SAMPLED` | survived the battery, but its instance tests are declared (or default to) sampled | **incomplete, weaker**: "unrefuted, never exhaustively checked at any point" |
+| `ROBUST_CONJECTURE` | survived the adversarial battery with exhaustive instance tests; no proof | **incomplete**: "unrefuted within the declared, escalated envelope" |
 | `THEOREM` | has a proof | **unreachable by this module, by design** |
 
 A `ROBUST_CONJECTURE` must carry its envelope (which axes escalated, to what
 scale, under what budget). "Robust" always means "within this envelope."
+Added 2026-09-05: the split between the two robust rungs is the refuter's
+sampling pin — every instance test declares its check scope, undeclared is
+sampled, and tests built through the domain Decider are exhaustive by
+construction (`lakatos/protocols.py`).
 
 Known limit: the refuter is only as strong as its attack generator. A *curated*
 adversary launders the author's blind spots into a false robust stamp; use

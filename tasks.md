@@ -108,6 +108,25 @@ ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
   Next session: derive corr_rr(c), state theorem #3 (targeting law
   for largest-first pickups), run the playbook.
 
+## Post-queue engine work
+
+- ~~Refuter sampling pin~~ DONE (session 19, 2026-09-05): the Decider was
+  published (FRAMEWORK step 5) but nothing in the loop consumed it, so an
+  exhaustive card check and a sampled sweep would share the ROBUST stamp.
+  Now every instance test carries a declared scope (lakatos/protocols:
+  exhaustive / sampled / decider_test; undeclared = sampled), Conjecture
+  resolves it, refute() grades ROBUST_CONJECTURE only for exhaustive
+  tests and ROBUST_SAMPLED otherwise, the engine's SURVIVOR row names the
+  rung, CardDecider.instance_test builds Plug 4 from Plug 1, and the
+  battery's two verify()-backed specs go through it. Dry run gained a
+  sampled specimen (Josephus at 8 draws -> ROBUST_SAMPLED). Second-domain
+  follow-up: the microfluidic claims package should declare scope on its
+  frozen-CSV and Tier-2 tests, or its ROBUST rows silently become
+  ROBUST_SAMPLED once it picks up this lakatos.
+- Open: `lakatos/engine.py` repair loop indexes `killed_at` on
+  NOT_A_CANDIDATE, which refute() does not set (KeyError if a fitted
+  model fails at a grid point). One-line fix in refute().
+
 ## Mathematics backlog (paused, unblocked as engine items land)
 
 - Exact necessary (b, N, r) frontier (unblocked by item 1; conjecture

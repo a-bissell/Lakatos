@@ -13,6 +13,7 @@ false-confidence delta (a confirmatory loop commits the naive law; the refuter
 kills it at r >= 2).
 """
 from lakatos.refuter import Conjecture, confirmatory_verdict, refute
+from lakatos.protocols import exhaustive
 
 from deck_sim import deal_into_piles, gather_position
 
@@ -36,6 +37,7 @@ def radix_place(n, b, r, parity=True):
             for i, d in enumerate(digits)]
 
 
+@exhaustive       # ∀card ∀n at (b, r): the whole free-choice domain
 def targeting_instance(b, r, parity):
     """Exhaustive ∀card ∀n test at one (b,r): does the placement rule land every
     card at every named position? Returns (ok, witness_or_None, n_cases)."""
@@ -62,6 +64,7 @@ if __name__ == '__main__':
         name="C1  naive radix law (p_i = base-b digits of n-1)",
         claim="placements = base-b digits of n-1 send any card to position n",
         instance_test=lambda b, r: targeting_instance(b, r, parity=False),
+        scope='exhaustive',      # the lambda hides targeting_instance's tag
         scale=lambda b, r: b ** r,
         inspiring=[(2, 1), (3, 1), (4, 1), (5, 1), (6, 1)],
         boundary=[(2, 2), (7, 1)],
@@ -75,6 +78,7 @@ if __name__ == '__main__':
         name="C2  parity-corrected radix law",
         claim="p_i = d_i if an even # of deals follow round i, else (b-1)-d_i",
         instance_test=lambda b, r: targeting_instance(b, r, parity=True),
+        scope='exhaustive',
         scale=lambda b, r: b ** r,
         inspiring=[(3, 3), (4, 2)],                 # where the project found it
         boundary=[(2, 8), (2, 9), (10, 2)],         # deep reversal / wide base

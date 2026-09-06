@@ -94,6 +94,19 @@ cuts/positions — brute-forceable whole. `make_packet(N)` + `deck_factory` (eng
 item 1) is what let the same decider run at N=144; that generalization is the
 template for every port.
 
+**How the loop consumes it (the sampling pin, 2026-09-05).** The engine never
+calls `check()` itself — the refuter attacks through Plug 4's instance tests,
+and it cannot inspect a callable to see whether it was exhaustive. So the
+Decider is made load-bearing the way the oracle's sampling pin was: every
+instance test carries a declared check *scope*. `lakatos.protocols.decider_test`
+(and `CardDecider.instance_test`) builds Plug 4 out of Plug 1 and tags the
+result `'exhaustive'` by construction; `exhaustive(test)` is the domain
+author's word for a loop that enumerates its whole claim domain; anything
+undeclared is `'sampled'`. The refuter's top rung splits on it —
+`ROBUST_CONJECTURE` only for exhaustive tests, `ROBUST_SAMPLED` otherwise — so
+an exhaustive card check and a sampled simulation sweep never share a word. A
+kill is a kill at any scope.
+
 ### Plug 2 — Recognizers  *(known-result filter)*
 A domain supplies a list; `lakatos.oracle.classify()` runs the **policy** over them
 unchanged. Current recognizers already return exactly this shape:
@@ -155,8 +168,9 @@ instance_test : Callable[..., tuple]   # params -> (ok, witness, n_cases)   <- P
 
 ## 4. What core keeps, unchanged in spirit
 
-- **The status ladder** `NOT_A_CANDIDATE → REFUTED → ROBUST_CONJECTURE →
-  THEOREM`, with `ROBUST_CONJECTURE` *required* to carry its envelope and
+- **The status ladder** `NOT_A_CANDIDATE → REFUTED → ROBUST_SAMPLED →
+  ROBUST_CONJECTURE → THEOREM`, with `ROBUST_CONJECTURE` *required* to carry
+  its envelope and to have been earned by exhaustive instance tests, and
   `THEOREM` *structurally unreachable* except via a proof artifact. Pure Lakatos;
   no cards.
 - **The refuter**: monotone scale-escalation, floor probes, multi-anchor walks,

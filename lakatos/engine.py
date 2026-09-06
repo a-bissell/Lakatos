@@ -27,6 +27,12 @@ Dispositions:
   SURVIVOR / REFUTED / DOWNGRADED (refuter: robust / killed / too-timid)
   SKIPPED (budget)                (candidate-atomic; every skip is named)
 
+A SURVIVOR's detail names its rung: ROBUST_CONJECTURE when the instance
+tests were declared exhaustive (a Decider check, or the domain's word via
+lakatos.protocols.exhaustive), ROBUST_SAMPLED otherwise — the refuter's
+sampling pin. A conjecture_spec may declare 'scope' directly; a parametric
+candidate inherits the tag on make_instance_test's result.
+
 Budgets are candidate-atomic: checked at candidate entry, so a candidate
 either runs its full pipeline or is skipped whole. No silent truncation.
 """
@@ -143,7 +149,7 @@ def run_engine(candidates, budget=None, verbose=True, *,
                 say('    former: REFUSED (outside grammar) -> backlog')
                 rows.append(dict(name=cand.name, disposition='UNSTRUCTURED',
                                  oracle=oracle_verdict,
-                                 detail='former refused: not affine-in-floor '
+                                 detail='former refused: outside its grammar '
                                         'over the declared grid'
                                         + (f' (after {repairs} repairs)'
                                            if repairs else '')
@@ -156,7 +162,8 @@ def run_engine(candidates, budget=None, verbose=True, *,
             s = cand.conjecture_spec
             conj, report = auto_conjecture(
                 cand.name, s['claim'], s['instance'], s['axes'],
-                s['inspiring'], s['valid'], s['cost'], s['cap'])
+                s['inspiring'], s['valid'], s['cost'], s['cap'],
+                scope=s.get('scope'))
             res = refute(conj, verbose=False)
             cases_used += res['cases']
 
@@ -167,13 +174,14 @@ def run_engine(candidates, budget=None, verbose=True, *,
                             res.get('attacks_before_kill', 0))
             say(f"    refuter: {st} ({n_att} attacks, {res['cases']} cases)"
                 f"  axes: {report}")
-            if st == 'ROBUST_CONJECTURE':
+            if st in ('ROBUST_CONJECTURE', 'ROBUST_SAMPLED'):
                 rows.append(dict(
                     name=cand.name, disposition='SURVIVOR', model=model,
-                    oracle=oracle_verdict, repairs=repairs,
-                    detail=f"ROBUST_CONJECTURE, envelope {res['envelope']}"
-                           f"{repair_note}; provenance log required "
-                           f"(PROVENANCE.md)"))
+                    oracle=oracle_verdict, repairs=repairs, status=st,
+                    scope=res['scope'],
+                    detail=f"{st}, envelope {res['envelope']}, scope "
+                           f"{res['scope']}{repair_note}; provenance record "
+                           f"required before any novelty claim"))
             elif st in ('REFUTED', 'NOT_A_CANDIDATE'):
                 rows.append(dict(
                     name=cand.name, disposition='REFUTED',
@@ -226,6 +234,14 @@ def _unit_engine():
         'unit-good', 'unit', conjecture_spec=dict(
             claim='always true', instance=lambda n: (True, None, 1),
             axes=[Axis('n', lo=1)], inspiring=[(4,)],
+            valid=lambda n: n >= 1, cost=lambda n: n, cap=64,
+            scope='exhaustive'))
+    # the same survivor with NO scope declared: still a SURVIVOR, but the
+    # rung in its detail is ROBUST_SAMPLED (the sampling pin, in the loop)
+    undeclared = EngineCandidate(
+        'unit-undeclared', 'unit', conjecture_spec=dict(
+            claim='always true', instance=lambda n: (True, None, 1),
+            axes=[Axis('n', lo=1)], inspiring=[(4,)],
             valid=lambda n: n >= 1, cost=lambda n: n, cap=64))
     bad = EngineCandidate(
         'unit-bad', 'unit', conjecture_spec=dict(
@@ -233,9 +249,13 @@ def _unit_engine():
                 (n <= 5, None if n <= 5 else {'n': n}, 1),
             axes=[Axis('n', lo=1)], inspiring=[(4,)],
             valid=lambda n: n >= 1, cost=lambda n: n, cap=64))
-    out = run_engine([good, bad], verbose=False)
+    out = run_engine([good, bad, undeclared], verbose=False)
     d = {r['name']: r['disposition'] for r in out['rows']}
-    assert d == {'unit-good': 'SURVIVOR', 'unit-bad': 'REFUTED'}, d
+    assert d == {'unit-good': 'SURVIVOR', 'unit-bad': 'REFUTED',
+                 'unit-undeclared': 'SURVIVOR'}, d
+    st = {r['name']: r.get('status') for r in out['rows']}
+    assert st['unit-good'] == 'ROBUST_CONJECTURE', st
+    assert st['unit-undeclared'] == 'ROBUST_SAMPLED', st
     # budget: candidate-atomic skip, named in the report
     out = run_engine([good, bad], budget=dict(max_candidates=1),
                      verbose=False)
@@ -249,4 +269,5 @@ _unit_engine()
 
 if __name__ == '__main__':
     print('lakatos/engine.py unit checks: PASS (dispositions, budget-atomic '
-          'skip; conjecture_spec path, no domain plug needed)')
+          'skip; conjecture_spec path, no domain plug needed; survivor rung '
+          'follows the declared scope)')

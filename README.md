@@ -73,8 +73,13 @@ pose as new, and a proof layer for the one result that earned it.
   witness joins the fit grid and the former refits).
 
 Verdicts are graded: `REFUTED` (with witness) < `CONJECTURE` <
-`ROBUST_CONJECTURE` (with envelope) < `THEOREM`. The refuter cannot
-promote anything to THEOREM; only a proof artifact can, and three
+`ROBUST_SAMPLED` < `ROBUST_CONJECTURE` (with envelope) < `THEOREM`.
+The split between the two robust rungs is the refuter's sampling pin:
+every instance test declares whether it checked the entire free-choice
+domain at each parameter point, undeclared counts as sampled, and only
+exhaustive tests can earn `ROBUST_CONJECTURE`. Tests built through the
+domain's Decider carry the exhaustive tag by construction. The refuter
+cannot promote anything to THEOREM; only a proof artifact can, and three
 entries hold one: the general-b law, the two-card conservation law,
 and the largest-first ACAAN (a reflection conjugate of the first,
 [PROOF_reversed_rest.md](PROOF_reversed_rest.md)). Design notes for
@@ -113,7 +118,7 @@ cd tricks && python3 t22_general_b_law.py   # the law, 32,896 cases
 ```
 
 ```bash
-python3 engine.py              # pipeline dry run, 9/9 (~1s)
+python3 engine.py              # pipeline dry run, 12/12 (~1s)
 ```
 
 ```bash

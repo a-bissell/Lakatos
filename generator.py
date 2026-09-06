@@ -289,7 +289,11 @@ if __name__ == '__main__':
     survivors = [r for r in out['rows']
                  if r['disposition'] == 'SURVIVOR'
                  and r.get('oracle') == 'NOT_MATCHED']
-    metric_ok = len(survivors) >= 1
+    # the rung must be the full one: the former's tests are exhaustive, so
+    # a ROBUST_SAMPLED survivor here would mean a scope tag went missing
+    metric_ok = (len(survivors) >= 1
+                 and all(r.get('status') == 'ROBUST_CONJECTURE'
+                         for r in survivors))
     all_ok &= metric_ok
     print(f"  {'PASS' if metric_ok else 'FAIL'}  NOT_MATCHED survivor at "
           f"ROBUST_CONJECTURE: {len(survivors)} "

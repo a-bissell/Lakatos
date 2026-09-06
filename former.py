@@ -31,6 +31,7 @@ basis-injected, FRAMEWORK.md step 1). This module supplies only the card
 round-model feature basis (ROUND_BASIS) and the black-box extraction and
 conjecture-packaging built on top of it.
 """
+from lakatos.protocols import exhaustive
 from lakatos.fitter import (FeatureBasis, exact_fit as _exact_fit,
                          fit_tree as _fit_tree, tree_eval as _tree_eval,
                          tree_str as _tree_str, simplify_tree, Leaf, Node,
@@ -169,7 +170,9 @@ def fit_round_model(query, grid):
 
 def make_instance_test(model, query):
     """Exhaustive model-vs-black-box comparison at one (N, b), in the
-    (ok, witness, n_cases) shape refuter.Conjecture expects."""
+    (ok, witness, n_cases) shape refuter.Conjecture expects. Every (x, a)
+    at the point is compared, so the test is declared exhaustive — the
+    survivor rung is ROBUST_CONJECTURE, not ROBUST_SAMPLED."""
     def instance_test(N, b):
         cases = 0
         for a in range(b):
@@ -181,7 +184,7 @@ def make_instance_test(model, query):
                                    'model': model.predict(x, a, N, b),
                                    'box': mp[x]}, cases
         return True, None, cases
-    return instance_test
+    return exhaustive(instance_test)
 
 
 def auto_battery(grid, seed=20260827):

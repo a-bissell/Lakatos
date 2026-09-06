@@ -14,7 +14,10 @@ package is the WIRING, and root engine.py consumes it.
   Plug 3  Candidate source  generator.generate_candidates (schema-driven) and
                             engine.dry_run_candidates (the fixed acceptance
                             mix); any iterable of EngineCandidate works
-  Plug 4  Parameter sig.    pure data on each candidate; nothing to wire
+  Plug 4  Parameter sig.    pure data on each candidate. Instance tests built
+                            with DECIDER.instance_test are exhaustive by
+                            construction (the refuter's sampling pin); the
+                            library battery's verify()-backed specs use it
 
 Conformance: import-time checks here are structural (plug shapes, the
 Decider triple on a toy packet). The REAL conformance ledger is the engine
@@ -29,7 +32,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-from lakatos.protocols import Decider, check_plugs
+from lakatos.protocols import Decider, check_plugs, decider_test, test_scope
 from deck_sim import verify, verify_prop, make_deck, make_packet
 from novelty_oracle import classify, Candidate as OracleCandidate
 from former import fit_round_model, make_instance_test
@@ -55,6 +58,16 @@ class CardDecider:
             trick, reveal = claim
             ok, counter = verify(trick, cases, reveal, deck_factory)
         return (ok, counter[0] if counter else None, len(cases))
+
+    def instance_test(self, claim_of, domain_of, deck_factory_of=None):
+        """Plug 4 from Plug 1: an instance test whose every parameter point
+        is a full check() — so it carries scope 'exhaustive' by construction
+        and can reach ROBUST_CONJECTURE. claim_of(*p) -> claim, domain_of(*p)
+        -> the whole free-choice domain, deck_factory_of(*p) -> a factory
+        (default: the 52-card deck)."""
+        kw = ((lambda *p: {'deck_factory': deck_factory_of(*p)})
+              if deck_factory_of is not None else None)
+        return decider_test(self, claim_of, domain_of, kw)
 
 
 DECIDER = CardDecider()
@@ -84,6 +97,14 @@ def _unit_wiring():
         [{'card': c} for c in range(4)],
         deck_factory=lambda: make_packet(4))
     assert not ok and w is not None and n == 4, (ok, w, n)
+    # Plug 4 from Plug 1: the built test is exhaustive by construction and
+    # threads the packet factory per parameter point
+    t = DECIDER.instance_test(
+        lambda N: (lambda deck, ch: deck, lambda final, ch: final[ch['card']]),
+        lambda N: [{'card': c} for c in range(N)],
+        lambda N: (lambda: make_packet(N)))
+    assert test_scope(t) == 'exhaustive'
+    assert t(6) == (True, None, 6), t(6)
 
 
 _unit_wiring()

@@ -45,16 +45,34 @@ sys.path.insert(0, os.path.join(ROOT, 'tricks'))
 
 from deck_sim import (make_packet, deal_into_piles, gather_position,
                       gather_order, deal_pile, riffle_merge,
-                      down_under_survivor, verify)
+                      down_under_survivor)
 from refuter import Conjecture, refute, targeting_instance
 from lakatos.schedule import Axis, auto_conjecture
+from lakatos.protocols import exhaustive
+from domains.cards import DECIDER
 import t22_general_b_law as t22
 from t23_six_pile_buckets import bucket_digit, argmin_digit
 
 
 # ---- instance tests (each: params -> (ok, witness, n_cases)) -----------------
+# Scope discipline (the refuter's sampling pin): the two verify()-backed
+# targeting specs are built THROUGH the Decider, so they are exhaustive by
+# construction. The rest enumerate their whole claim domain in plain loops
+# and carry the domain author's word via @exhaustive — each says why.
 
-def general_b_instance(b, N, r):
+def _acaan_domain(b, N, r):
+    return [{'card': c, 'n': n} for c in range(N) for n in range(1, N + 1)]
+
+
+def _acaan_reveal(final, ch):
+    return final[ch['n'] - 1]
+
+
+def _packet_of(b, N, r):
+    return lambda: make_packet(N)
+
+
+def _general_b_claim(b, N, r):
     vec = {n: t22.law_vector(n, N, b, r) for n in range(1, N + 1)}
 
     def trick(deck, ch):
@@ -64,15 +82,14 @@ def general_b_instance(b, N, r):
             j = next(i for i, p in enumerate(piles) if ch['card'] in p)
             d = gather_position(piles, j, a)
         return d
-
-    domain = [{'card': c, 'n': n}
-              for c in range(N) for n in range(1, N + 1)]
-    ok, counter = verify(trick, domain, lambda f, ch: f[ch['n'] - 1],
-                         deck_factory=lambda: make_packet(N))
-    return ok, (counter[0] if counter else None), len(domain)
+    return (trick, _acaan_reveal)
 
 
-def reversed_rest_instance(b, N, r):
+general_b_instance = DECIDER.instance_test(_general_b_claim, _acaan_domain,
+                                           _packet_of)
+
+
+def _reversed_rest_claim(b, N, r):
     import t26_reversed_rest_acaan as t26
     vec = {n: t26.law_vector_rr(n, N, b, r) for n in range(1, N + 1)}
 
@@ -83,18 +100,19 @@ def reversed_rest_instance(b, N, r):
             j = next(i for i, p in enumerate(piles) if ch['card'] in p)
             d = t26.gather_rr(piles, j, c)
         return d
-
-    domain = [{'card': c, 'n': n}
-              for c in range(N) for n in range(1, N + 1)]
-    ok, counter = verify(trick, domain, lambda f, ch: f[ch['n'] - 1],
-                         deck_factory=lambda: make_packet(N))
-    return ok, (counter[0] if counter else None), len(domain)
+    return (trick, _acaan_reveal)
 
 
+reversed_rest_instance = DECIDER.instance_test(_reversed_rest_claim,
+                                               _acaan_domain, _packet_of)
+
+
+@exhaustive       # targeting_instance: every card x every n at (b, r)
 def parity_instance(b, r):
     return targeting_instance(b, r, parity=True)
 
 
+@exhaustive       # every packet size m <= n
 def josephus_instance(n):
     for m in range(1, n + 1):
         L = m - (1 << (m.bit_length() - 1))
@@ -105,6 +123,7 @@ def josephus_instance(n):
     return True, None, n
 
 
+@exhaustive       # all 2^N interleavings
 def gilbreath_instance(N, k):
     cases = 0
     for pat in product((0, 1), repeat=N):
@@ -122,6 +141,7 @@ def _digits(x, b, m):
     return tuple((x // b ** i) % b for i in range(m))
 
 
+@exhaustive       # every ordered target pair, every gather order, all rounds
 def conservation_instance(m, b, rounds):
     N = b ** m
     from itertools import permutations
@@ -152,6 +172,7 @@ def conservation_instance(m, b, rounds):
     return True, None, cases
 
 
+@exhaustive       # every integer z in [-R, R]
 def bucket_instance(R):
     for z in range(-R, R + 1):
         if bucket_digit(z) != argmin_digit(z):
@@ -172,6 +193,7 @@ def _parity_place(n, b, r):
             for i, d in enumerate(ds)]
 
 
+@exhaustive       # every card x every n — the FALSE claim is checked honestly
 def naive_uneven_instance(b, N, r):
     """FALSE claim: the pure parity digit rule targets any n for every
     N <= b^r (uneven piles included). True exactly when N = b^r."""
@@ -338,7 +360,7 @@ if __name__ == '__main__':
         sched_ok = len(report) == len(spec['axes']) and escalated
         ledger.append((spec['name'], ok and bool(sched_ok)))
         print(f"\n  {spec['name']}")
-        print(f"    status: {res['status']}"
+        print(f"    status: {res['status']} (scope: {res['scope']})"
               + (f"  witness: {res.get('witness')}" if not ok else '')
               + f"  ({res.get('attacks_survived', 0)} attacks, "
                 f"{res['cases']} cases, {dt:.1f}s)")

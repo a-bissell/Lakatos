@@ -186,9 +186,11 @@ def derive_schedule(axes, inspiring, valid=None, cost=None, cap=None,
 
 def auto_conjecture(name, claim, instance_test, axes, inspiring,
                     valid=None, cost=None, cap=None, scale=None,
-                    seed=20260828):
+                    seed=20260828, scope=None):
     """Build a refuter.Conjecture whose entire battery is derived from the
-    signature. Returns (conjecture, axis_report)."""
+    signature. Returns (conjecture, axis_report). `scope` ('exhaustive' |
+    'sampled') overrides the instance test's declared tag; None reads it
+    (undeclared = sampled)."""
     from lakatos.refuter import Conjecture
     sched, report = derive_schedule(axes, inspiring, valid, cost, cap, seed)
     conj = Conjecture(
@@ -197,7 +199,7 @@ def auto_conjecture(name, claim, instance_test, axes, inspiring,
         inspiring=list(map(tuple, inspiring)),
         boundary=sched['boundary'], beyond=sched['beyond'],
         random_draw=sched['random_draw'],
-        param_names=tuple(ax.name for ax in axes))
+        param_names=tuple(ax.name for ax in axes), scope=scope)
     return conj, report
 
 

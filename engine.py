@@ -21,7 +21,10 @@ pipeline path against real library material:
   SURVIVOR             former fit a closed form and the refuter awarded
                        ROBUST_CONJECTURE on a signature-derived schedule
                        (needs a PROVENANCE.md record before any
-                       novelty claim — see provenance_audit.py)
+                       novelty claim — see provenance_audit.py). A
+                       survivor whose instance tests are only SAMPLED
+                       lands on the lower rung, ROBUST_SAMPLED (the
+                       sampling pin) — the dry run carries one specimen
   REFUTED              the refuter killed it; witness recorded — a kill
                        is a result, not a failure
   DOWNGRADED           refuter returned CANDIDATE/CONJECTURE (schedule
@@ -70,6 +73,8 @@ def _unit_repair_loop():
     r = out['rows'][0]
     assert r['disposition'] == 'SURVIVOR' and r['repairs'] >= 1, \
         (r['disposition'], r.get('repairs'), r['detail'])
+    # the former's tests compare every cell, so the rung is the full one
+    assert r['status'] == 'ROBUST_CONJECTURE' and r['scope'] == 'exhaustive'
 
 
 _unit_repair_loop()
@@ -217,6 +222,34 @@ def dry_run_candidates():
             valid=lambda b, N, r: 2 <= b <= N <= b ** r,
             cost=lambda b, N, r: N * N * r, cap=50000)))
 
+    # 8. SURVIVOR (sampled) path: a TRUE claim checked by a sampled test —
+    # the Josephus survivor law probed at 8 packet sizes per parameter
+    # instead of every size. The refuter's sampling pin must keep it off
+    # ROBUST_CONJECTURE: same claim, same survival, lower rung.
+    from deck_sim import down_under_survivor
+
+    def josephus_sampled(n):
+        s, cases = 20260905, 0
+        for _ in range(8):
+            s = (1103515245 * s + 12345) % (1 << 31)
+            m = 1 + s % n
+            cases += 1
+            L = m - (1 << (m.bit_length() - 1))
+            want = 2 * L if L else m
+            got = down_under_survivor(list(range(1, m + 1)))
+            if got != want:
+                return False, {'m': m, 'got': got, 'want': want}, cases
+        return True, None, cases
+
+    cands.append(EngineCandidate(
+        'Josephus survivor law (sampled test)', 'dry-run replay',
+        conjecture_spec=dict(
+            claim='down-under survivor of m cards is 2L (L = m minus the '
+                  'largest power of 2 <= m), checked at 8 sampled m <= n',
+            instance=josephus_sampled,          # no scope declared: sampled
+            axes=[Axis('n', lo=1)], inspiring=[(52,)],
+            valid=lambda n: n >= 1, cost=lambda n: n, cap=100000)))
+
     return cands
 
 
@@ -228,6 +261,11 @@ EXPECTED = {
     'milk-shuffle position law': 'UNSTRUCTURED',
     'full packet reversal': 'ROUTED',
     'naive parity law for all N<=b^r': 'REFUTED',
+    'Josephus survivor law (sampled test)': 'SURVIVOR',
+}
+EXPECTED_RUNG = {                     # the sampling pin, end to end
+    'Mongean position law': 'ROBUST_CONJECTURE',
+    'Josephus survivor law (sampled test)': 'ROBUST_SAMPLED',
 }
 
 
@@ -246,6 +284,12 @@ if __name__ == '__main__':
         all_ok &= ok
         print(f"  {'PASS' if ok else 'FAIL'}  {name}: "
               f"{got.get(name)} (expected {want})")
+    rungs = {r['name']: r.get('status') for r in out['rows']}
+    for name, want in EXPECTED_RUNG.items():
+        ok = rungs.get(name) == want
+        all_ok &= ok
+        print(f"  {'PASS' if ok else 'FAIL'}  {name}: rung "
+              f"{rungs.get(name)} (expected {want})")
     fams = set(out['drift']['by_family'])
     drift_ok = (out['drift']['total'] >= 2
                 and {'LibraryTargeting', 'Faro'} <= fams
@@ -264,7 +308,7 @@ if __name__ == '__main__':
     out2 = run_engine(dry_run_candidates(),
                       budget=dict(max_candidates=3), verbose=False)
     n_skip = len(out2['skipped'])
-    drill_ok = (n_skip == 4
+    drill_ok = (n_skip == 5
                 and all(r['disposition'] == 'SKIPPED (budget)'
                         for r in out2['rows'][3:]))
     all_ok &= drill_ok

@@ -919,6 +919,14 @@ notes: headline verdicts. KNOWN: the Mongean position law (session 14's
 
 ## Session log
 
+- 2026-09-05 session 19 (user-directed, engine): refuter sampling pin.
+  Instance tests now declare a check scope; ROBUST_CONJECTURE requires
+  exhaustive tests, sampled/undeclared ones top out at the new
+  ROBUST_SAMPLED rung; the library battery's verify()-backed specs are
+  built through the cards Decider (exhaustive by construction). No
+  library entry changed status: battery 8/8 with every spec exhaustive,
+  engine dry-run 12/12 incl. a sampled specimen, generator 11/11,
+  former 6/6, proofs untouched. Zero verify() budget spent on new claims.
 - 2026-08-28 session 17 (user-directed, follow-up): double-reveal
   performance write-up (HOWTO_double_reveal.md) — t17 tables
   re-derived and re-verified (2x110), crib formatted as per-round
