@@ -89,8 +89,8 @@ def refute(conj, verbose=True):
         cases += nc
         if not ok:
             line(f"   [inspiring {p}] FAILS -> NOT_A_CANDIDATE  witness={w}")
-            return {'status': 'NOT_A_CANDIDATE', 'witness': w, 'cases': cases,
-                    'scope': conj.scope, 'log': log}
+            return {'status': 'NOT_A_CANDIDATE', 'witness': w, 'killed_at': p,
+                    'cases': cases, 'scope': conj.scope, 'log': log}
     line(f"   inspiring scales hold (max scale {max_insp}); "
          f"a confirmatory loop would COMMIT this now.")
 
@@ -208,6 +208,14 @@ def _unit_refuter():
         scale=lambda n: n, inspiring=[(3,)], beyond=[(9,)], param_names=('n',))
     r = refute(false_c, verbose=False)
     assert r['status'] == 'REFUTED' and r['killed_at'] == (9,), r
+    # fails where it was seen -> NOT_A_CANDIDATE, and killed_at names the
+    # inspiring point (the engine's repair loop reads it, same as REFUTED)
+    never = Conjecture(
+        name='unit-never', claim='fails at its own inspiring point',
+        instance_test=lambda n: (False, {'n': n}, 1), scale=lambda n: n,
+        inspiring=[(3,)], beyond=[(9,)])
+    r = refute(never, verbose=False)
+    assert r['status'] == 'NOT_A_CANDIDATE' and r['killed_at'] == (3,), r
     # holds only where seen, never attacked beyond -> CONJECTURE, not ROBUST
     timid = Conjecture(
         name='unit-timid', claim='untested beyond',

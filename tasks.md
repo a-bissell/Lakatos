@@ -123,9 +123,10 @@ ENGINE QUEUE COMPLETE (items 1-8, sessions 12-15).
   follow-up: the microfluidic claims package should declare scope on its
   frozen-CSV and Tier-2 tests, or its ROBUST rows silently become
   ROBUST_SAMPLED once it picks up this lakatos.
-- Open: `lakatos/engine.py` repair loop indexes `killed_at` on
-  NOT_A_CANDIDATE, which refute() does not set (KeyError if a fitted
-  model fails at a grid point). One-line fix in refute().
+- ~~Repair-loop KeyError~~ DONE (session 19): refute() now returns
+  `killed_at` on NOT_A_CANDIDATE too, so a fitted model that fails at a
+  grid point no longer crashes the engine's repair loop (unit-checked in
+  lakatos/engine.py: refits twice, reports REFUTED).
 
 ## Mathematics backlog (paused, unblocked as engine items land)
 

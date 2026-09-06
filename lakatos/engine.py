@@ -249,6 +249,22 @@ def _unit_engine():
                 (n <= 5, None if n <= 5 else {'n': n}, 1),
             axes=[Axis('n', lo=1)], inspiring=[(4,)],
             valid=lambda n: n >= 1, cost=lambda n: n, cap=64))
+    # a fitted model that fails at a GRID point: the refuter says
+    # NOT_A_CANDIDATE and the repair loop must not crash reading killed_at
+    # (it refits with the same grid twice, then reports REFUTED)
+    class _M:
+        n_points = 2
+    liar = EngineCandidate(
+        'unit-liar', 'unit', parametric=dict(
+            query=lambda N, b, a: [0] * N, fit_grid=[(6, 3), (9, 3)],
+            axes=[Axis('N', lo=2), Axis('b', lo=2)],
+            valid=lambda N, b: b == 3 and N >= b, cost=lambda N, b: N * b,
+            cap=2000, claim='model disagrees with the box everywhere'))
+    out = run_engine([liar], verbose=False, fit=lambda q, g: _M(),
+                     make_instance_test=lambda m, q:
+                         (lambda N, b: (False, {'N': N, 'b': b}, 1)))
+    r = out['rows'][0]
+    assert r['disposition'] == 'REFUTED' and r['repairs'] == 2, r
     out = run_engine([good, bad, undeclared], verbose=False)
     d = {r['name']: r['disposition'] for r in out['rows']}
     assert d == {'unit-good': 'SURVIVOR', 'unit-bad': 'REFUTED',
