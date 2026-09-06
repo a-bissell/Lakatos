@@ -63,7 +63,7 @@ pose as new, and a proof layer for the one result that earned it.
   model trees over atom comparisons) from behavior alone, and refuses
   what its grammar cannot express. It imports nothing from the
   project; an acceptance ledger scans its source to keep it that way.
-- [refuter.py](refuter.py) + [refuter_auto.py](refuter_auto.py) grade
+- [refuter.py](refuter.py) + [lakatos/schedule.py](lakatos/schedule.py) grade
   every claim by attacking it with schedules derived from its
   parameter signature — floor probes, escalation beyond the inspiring
   scale, residue-breaking probes — and report per-axis envelopes with
@@ -91,15 +91,19 @@ the oracle/refuter layer are in
 
 | Path | Contents |
 |---|---|
+| [lakatos/](lakatos/) | the domain-agnostic engine, pip-installable with zero dependencies: schedule, fitter, oracle policy, refuter + status ladder, loop, four-plug contract, Farkas proof kernel (`[proof]` extra) |
+| [domains/cards/](domains/cards/) | the card domain's wiring of the four plugs (Decider, recognizers, candidate source, parameter signature) |
+| [FRAMEWORK.md](FRAMEWORK.md) | the lakatos/domains split: the principle, the plugs, the migration record, the admissibility test for a second domain |
 | [deck_sim.py](deck_sim.py) | simulator + `verify()`/`verify_prop()` harness (ground truth) |
-| [tricks/](tricks/) | 24 runnable proofs, t2–t25; each prints its own verification ledger |
-| [LIBRARY.md](LIBRARY.md) | 35 verified entries with domains, scores, and session log |
+| [tricks/](tricks/) | 26 runnable proofs, t2–t26; each prints its own verification ledger |
+| [LIBRARY.md](LIBRARY.md) | 37 verified entries with domains, scores, and session log |
 | [PROOF.md](PROOF.md) / [proof.py](proof.py) | theorem #1 (general-b law) and its machine checks |
 | [PROOF_conservation.md](PROOF_conservation.md) / [proof_conservation.py](proof_conservation.py) | theorem #2 (two-card conservation) |
 | [PROOF_reversed_rest.md](PROOF_reversed_rest.md) / [proof_rr.py](proof_rr.py) | theorem #3 (largest-first ACAAN, via reflection conjugacy) |
 | [PROVENANCE.md](PROVENANCE.md) / [provenance_audit.py](provenance_audit.py) | literature search records and the audit that enforces them |
 | [HOWTO.md](HOWTO.md) | human performance protocols for the ACAAN family |
 | [HOWTO_double_reveal.md](HOWTO_double_reveal.md) | performance protocol for the 11-card two-spectator double reveal |
+| [trainer.html](trainer.html) | browser trainer for the ACAAN family: a JS port of the simulator and the general law, with an in-page self-test over every (card, number) case of all four human forms |
 | [tasks.md](tasks.md) | queue, budgets, and backlog |
 | [files/agent_prompt.md](files/agent_prompt.md) | the original project spec |
 
@@ -130,7 +134,7 @@ python3 former_acceptance.py   # former ledger, 6/6 incl. no-hints guard
 ```
 
 ```bash
-python3 refuter_battery.py     # whole-library battery, 7/7 (~3.7M cases, ~100s)
+python3 refuter_battery.py     # whole-library battery, 8/8 (~3.9M cases, ~120s)
 ```
 
 ```bash
@@ -143,6 +147,14 @@ python3 proof.py               # theorem #1 checks C1-C10 (~30s)
 
 ```bash
 python3 proof_conservation.py  # theorem #2 checks D1-D8 (~30s)
+```
+
+```bash
+python3 proof_rr.py            # theorem #3 checks E1-E8
+```
+
+```bash
+python3 -m lakatos.protocols   # any lakatos module runs its ledger this way
 ```
 
 ## Honesty notes
