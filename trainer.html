@@ -1,0 +1,778 @@
+<title>Fair &amp; Uneven Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EDF0EA; --panel:#FFFFFF; --panel-2:#F5F7F2; --line:#CBD5C6;
+  --text:#0F2318; --muted:#4B5C51; --accent:#8A6B12; --accent-soft:#EFE3C0;
+  --good:#1B7A45; --bad:#A3301F; --card:#FFFFFF; --card-line:#C3CFBE;
+  --shadow:0 1px 2px rgba(15,35,24,.10),0 8px 24px rgba(15,35,24,.06);
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:"Bodoni Moda",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1D14; --panel:#122A1E; --panel-2:#163224; --line:#264633;
+  --text:#E6EEE7; --muted:#9AB0A1; --accent:#D9B440; --accent-soft:#2A3A20;
+  --good:#56C285; --bad:#E0705C; --card:#1B3728; --card-line:#2E5540;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.28);
+}}
+:root[data-theme="dark"]{
+  --bg:#0B1D14; --panel:#122A1E; --panel-2:#163224; --line:#264633;
+  --text:#E6EEE7; --muted:#9AB0A1; --accent:#D9B440; --accent-soft:#2A3A20;
+  --good:#56C285; --bad:#E0705C; --card:#1B3728; --card-line:#2E5540;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.4vw,44px);
+  margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:20px;box-shadow:var(--shadow)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.grow{flex:1 1 200px}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--mono)}
+select,input[type=number],input[type=text]{font:inherit;font-family:var(--mono);
+  background:var(--panel-2);color:var(--text);border:1px solid var(--line);
+  border-radius:8px;padding:8px 10px;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line);padding-bottom:0}
+.tab{padding:9px 15px;border-radius:9px 9px 0 0;border:1px solid transparent;
+  border-bottom:none;color:var(--muted);font-weight:500;position:relative;top:1px}
+.tab[aria-selected=true]{background:var(--panel);border-color:var(--line);color:var(--text)}
+.btn{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+:root[data-theme="dark"] .btn.primary,:root:not([data-theme="light"]) .btn.primary{color:#0B1D14}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn.primary{color:#FFFFFF}}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:26px;
+  padding:0 6px;background:var(--card);border:1px solid var(--card-line);border-radius:5px;
+  font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.chip.red{color:#B0342A}
+:root[data-theme="dark"] .chip.red,:root:not([data-theme="light"]) .chip.red{color:#E8897C}
+.chip.mark{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+:root[data-theme="dark"] .chip.mark,:root:not([data-theme="light"]) .chip.mark{color:#0B1D14}
+.chip.slot{outline:2px dashed var(--accent);outline-offset:1px}
+.piles{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.pile{flex:0 0 auto;display:flex;flex-direction:column;gap:3px;padding:8px;border-radius:10px;
+  border:1px solid var(--line);background:var(--panel-2);min-width:64px}
+.pile.pointed{border-color:var(--accent);background:var(--accent-soft)}
+.pile h4{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);text-align:center}
+.packet{display:flex;flex-wrap:wrap;gap:4px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.trace{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:14px;
+  font-variant-numeric:tabular-nums}
+.trace th,.trace td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left}
+.trace th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.code{font-family:var(--mono);font-size:clamp(28px,5vw,44px);font-weight:600;letter-spacing:.22em;color:var(--accent)}
+.big{font-family:var(--mono);font-size:clamp(24px,4vw,34px);font-weight:600;font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;
+  padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.badge.ok{color:var(--good);border-color:var(--good)}
+.badge.no{color:var(--bad);border-color:var(--bad)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:10px}
+.stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.stat b{display:block;font-family:var(--mono);font-size:21px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--mono)}
+.digits{display:flex;flex-wrap:wrap;gap:8px}
+.dbtn{width:46px;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);
+  font-family:var(--mono);font-size:19px;font-weight:600}
+.dbtn:hover{border-color:var(--accent)}
+.dbtn.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .dbtn.sel,:root:not([data-theme="light"]) .dbtn.sel{color:#0B1D14}
+.fseg{padding:1px 2px;border-radius:5px;transition:background .15s,color .15s}
+.fseg.hi{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.fb{min-height:26px;font-family:var(--mono);font-size:14px}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.hint{font-size:13px;color:var(--muted);max-width:70ch}
+.hide{display:none!important}
+.scroll{overflow-x:auto}
+ol.steps{padding-left:20px;margin:8px 0 0} ol.steps li{margin:5px 0}
+kbd{font-family:var(--mono);font-size:12px;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:5px;padding:1px 5px}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:no-preference){.flash{animation:f .5s ease}}
+@keyframes f{from{background:var(--accent-soft)}to{background:transparent}}
+
+.recipe{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel-2);margin:14px 0 18px}
+.recipe-row{display:flex;gap:14px;align-items:baseline;padding:10px 14px}
+.recipe-row+.recipe-row{border-top:1px solid var(--line)}
+.recipe-row .rk{flex:0 0 64px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+.recipe-row .rv{font-family:var(--mono);font-size:16px}
+.recipe table.bucket{width:100%;border-collapse:collapse}
+.recipe table.bucket td{padding:7px 14px;border-top:1px solid var(--line);font-family:var(--mono)}
+.recipe table.bucket td.cond{color:var(--text)}
+.recipe table.bucket td.dig{width:1%;white-space:nowrap;text-align:right;font-weight:600;color:var(--accent);font-size:17px}
+.recipe .tienote{padding:8px 14px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+<header>
+  <div>
+    <div class="eyebrow">Machine-verified card mathematics</div>
+    <h1>Fair &amp; <em>Uneven</em></h1>
+    <p class="sub">A practice table for the universal radix ACAAN: any thought-of card, any named number, in three to five deals. Simulate it, then drill the mental arithmetic and the pickup until both are automatic.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+    <span id="selftest" class="badge"><span class="dot"></span> verifying in your browser&#8230;</span>
+    <button class="btn" id="themebtn" title="Toggle theme">&#9680; theme</button>
+  </div>
+</header>
+
+<div class="panel">
+  <div class="row">
+    <label class="f grow">Form
+      <select id="form">
+        <option value="f21" selected>3 piles &#8226; 4 deals &#8226; 21 cards (recommended)</option>
+        <option value="f3">3 piles &#8226; 5 deals &#8226; 52 cards (classic)</option>
+        <option value="f4">4 piles &#8226; 4 deals &#8226; 52 cards</option>
+        <option value="f6">6 piles &#8226; 3 deals &#8226; 52 cards (expert)</option>
+        <option value="cx">custom packet &#8212; any piles, any size</option>
+      </select>
+    </label>
+    <label class="f cxo hide">Piles b<input type="number" id="cb" value="3" min="2" max="12" style="width:80px"></label>
+    <label class="f cxo hide">Cards N<input type="number" id="cn" value="27" min="3" max="120" style="width:90px"></label>
+    <label class="f cxo hide">Deals r<input type="number" id="cr" value="4" min="1" max="8" style="width:80px"></label>
+    <div class="grow small muted" id="formnote"></div>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" data-view="table" aria-selected="true">The table</button>
+  <button class="tab" role="tab" data-view="math" aria-selected="false">Drill: the math</button>
+  <button class="tab" role="tab" data-view="pickup" aria-selected="false">Drill: the pickup</button>
+  <button class="tab" role="tab" data-view="crib" aria-selected="false">Crib sheet</button>
+</div>
+
+<section id="v-table" class="panel">
+  <div class="row" style="align-items:flex-end">
+    <label class="f">Named number n<input type="number" id="tn" value="15" min="1" style="width:90px"></label>
+    <label class="f grow">Thought-of card<select id="tc"></select></label>
+    <button class="btn" id="trand">random deal</button>
+    <button class="btn" id="tverify">verify every case</button>
+    <span class="badge" id="tvfb" style="display:none"></span>
+  </div>
+  <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+  <div class="row" style="gap:26px;align-items:flex-start">
+    <div>
+      <div class="eyebrow">Pickup code</div>
+      <div class="code" id="tcode">&#8212;</div>
+      <div class="hint" id="tcodehint"></div>
+    </div>
+    <div class="grow scroll">
+      <table class="trace"><thead><tr>
+        <th id="th-state">m</th><th>digit written</th><th>next</th><th>rule</th>
+      </tr></thead><tbody id="ttrace"></tbody></table>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+  <div class="row">
+    <button class="btn" id="tprev">&#8249; back</button>
+    <div class="mono grow" id="tstep" style="text-align:center"></div>
+    <button class="btn primary" id="tnext">deal &#8250;</button>
+  </div>
+  <div id="tstage" style="margin-top:16px"></div>
+</section>
+
+<section id="v-math" class="panel hide">
+  <div class="row">
+    <label class="f">Drill<select id="mmode">
+      <option value="code">Whole code &#8212; n in, pickups out</option>
+      <option value="step">Step by step &#8212; one digit at a time</option>
+      <option value="micro">Micro-steps &#8212; every operation, one at a time</option>
+    </select></label>
+    <label class="f">Show running state<select id="mhelp">
+      <option value="1">yes (learning)</option><option value="0">no (performing)</option>
+    </select></label>
+    <button class="btn" id="mnew" style="margin-left:auto">new number</button>
+  </div>
+  <div style="margin-top:20px;text-align:center">
+    <div class="eyebrow">Spectator names</div>
+    <div class="big" id="mq">n = &#8212;</div>
+    <div class="mono muted small" id="mstate" style="margin-top:4px"></div>
+  </div>
+  <div id="mrecipe" class="hide" style="margin-top:14px;text-align:left"></div>
+  <div id="mcode" style="margin-top:18px">
+    <div class="row" style="justify-content:center" id="minputs"></div>
+    <div class="row" style="justify-content:center;margin-top:12px">
+      <button class="btn primary" id="mcheck">check</button>
+      <button class="btn" id="mgive">show me</button>
+    </div>
+  </div>
+  <div id="mstep" class="hide" style="margin-top:18px">
+    <div class="row" style="justify-content:center" id="mdigits"></div>
+    <div class="row" style="justify-content:center;margin-top:12px">
+      <label class="f" style="align-items:center">new value
+        <input type="number" id="mnextval" style="width:120px"></label>
+      <button class="btn primary" id="mstepgo" style="align-self:flex-end">enter</button>
+    </div>
+  </div>
+  <div id="mmicro" class="hide" style="margin-top:18px">
+    <div class="mono muted small" id="micnote" style="text-align:center;margin-bottom:10px"></div>
+    <div class="row" style="justify-content:center" id="micdigits"></div>
+    <div id="micop" class="hide" style="margin-top:16px;text-align:center">
+      <div class="mono" id="micformula" style="margin-bottom:10px;font-size:15px;color:var(--muted)"></div>
+      <div class="mono big" id="micprompt">&#8212;</div>
+      <div class="row" style="justify-content:center;margin-top:12px">
+        <input type="number" id="micval" style="width:140px">
+        <button class="btn primary" id="micgo">enter</button>
+      </div>
+    </div>
+  </div>
+  <div class="fb" id="mfb" style="text-align:center;margin-top:14px"></div>
+  <div class="scroll" id="mreveal" style="margin-top:8px"></div>
+  <div class="stats" style="margin-top:20px">
+    <div class="stat"><b id="s-att">0</b><span>attempts</span></div>
+    <div class="stat"><b id="s-acc">&#8212;</b><span>accuracy</span></div>
+    <div class="stat"><b id="s-str">0</b><span>streak</span></div>
+    <div class="stat"><b id="s-best">0</b><span>best</span></div>
+    <div class="stat"><b id="s-time">&#8212;</b><span>avg sec</span></div>
+  </div>
+  <p class="hint" style="margin-top:14px">Two symbols only: <b>&#215;</b> means multiply, <b>&#8226;</b> just separates items &#8212; never both. Two steps every round: look up which <b>bucket</b> the current value falls in to get the <b>digit</b>, then plug that same digit into the <b>update formula</b> to get the next value. &#8220;Show running state&#8221; displays the bucket table as a reference (not the answer); after you answer, the worked arithmetic is shown with your actual numbers filled in. <b>Micro-steps</b> breaks all of that into one small question at a time &#8212; starting value, then bucket/digit, then each multiply and each add or subtract on its own &#8212; so you drill the individual arithmetic instead of the whole round at once.</p>
+</section>
+
+<section id="v-pickup" class="panel hide">
+  <p class="hint" style="margin-top:0">The digit is <b>how many of the other piles end up above the pointed pile</b>, with those others keeping their left-to-right order. Everything stays face up. Click the piles in the order you would stack them &#8212; <b>top of the finished packet first</b>.</p>
+  <div class="row" style="margin:14px 0 6px">
+    <div class="grow"><span class="eyebrow">This round</span><div class="mono big" id="pq">&#8212;</div></div>
+    <button class="btn" id="pnew">new round</button>
+  </div>
+  <div class="mono" id="pformula" style="margin:2px 0 14px;font-size:15px;color:var(--muted)"></div>
+  <div class="piles" id="ppiles"></div>
+  <div class="row" style="margin-top:14px">
+    <div class="mono grow">your stack, top &#8594; bottom: <span id="porder" class="muted">(click piles)</span></div>
+    <button class="btn" id="pundo">undo</button>
+  </div>
+  <div class="fb" id="pfb" style="margin-top:10px"></div>
+  <div class="stats" style="margin-top:18px">
+    <div class="stat"><b id="p-att">0</b><span>rounds</span></div>
+    <div class="stat"><b id="p-acc">&#8212;</b><span>accuracy</span></div>
+    <div class="stat"><b id="p-str">0</b><span>streak</span></div>
+  </div>
+</section>
+
+<section id="v-crib" class="panel hide">
+  <div id="cribbody"></div>
+</section>
+
+<footer>
+  Every rule here is the one closed form <span class="mono">z &#8592; &#8722;b&#215;z + (2a+1&#8722;b)&#215;N + 2&#215;corr(a)</span>, verified exhaustively by <span class="mono">deck_sim.verify()</span> over the full free-choice domain (t20&#8211;t24). This page re-runs that verification in your browser on load &#8212; the badge at the top is a live result, not a claim.
+</footer>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+
+/* ---------- deck primitives: exact ports of deck_sim.py ---------- */
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUITS=[['C','\u2663'],['D','\u2666'],['H','\u2665'],['S','\u2660']];
+function cardName(i,N){ if(N!==52) return String(i); const s=SUITS[Math.floor(i/13)],r=RANKS[i%13];
+  return r+s[1]; }
+function isRed(i,N){ return N===52 && (Math.floor(i/13)===1||Math.floor(i/13)===2); }
+function dealIntoPiles(deck,b){ const p=Array.from({length:b},()=>[]);
+  deck.forEach((c,i)=>p[i%b].unshift(c)); return p; }          // last dealt = top
+function gatherPosition(piles,j,above){ const o=piles.filter((_,k)=>k!==j);
+  return [].concat(...o.slice(0,above), piles[j], ...o.slice(above)); }
+function pileOrder(b,j,above){ const o=[...Array(b).keys()].filter(k=>k!==j);
+  return o.slice(0,above).concat([j],o.slice(above)); }
+
+/* ---------- the law: general closed form (t22) ---------- */
+const corr=(a,b,rho)=>Math.min(a,rho)*(b-Math.max(a+1,rho));
+function lawStep(z,a,b,N){ return -b*z + (2*a+1-b)*N + 2*corr(a,b,N%b); }
+function lawDigit(z,b,N){ let best=null;
+  for(let a=0;a<b;a++){ const v=Math.abs(lawStep(z,a,b,N));
+    if(best===null||v<best.v||(v===best.v&&a>best.a)) best={v,a}; }   // tie \u2192 larger a
+  return best.a; }
+
+/* ---------- the four human forms ---------- */
+const FORMS={
+ f21:{id:'f21',b:3,N:21,r:4,label:'3 piles \u2022 4 deals \u2022 21 cards',sym:'m',K:[19,40,61],
+     init:n=>n-1,
+     digit:m=>m<=6?0:(m<=13?1:2),
+     next:(m,a)=>[19,40,61][a]-3*m,
+     rule:m=>m<=6?'m \u2264 6 \u2192 0, new m = 19 \u2212 3m':(m<=13?'7 \u2264 m \u2264 13 \u2192 1, new m = 40 \u2212 3m':'m \u2265 14 \u2192 2, new m = 61 \u2212 3m'),
+     spec:{start:'m = n \u2212 1',buckets:[['m \u2264 6','0'],['7 \u2264 m \u2264 13','1'],['m \u2265 14','2']],update:'new m = 19 \u2212 3d  (d = distance from bucket floor: 0, 7, or 14)'}},
+ f3:{id:'f3',b:3,N:52,r:5,label:'3 piles \u2022 5 deals',sym:'m',K:[50,103,154],
+     init:n=>n-1,
+     digit:m=>m<=16?0:(m<=34?1:2),
+     next:(m,a)=>[50,103,154][a]-3*m,
+     rule:m=>m<=16?'m \u2264 16 \u2192 0, new m = 50 \u2212 3m':(m<=34?'17 \u2264 m \u2264 34 \u2192 1, new m = 103 \u2212 3m':'m \u2265 35 \u2192 2, new m = 154 \u2212 3m'),
+     spec:{start:'m = n \u2212 1',buckets:[['m \u2264 16','0'],['17 \u2264 m \u2264 34','1'],['m \u2265 35','2']],update:'new m = (50, 103, 154)[digit] \u2212 3m'}},
+ f4:{id:'f4',b:4,N:52,r:4,label:'4 piles \u2022 4 deals',sym:'z',
+     init:n=>2*n-53,
+     digit:z=>z<-26?0:(z<0?1:(z<26?2:3)),
+     next:(z,a)=>-4*z+(2*a-3)*52,
+     rule:z=>(z<-26?'z < \u221226 \u2192 0':(z<0?'\u221226 \u2264 z < 0 \u2192 1':(z<26?'0 \u2264 z < 26 \u2192 2':'z \u2265 26 \u2192 3')))+', new z = \u22124\u00d7z + (2\u00d7digit \u2212 3)\u00d752',
+     spec:{start:'z = 2n \u2212 53',buckets:[['z < \u221226','0'],['\u221226 \u2264 z < 0','1'],['0 \u2264 z < 26','2'],['z \u2265 26','3']],update:'new z = \u22124\u00d7z + (2\u00d7digit \u2212 3)\u00d752'}},
+ f6:{id:'f6',b:6,N:52,r:3,label:'6 piles \u2022 3 deals',sym:'z',
+     T:[-260,-152,-44,64,164,260], TH:[-34,-16,2,19,36],
+     init:n=>2*n-53,
+     digit(z){let a=0;for(const t of this.TH) if(z>=t) a++; return a;},
+     next(z,a){return -6*z+this.T[a];},
+     rule(z){const lo=['z \u2264 \u221235','\u221234\u2026\u221217','\u221216\u20261','2\u202618','19\u202635','z \u2265 36'][this.digit(z)];
+       return lo+' \u2192 '+this.digit(z)+', new z = \u22126z + ('+this.T[this.digit(z)]+')';},
+     spec:{start:'z = 2n \u2212 53',buckets:[['z \u2264 \u221235','0'],['\u221234 \u2026 \u221217','1'],['\u221216 \u2026 1','2'],['2 \u2026 18','3'],['19 \u2026 35','4'],['z \u2265 36','5']],update:'new z = \u22126z + (\u2212260, \u2212152, \u221244, +64, +164, +260)[digit]',note:'z = 19 is the one true tie \u2014 it is deliberately digit 4, not 3'}},
+};
+
+function customForm(b,N,r){ return {id:'cx',b,N,r,label:b+' piles \u2022 '+r+' deals \u2022 '+N+' cards',sym:'z',
+  init:n=>2*(n-1)-(N-1),
+  digit:z=>lawDigit(z,b,N),
+  next:(z,a)=>lawStep(z,a,b,N),
+  rule:z=>'digit a minimising |\u2212'+b+'\u00d7z + (2a+1\u2212'+b+')\u00d7'+N+' + 2\u00d7corr(a)|, \u03c1 = '+(N%b),
+  spec:{start:'z = 2(n\u22121) \u2212 (N\u22121)',
+        formula:'pick the digit a (0..b\u22121) that minimises |\u2212b\u00d7z + (2a+1\u2212b)\u00d7N + 2\u00d7corr(a)|',
+        corr:'corr(a) = min(a,\u03c1)\u00d7(b \u2212 max(a+1,\u03c1)),  \u03c1 = N mod '+b+'',
+        update:'then z \u2190 that value'}}; }
+
+let FORM=FORMS.f4;
+function trace(form,n){ let s=form.init(n); const rows=[];
+  for(let i=0;i<form.r;i++){ const a=form.digit(s), nx=form.next(s,a);
+    rows.push({state:s,digit:a,next:nx,rule:form.rule(s)}); s=nx; }
+  return rows; }
+const pickups = (form,n) => trace(form,n).map(r=>r.digit).reverse();
+
+/* ---------- simulate the physical procedure ---------- */
+function play(form,n,card){                     // card = start position 0..N-1
+  let d=[...Array(form.N).keys()]; const rounds=[];
+  for(const a of pickups(form,n)){
+    const piles=dealIntoPiles(d,form.b);
+    const j=piles.findIndex(p=>p.includes(card));
+    const after=gatherPosition(piles,j,a);
+    rounds.push({before:d,piles,pointed:j,digit:a,after,order:pileOrder(form.b,j,a)});
+    d=after; }
+  return {rounds,final:d,ok:d[n-1]===card,landed:d.indexOf(card)+1}; }
+
+/* ---------- self-test: the whole domain, in the browser ---------- */
+function selfTest(){
+  let cases=0,bad=0,forms=0;
+  for(const k of ['f21','f3','f4','f6']){ const F=FORMS[k]; forms++;
+    for(let n=1;n<=F.N;n++){
+      // human rule must agree with the general closed form, digit for digit
+      let z=2*(n-1)-(F.N-1);
+      for(const row of trace(F,n)){ const a=lawDigit(z,F.b,F.N);
+        if(a!==row.digit) bad++; z=lawStep(z,a,F.b,F.N); }
+      for(let c=0;c<F.N;c++){ cases++; if(!play(F,n,c).ok) bad++; } } }
+  return {cases,bad,forms}; }
+
+/* ---------- rendering helpers ---------- */
+function chip(i,N,mark){ const e=document.createElement('span');
+  e.className='chip'+(isRed(i,N)?' red':'')+(mark?' mark':''); e.textContent=cardName(i,N); return e; }
+function packetEl(list,N,card,markPos){ const w=document.createElement('div'); w.className='packet';
+  list.forEach((c,idx)=>{ const e=chip(c,N,c===card);
+    if(markPos && idx===markPos-1) e.classList.add('slot'); w.appendChild(e); }); return w; }
+
+/* ================= view: the table ================= */
+let step=0;
+function fillCards(){ const sel=$('#tc'); const keep=+sel.value||0; sel.innerHTML='';
+  for(let i=0;i<FORM.N;i++){ const o=document.createElement('option'); o.value=i;
+    o.textContent=(FORM.N===52?cardName(i,52):'token '+i)+'  (starts '+(i+1)+' from the face)'; sel.appendChild(o); }
+  sel.value=Math.min(keep,FORM.N-1); }
+function renderTable(){
+  const n=Math.min(Math.max(1,+$('#tn').value||1),FORM.N); $('#tn').value=n; $('#tn').max=FORM.N;
+  const card=+$('#tc').value||0, rows=trace(FORM,n), res=play(FORM,n,card);
+  $('#th-state').textContent=FORM.sym;
+  $('#tcode').textContent=pickups(FORM,n).join(' ');
+  $('#tcodehint').textContent='digits written '+rows.map(r=>r.digit).join(',')+' \u2014 then reversed';
+  const tb=$('#ttrace'); tb.innerHTML='';
+  rows.forEach(r=>{ const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+r.state+'</td><td><b>'+r.digit+'</b></td><td>'+r.next+'</td>'+
+      '<td class="muted" style="font-family:var(--sans);font-size:13px">'+r.rule+'</td>'; tb.appendChild(tr); });
+  step=Math.min(step,FORM.r);
+  const st=$('#tstage'); st.innerHTML='';
+  if(step===0){
+    $('#tstep').textContent='before any deal \u2014 the packet in its shuffled order';
+    st.appendChild(packetEl(res.rounds[0].before,FORM.N,card));
+  } else {
+    const R=res.rounds[step-1];
+    $('#tstep').textContent='deal '+step+' of '+FORM.r+' \u2014 pickup digit '+R.digit;
+    const pw=document.createElement('div'); pw.className='piles';
+    R.piles.forEach((p,j)=>{ const el=document.createElement('div');
+      el.className='pile'+(j===R.pointed?' pointed':'');
+      el.innerHTML='<h4>pile '+(j+1)+(j===R.pointed?' \u25c2':'')+'</h4>';
+      p.forEach(c=>el.appendChild(chip(c,FORM.N,c===card))); pw.appendChild(el); });
+    st.appendChild(pw);
+    const note=document.createElement('p'); note.className='hint';
+    note.innerHTML='Spectator points at <b>pile '+(R.pointed+1)+'</b>. Digit <b>'+R.digit+
+      '</b> \u2192 put <b>'+R.digit+'</b> of the other piles above it: stack top\u2192bottom as <b>pile '+
+      R.order.map(j=>j+1).join(' \u2022 pile ')+'</b>.';
+    st.appendChild(note);
+    const h=document.createElement('div'); h.className='eyebrow'; h.textContent='packet after pickup '+step;
+    h.style.marginTop='12px'; st.appendChild(h);
+    st.appendChild(packetEl(R.after,FORM.N,card,step===FORM.r?n:0));
+    if(step===FORM.r){ const f=document.createElement('p');
+      f.className='badge '+(res.ok?'ok':'no'); f.style.marginTop='12px';
+      f.innerHTML='<span class="dot"></span>'+(res.ok
+        ?cardName(card,FORM.N)+' is now card '+n+' from the face \u2014 count them off.'
+        :'landed at '+res.landed+', wanted '+n);
+      st.appendChild(f); }
+  }
+  $('#tprev').disabled=step===0; $('#tnext').disabled=step===FORM.r;
+}
+$('#tnext').onclick=()=>{step++;renderTable();};
+$('#tprev').onclick=()=>{step--;renderTable();};
+$('#trand').onclick=()=>{ $('#tn').value=1+Math.floor(Math.random()*FORM.N);
+  $('#tc').value=Math.floor(Math.random()*FORM.N); step=0; renderTable(); };
+$('#tn').oninput=()=>{step=0;renderTable();};
+$('#tverify').onclick=()=>{ const F=FORM; let bad=0,c=0,w=null;
+  for(let n=1;n<=F.N;n++) for(let card=0;card<F.N;card++){ c++;
+    const res=play(F,n,card); if(!res.ok){ bad++; if(!w) w={n,card,landed:res.landed}; } }
+  const el=$('#tvfb'); el.style.display=''; el.className='badge '+(bad?'no':'ok');
+  el.innerHTML='<span class="dot"></span>'+(bad
+    ? bad+' of '+c+' fail (e.g. n='+w.n+', card starting '+(w.card+1)+' lands at '+w.landed+')'
+    : c.toLocaleString()+' cases (every card \u00d7 every n) \u2014 all land correctly'); };
+$('#tc').onchange=()=>renderTable();
+
+/* ================= view: math drill ================= */
+const S={att:0,ok:0,streak:0,best:0,time:0,patt:0,pok:0,pstreak:0};
+try{ Object.assign(S,JSON.parse(localStorage.getItem('fu-stats')||'{}')); }catch(e){}
+function saveStats(){ try{ localStorage.setItem('fu-stats',JSON.stringify(S)); }catch(e){} }
+function paintStats(){ $('#s-att').textContent=S.att;
+  $('#s-acc').textContent=S.att?Math.round(100*S.ok/S.att)+'%':'\u2014';
+  $('#s-str').textContent=S.streak; $('#s-best').textContent=S.best;
+  $('#s-time').textContent=S.ok?(S.time/S.ok/1000).toFixed(1):'\u2014';
+  $('#p-att').textContent=S.patt; $('#p-str').textContent=S.pstreak;
+  $('#p-acc').textContent=S.patt?Math.round(100*S.pok/S.patt)+'%':'\u2014'; }
+
+function subLine(F,state,digit,next){
+  if(F.K){ const K=F.K[digit];
+    return 'new m = '+K+' \u2212 3\u00d7'+state+' = '+K+' \u2212 '+(3*state)+' = '+next; }
+  if(F.id==='f4'){ const c=2*digit-3;
+    return 'new z = \u22124\u00d7'+state+' + ('+c+')\u00d752 = '+(-4*state)+' + '+(c*52)+' = '+next; }
+  if(F.id==='f6'){ const t=F.T[digit];
+    return 'new z = \u22126\u00d7'+state+' + ('+t+') = '+(-6*state)+' + '+t+' = '+next; }
+  const b=F.b, N=F.N, rho=N%b, cr=corr(digit,b,rho), coef=2*digit+1-b;
+  return 'new z = \u2212'+b+'\u00d7'+state+' + ('+coef+')\u00d7'+N+' + 2\u00d7'+cr+
+    ' = '+(-b*state)+' + '+(coef*N)+' + '+(2*cr)+' = '+next;
+}
+let Q=null;
+function newQ(){
+  const n=1+Math.floor(Math.random()*FORM.N);
+  Q={n,rows:trace(FORM,n),i:0,t0:Date.now(),done:false};
+  $('#mq').textContent='n = '+n; $('#mfb').textContent=''; $('#mfb').className='fb';
+  $('#mreveal').innerHTML='';
+  const mode=$('#mmode').value;
+  $('#mcode').classList.toggle('hide',mode!=='code');
+  $('#mstep').classList.toggle('hide',mode!=='step');
+  $('#mmicro').classList.toggle('hide',mode!=='micro');
+  const inp=$('#minputs'); inp.innerHTML='';
+  if(mode==='code'){
+    const lab=document.createElement('span'); lab.className='muted small';
+    lab.textContent='pickups, first pickup first:'; inp.appendChild(lab);
+    for(let i=0;i<FORM.r;i++){ const e=document.createElement('input');
+      e.type='number'; e.min=0; e.max=FORM.b-1; e.className='dinp'; e.style.width='58px';
+      e.style.textAlign='center'; e.style.fontSize='19px';
+      e.oninput=()=>{ if(e.value.length>=1&&e.nextElementSibling) e.nextElementSibling.focus(); };
+      e.onkeydown=ev=>{ if(ev.key==='Enter') checkCode(); };
+      inp.appendChild(e); }
+    setTimeout(()=>inp.querySelector('input')?.focus(),0);
+  } else if(mode==='step'){
+    const dg=$('#mdigits'); dg.innerHTML='';
+    for(let a=0;a<FORM.b;a++){ const b=document.createElement('button');
+      b.className='dbtn'; b.textContent=a; b.onclick=()=>stepGuess(a); dg.appendChild(b); }
+    $('#mnextval').value='';
+  } else {
+    micRoundStart();
+  }
+  paintState();
+}
+function paintState(){
+  const help=$('#mhelp').value==='1', mode=$('#mmode').value;
+  if(mode==='step'||mode==='micro'){
+    $('#mstate').textContent=(Q.i<FORM.r? 'round '+(Q.i+1)+' of '+FORM.r+' \u2014 current '+FORM.sym+' = '+Q.rows[Q.i].state : '');
+  } else {
+    $('#mstate').textContent=help? 'start: '+FORM.sym+' = '+Q.rows[0].state : '';
+  }
+  $('#mrecipe').classList.toggle('hide', !help);
+  if(help) $('#mrecipe').innerHTML='<div class="eyebrow" style="margin-bottom:6px">reference \u2014 look up the bucket, read off the digit</div>'+buildRecipe(FORM);
+}
+
+/* ---- micro-steps: every arithmetic operation asked on its own ---- */
+function microInit(F,n){
+  if(F.K) return [ {p:n+' \u2212 1', a:n-1} ];
+  if(F.id==='f4'||F.id==='f6'){ const t1=2*n;
+    return [ {p:'2 \u00d7 '+n, a:t1}, {p:t1+' \u2212 53', a:t1-53} ]; }
+  const N=F.N, t1=n-1, t2=2*t1, t3=N-1;
+  return [ {p:n+' \u2212 1', a:t1}, {p:'2 \u00d7 '+t1, a:t2}, {p:N+' \u2212 1', a:t3}, {p:t2+' \u2212 '+t3, a:t2-t3} ];
+}
+function microOps(F,state,digit){
+  if(F.K){ const K=F.K[digit], t1=3*state;
+    return [ {p:'3 \u00d7 '+state, a:t1}, {p:K+' \u2212 '+t1, a:K-t1} ]; }
+  if(F.id==='f4'){ const c=2*digit-3, t1=-4*state, t2=c*52;
+    return [ {p:'\u22124 \u00d7 ('+state+')', a:t1}, {p:'('+c+') \u00d7 52', a:t2}, {p:t1+' + '+t2, a:t1+t2} ]; }
+  if(F.id==='f6'){ const T=F.T[digit], t1=-6*state;
+    return [ {p:'\u22126 \u00d7 ('+state+')', a:t1}, {p:t1+' + ('+T+')', a:t1+T} ]; }
+  const b=F.b,N=F.N,rho=N%b, cr=corr(digit,b,rho), coef=2*digit+1-b;
+  const t1=-b*state, t2=coef*N, t3=2*cr;
+  return [ {p:'\u2212'+b+' \u00d7 ('+state+')', a:t1}, {p:'('+coef+') \u00d7 '+N, a:t2},
+    {p:'2 \u00d7 '+cr, a:t3}, {p:t1+' + '+t2+' + '+t3, a:t1+t2+t3} ];
+}
+function formulaSpec(F,state,digit,phase){
+  if(phase==='init'){
+    const n=Q.n;
+    if(F.K) return {prefix:'m = ', segs:[n+' \u2212 1'], groupMap:[]};
+    if(F.id==='f4'||F.id==='f6') return {prefix:F.sym+' = ', segs:['2\u00d7'+n,' \u2212 53'], groupMap:[0]};
+    return {prefix:F.sym+' = ', segs:['2\u00d7('+n+' \u2212 1)',' \u2212 ('+F.N+' \u2212 1)'], groupMap:[0,0,1]};
+  }
+  if(F.K){ const K=F.K[digit];
+    return {prefix:'new m = ', segs:[String(K),' \u2212 3\u00d7'+state], groupMap:[1]}; }
+  if(F.id==='f4'){ const c=2*digit-3;
+    return {prefix:'new z = ', segs:['\u22124\u00d7'+state,' + ('+c+')\u00d752'], groupMap:[0,1]}; }
+  if(F.id==='f6'){ const T=F.T[digit];
+    return {prefix:'new z = ', segs:['\u22126\u00d7'+state,' + ('+T+')'], groupMap:[0]}; }
+  const b=F.b,N=F.N,rho=N%b, cr=corr(digit,b,rho), coef=2*digit+1-b;
+  return {prefix:'new z = ', segs:['\u2212'+b+'\u00d7'+state,' + ('+coef+')\u00d7'+N,' + 2\u00d7'+cr], groupMap:[0,1,2]};
+}
+function renderFormula(){
+  const {prefix,segs}=Q.fspec;
+  $('#micformula').innerHTML=prefix+segs.map((t,i)=>'<span class="fseg" data-i="'+i+'">'+t+'</span>').join('');
+}
+function highlightFormula(opIdx){
+  const gm=Q.fgroupMap;
+  const active = opIdx<gm.length ? [gm[opIdx]] : Q.fspec.segs.map((_,i)=>i);
+  $$('#micformula .fseg').forEach(el=>el.classList.toggle('hi',active.includes(+el.dataset.i)));
+}
+function micRoundStart(){
+  if(!Q||Q.done) return;
+  if(Q.i===0 && !Q.initDone) micBeginInit(); else micBeginDigit();
+}
+function micBeginInit(){
+  Q.micPhase='init'; Q.ops=microInit(FORM,Q.n); Q.opIdx=0; Q.opT0=Date.now();
+  Q.fspec=formulaSpec(FORM,null,null,'init'); Q.fgroupMap=Q.fspec.groupMap; renderFormula();
+  $('#micnote').textContent='compute the starting '+FORM.sym+' from n';
+  $('#micdigits').innerHTML=''; $('#mfb').textContent=''; $('#mfb').className='fb';
+  micShowOp();
+}
+function micBeginDigit(){
+  Q.micPhase='digit'; Q.opT0=Date.now(); paintState();
+  const row=Q.rows[Q.i];
+  $('#micnote').textContent='round '+(Q.i+1)+' of '+FORM.r+' \u2014 which bucket is '+FORM.sym+' = '+row.state+' in?';
+  const dg=$('#micdigits'); dg.innerHTML='';
+  for(let a=0;a<FORM.b;a++){ const btn=document.createElement('button');
+    btn.className='dbtn'; btn.textContent=a; btn.onclick=()=>micDigitPick(a); dg.appendChild(btn); }
+  $('#micop').classList.add('hide'); $('#mfb').textContent=''; $('#mfb').className='fb';
+}
+function micDigitPick(a){
+  if(!Q||Q.done||Q.micPhase!=='digit') return;
+  const row=Q.rows[Q.i], ok=a===row.digit;
+  score(ok,Date.now()-Q.opT0);
+  $$('#micdigits .dbtn').forEach((btn,i)=>btn.classList.toggle('sel',i===a));
+  $('#mfb').className='fb '+(ok?'ok':'no');
+  $('#mfb').textContent=ok?'\u2713 digit '+row.digit:'\u2717 digit is '+row.digit+' \u2014 '+FORM.rule(row.state);
+  Q.micPhase='ops'; Q.ops=microOps(FORM,row.state,row.digit); Q.opIdx=0; Q.opT0=Date.now();
+  Q.fspec=formulaSpec(FORM,row.state,row.digit,'round'); Q.fgroupMap=Q.fspec.groupMap; renderFormula();
+  micShowOp();
+}
+function micShowOp(){
+  if(Q.opIdx>=Q.ops.length){
+    $('#micop').classList.add('hide');
+    if(Q.micPhase==='init'){ Q.initDone=true; micBeginDigit(); return; }
+    Q.i++;
+    if(Q.i>=FORM.r){ Q.done=true; $('#mfb').className='fb ok';
+      $('#mfb').textContent='\u2713 all '+FORM.r+' rounds \u2014 reverse them: '+Q.rows.map(r=>r.digit).reverse().join(' ');
+      $('#micnote').textContent=''; $('#micdigits').innerHTML='';
+      revealTrace(); } else { micBeginDigit(); }
+    return;
+  }
+  $('#micop').classList.remove('hide');
+  $('#micprompt').textContent=Q.ops[Q.opIdx].p+' = ?';
+  highlightFormula(Q.opIdx);
+  $('#micval').value=''; setTimeout(()=>{ const el=$('#micval'); if(el) el.focus(); },0);
+}
+function micSubmitOp(){
+  if(!Q||Q.done||(Q.micPhase!=='ops'&&Q.micPhase!=='init')) return;
+  const v=$('#micval').value; if(v===''){ $('#mfb').textContent='enter a value'; $('#mfb').className='fb'; return; }
+  const op=Q.ops[Q.opIdx], ok=(+v===op.a);
+  score(ok,Date.now()-Q.opT0);
+  $('#mfb').className='fb '+(ok?'ok':'no');
+  $('#mfb').textContent=ok?'\u2713 correct':'\u2717 '+op.p+' = '+op.a;
+  Q.opIdx++; Q.opT0=Date.now();
+  micShowOp();
+}
+function revealTrace(){
+  const t=document.createElement('table'); t.className='trace';
+  t.innerHTML='<thead><tr><th>'+FORM.sym+'</th><th>digit</th><th>worked check</th></tr></thead>';
+  const tb=document.createElement('tbody');
+  Q.rows.forEach(r=>{ const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+r.state+'</td><td><b>'+r.digit+'</b></td><td class="small">'+subLine(FORM,r.state,r.digit,r.next)+'</td>'; tb.appendChild(tr); });
+  t.appendChild(tb); const w=$('#mreveal'); w.innerHTML='';
+  const p=document.createElement('div'); p.className='mono'; p.style.marginBottom='6px';
+  p.innerHTML='pickups: <b style="color:var(--accent)">'+Q.rows.map(r=>r.digit).reverse().join(' ')+'</b>';
+  w.appendChild(p); w.appendChild(t);
+}
+function score(ok,ms){ S.att++; if(ok){S.ok++;S.streak++;S.best=Math.max(S.best,S.streak);S.time+=ms;}
+  else S.streak=0; saveStats(); paintStats(); }
+function checkCode(){
+  if(!Q||Q.done) return;
+  const want=Q.rows.map(r=>r.digit).reverse();
+  const got=$$('#minputs input').map(e=>e.value===''?null:+e.value);
+  if(got.some(v=>v===null)){ $('#mfb').textContent='fill every digit'; $('#mfb').className='fb'; return; }
+  const ok=got.every((v,i)=>v===want[i]); Q.done=true;
+  score(ok,Date.now()-Q.t0);
+  $('#mfb').className='fb '+(ok?'ok':'no');
+  $('#mfb').textContent=ok?('\u2713 correct \u2014 '+((Date.now()-Q.t0)/1000).toFixed(1)+'s'):('\u2717 '+got.join(' ')+' \u2014 correct is '+want.join(' '));
+  revealTrace();
+}
+function stepGuess(a){
+  if(!Q||Q.done) return;
+  $$('#mdigits .dbtn').forEach((b,i)=>b.classList.toggle('sel',i===a));
+  Q.guessDigit=a;
+}
+function stepEnter(){
+  if(!Q||Q.done) return;
+  const row=Q.rows[Q.i]; const nv=$('#mnextval').value;
+  if(Q.guessDigit===undefined){ $('#mfb').textContent='choose a digit first'; $('#mfb').className='fb'; return; }
+  if(nv===''){ $('#mfb').textContent='enter the new '+FORM.sym; $('#mfb').className='fb'; return; }
+  const ok=(Q.guessDigit===row.digit)&&(+nv===row.next);
+  score(ok,Date.now()-Q.t0);
+  if(ok){ Q.i++; Q.guessDigit=undefined; Q.t0=Date.now();
+    $$('#mdigits .dbtn').forEach(b=>b.classList.remove('sel')); $('#mnextval').value='';
+    if(Q.i>=FORM.r){ Q.done=true; $('#mfb').className='fb ok';
+      $('#mfb').textContent='\u2713 all '+FORM.r+' rounds \u2014 reverse them: '+Q.rows.map(r=>r.digit).reverse().join(' ');
+      revealTrace(); } else { $('#mfb').className='fb ok'; $('#mfb').textContent='\u2713 round '+Q.i+' good'; paintState(); }
+  } else { $('#mfb').className='fb no';
+    $('#mfb').textContent='\u2717 from '+FORM.sym+' = '+row.state+' the digit is '+row.digit+'. '+subLine(FORM,row.state,row.digit,row.next);
+    Q.guessDigit=undefined; $$('#mdigits .dbtn').forEach(b=>b.classList.remove('sel'));
+    $('#mnextval').value=''; Q.i++; Q.t0=Date.now();
+    if(Q.i>=FORM.r){ Q.done=true; revealTrace(); } else paintState(); }
+}
+$('#mcheck').onclick=checkCode;
+$('#mstepgo').onclick=stepEnter;
+$('#mnextval').onkeydown=e=>{ if(e.key==='Enter') stepEnter(); };
+$('#micgo').onclick=micSubmitOp;
+$('#micval').onkeydown=e=>{ if(e.key==='Enter') micSubmitOp(); };
+$('#mgive').onclick=()=>{ if(Q&&!Q.done){ Q.done=true; score(false,0);
+  $('#mfb').className='fb'; $('#mfb').textContent='shown \u2014 no score';
+  if($('#mmode').value==='micro'){ $('#micop').classList.add('hide'); $('#micdigits').innerHTML=''; $('#micnote').textContent=''; } }
+  revealTrace(); };
+$('#mnew').onclick=newQ; $('#mmode').onchange=newQ; $('#mhelp').onchange=paintState;
+
+/* ================= view: pickup drill ================= */
+let P=null;
+function newP(){
+  const b=FORM.b, j=Math.floor(Math.random()*b), a=Math.floor(Math.random()*b);
+  P={b,j,a,want:pileOrder(b,j,a),got:[]};
+  $('#pq').innerHTML='pile <b>'+(j+1)+'</b> pointed at &nbsp;\u2022&nbsp; digit <b>'+a+'</b>';
+  $('#pfb').textContent=''; $('#pfb').className='fb'; drawP();
+}
+function drawP(){
+  const w=$('#ppiles'); w.innerHTML='';
+  for(let k=0;k<P.b;k++){ const el=document.createElement('div');
+    el.className='pile'+(k===P.j?' pointed':''); el.style.cursor='pointer';
+    const pos=P.got.indexOf(k);
+    el.innerHTML='<h4>pile '+(k+1)+(k===P.j?' \u25c2':'')+'</h4>';
+    const t=document.createElement('div'); t.className='mono'; t.style.textAlign='center';
+    t.style.fontSize='20px'; t.textContent=pos>=0?(pos+1):'\u00b7'; el.appendChild(t);
+    el.onclick=()=>{ if(P.got.includes(k)||P.got.length>=P.b) return;
+      P.got.push(k); drawP(); if(P.got.length===P.b) judgeP(); };
+    w.appendChild(el); }
+  $('#porder').textContent=P.got.length?P.got.map(k=>'pile '+(k+1)).join(' \u2192 '):'(click piles)';
+  renderPFormula();
+}
+function renderPFormula(){
+  const {b,j,a,got}=P, plur=n=>n===1?'pile':'piles', below=b-1-a;
+  const segs=[ a+' other '+plur(a)+' above', 'pile '+(j+1), below+' other '+plur(below)+' below' ];
+  const active = got.length<a?0:(got.length===a?1:2);
+  $('#pformula').innerHTML='stack top \u2192 bottom: '+
+    segs.map((t,i)=>'<span class="fseg'+(i===active&&got.length<b?' hi':'')+'">'+t+'</span>').join(' \u00b7 ');
+}
+function judgeP(){
+  const ok=P.got.every((v,i)=>v===P.want[i]);
+  S.patt++; if(ok){S.pok++;S.pstreak++;} else S.pstreak=0; saveStats(); paintStats();
+  $('#pfb').className='fb '+(ok?'ok':'no');
+  $('#pfb').textContent=ok?'\u2713 right \u2014 '+P.a+' of the others above the pointed pile, order preserved'
+    :'\u2717 correct stack is '+P.want.map(k=>'pile '+(k+1)).join(' \u2192 ');
+}
+$('#pnew').onclick=newP;
+$('#pundo').onclick=()=>{ if(P){P.got.pop(); $('#pfb').textContent=''; drawP();} };
+
+/* ================= view: crib ================= */
+function buildRecipe(F){
+  const sp=F.spec;
+  let h='<div class="recipe">';
+  h+='<div class="recipe-row"><span class="rk">start</span><span class="rv">'+sp.start+'</span></div>';
+  if(sp.buckets){
+    h+='<table class="bucket"><tbody>';
+    sp.buckets.forEach(([cond,d])=>{ h+='<tr><td class="cond">'+cond+'</td><td class="dig">'+d+'</td></tr>'; });
+    h+='</tbody></table>';
+    if(sp.note) h+='<div class="tienote">'+sp.note+'</div>';
+  } else {
+    h+='<div class="recipe-row"><span class="rk">rule</span><span class="rv" style="font-size:14px">'+sp.formula+'</span></div>';
+    h+='<div class="recipe-row"><span class="rk">corr</span><span class="rv" style="font-size:14px">'+sp.corr+'</span></div>';
+  }
+  h+='<div class="recipe-row"><span class="rk">then</span><span class="rv">'+sp.update+'</span></div>';
+  h+='</div>';
+  return h;
+}
+function renderCrib(){
+  const F=FORM, ex=[1,15,Math.ceil(F.N/2),F.N].filter((v,i,s)=>s.indexOf(v)===i&&v>=1&&v<=F.N);
+  let h='<h2 style="font-family:var(--disp);margin-top:0">'+F.label+'</h2>';
+  h+=buildRecipe(F);
+  h+='<div class="eyebrow" style="margin-top:18px">The procedure, start to finish</div><ol class="steps">'+
+     '<li>Spread the deck <b>face up</b>. One spectator remembers any card they see; another names any number <b>n</b> from 1 to '+F.N+'.</li>'+
+     '<li>Compute '+F.r+' digits by the rule above, then <b>reverse them</b> \u2014 that is your pickup code.</li>'+
+     '<li>'+F.r+' times: deal the whole packet face up into <b>'+F.b+' piles</b>, left to right, one card at a time. The spectator points to the pile holding their card. Pick up so that <b>this round\'s digit</b> counts how many of the other piles land above the pointed pile, the others keeping their left-to-right order.</li>'+
+     '<li>Count n cards off the face. There it is.</li></ol>'+
+     '<p class="hint"><b>Never turn anything over.</b> A flip reverses the packet and breaks the arithmetic. The extra cards of an uneven deal go to the leftmost piles \u2014 that is exactly what the correction term in the law is for.</p>';
+  h+='<div class="eyebrow" style="margin-top:22px">Worked codes</div><div class="scroll"><table class="trace"><thead><tr><th>n</th><th>trace of '+F.sym+'</th><th>digits</th><th>pickups</th></tr></thead><tbody>';
+  ex.forEach(n=>{ const r=trace(F,n);
+    h+='<tr><td>'+n+'</td><td>'+r.map(x=>x.state).join(' \u2192 ')+' \u2192 '+r[r.length-1].next+'</td><td>'+
+       r.map(x=>x.digit).join(',')+'</td><td><b style="color:var(--accent)">'+r.map(x=>x.digit).reverse().join(' ')+'</b></td></tr>'; });
+  h+='</tbody></table></div>';
+  h+='<div class="eyebrow" style="margin-top:22px">Pickup, spelled out</div><div class="scroll"><table class="trace"><thead><tr><th>digit</th><th>stack top \u2192 bottom (pointed pile = P, others in left-to-right order)</th></tr></thead><tbody>';
+  for(let a=0;a<F.b;a++){ const o=pileOrder(F.b,0,a);
+    h+='<tr><td><b>'+a+'</b></td><td>'+o.map(k=>k===0?'<b>P</b>':'other '+k).join(' \u2022 ')+'</td></tr>'; }
+  h+='</tbody></table></div>';
+  h+='<div class="eyebrow" style="margin-top:22px">Why it works</div>'+
+     '<p class="hint">One deal-and-pickup sends a card at depth x to A \u2212 \u230ax/b\u230b: the deal divides the position by b and the pickup adds a constant you choose. So the position is a base-(\u2212b) expansion of the target\'s offset from the centre of the packet, with digit set spaced N apart and a small correction for uneven piles (\u03c1 = N mod b). Choosing the digit that leaves |z| smallest is exactly choosing the expansion that stays inside the packet. '+F.r+' rounds contract '+F.N+' possible positions to one.</p>';
+  $('#cribbody').innerHTML=h;
+}
+
+/* ================= wiring ================= */
+function setForm(){
+  const v=$('#form').value;
+  $$('.cxo').forEach(e=>e.classList.toggle('hide',v!=='cx'));
+  if(v==='cx'){ const b=Math.max(2,+$('#cb').value||3), N=Math.max(3,+$('#cn').value||27),
+      r=Math.max(1,+$('#cr').value||3); FORM=customForm(b,N,r);
+    const reach=Math.pow(b,r-1);
+    $('#formnote').innerHTML=reach>=N?'b<sup>r\u22121</sup> = '+reach+' \u2265 N \u2014 the law is guaranteed here.'
+      :'b<sup>r\u22121</sup> = '+reach+' &lt; N \u2014 below the sufficient bound. Sometimes still works (that is the open frontier); the table tab will tell you honestly.';
+  } else { FORM=FORMS[v];
+    $('#formnote').textContent=FORM.N+' cards \u2022 '+FORM.b+' piles \u2022 '+FORM.r+' deals \u2022 '+(FORM.b*FORM.r)+' physical steps in total.'; }
+  step=0; fillCards(); renderTable(); newQ(); newP(); renderCrib();
+  try{ localStorage.setItem('fu-form',v); }catch(e){}
+}
+$('#form').onchange=setForm;
+['cb','cn','cr'].forEach(id=>$('#'+id).onchange=setForm);
+$$('.tab').forEach(t=>t.onclick=()=>{
+  $$('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));
+  ['table','math','pickup','crib'].forEach(v=>$('#v-'+v).classList.toggle('hide',v!==t.dataset.view));
+});
+$('#themebtn').onclick=()=>{ const cur=document.documentElement.getAttribute('data-theme');
+  const dark=cur? cur==='dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark'); };
+
+try{ const f=localStorage.getItem('fu-form'); if(f) $('#form').value=f; }catch(e){}
+setForm(); paintStats();
+requestAnimationFrame(()=>setTimeout(()=>{
+  const t0=performance.now(), r=selfTest(), ms=Math.round(performance.now()-t0);
+  const b=$('#selftest'); b.className='badge '+(r.bad===0?'ok':'no');
+  b.innerHTML='<span class="dot"></span>'+(r.bad===0
+    ? r.cases.toLocaleString()+' cases verified here \u2022 0 failures \u2022 '+ms+'ms'
+    : r.bad+' FAILURES in '+r.cases+' cases');
+},30));
+</script>
